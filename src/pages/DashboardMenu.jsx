@@ -58,7 +58,7 @@ export default function DashboardMenu() {
     description: '',
     price: '',
     images: [],
-    category_id: '',
+    category_id: categories[0]?.id || '',
     is_available: true,
     is_popular: false,
     preparation_time: '15-20 mins'
@@ -260,7 +260,16 @@ export default function DashboardMenu() {
           <Button 
             onClick={() => {
               setEditingItem(null);
-              resetItemForm();
+              setItemForm({
+                name: '',
+                description: '',
+                price: '',
+                images: [],
+                category_id: categories[0]?.id || '',
+                is_available: true,
+                is_popular: false,
+                preparation_time: '15-20 mins'
+              });
               setShowItemDialog(true);
             }}
             className="bg-orange-500 hover:bg-orange-600"
