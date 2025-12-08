@@ -1,28 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { Upload, ChefHat, CheckCircle } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { 
+  ArrowLeft, ArrowRight, Store, Upload, MapPin, 
+  Clock, Phone, Mail, Check, Loader2
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+
+const steps = [
+  { id: 1, title: 'Basic Info', icon: Store },
+  { id: 2, title: 'Location', icon: MapPin },
+  { id: 3, title: 'Hours & Contact', icon: Clock },
+];
+
+const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu'];
+const cuisineTypes = ['Nigerian', 'Swallow', 'Rice Dishes', 'Grills', 'Snacks', 'Drinks', 'Continental', 'Fast Food'];
 
 export default function RestaurantSetup() {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
-
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     logo_url: '',
     cover_image_url: '',
     address: '',
-    city: 'Lagos',
+    city: '',
     phone: '',
     email: '',
     opening_time: '08:00',
@@ -33,381 +45,407 @@ export default function RestaurantSetup() {
     cuisine_types: []
   });
 
-  const [selectedCuisines, setSelectedCuisines] = useState([]);
-
-  const cuisineOptions = ['Rice', 'Swallow', 'Soups', 'Grills', 'Snacks', 'Drinks', 'Breakfast', 'Desserts'];
-
   useEffect(() => {
-    checkUser();
+    loadUser();
   }, []);
 
-  const checkUser = async () => {
+  const loadUser = async () => {
     try {
       const userData = await base44.auth.me();
       setUser(userData);
+      setFormData(prev => ({ ...prev, email: userData.email }));
       
-      // Check if user already has a restaurant
+      // Check if already has restaurant
       const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
       if (restaurants.length > 0) {
-        toast.info('You already have a restaurant');
-        navigate(createPageUrl('DashboardHome'));
+        window.location.href = createPageUrl('DashboardHome');
       }
-
-      setFormData(prev => ({ ...prev, email: userData.email }));
     } catch (e) {
-      toast.error('Please sign in to continue');
       base44.auth.redirectToLogin(window.location.href);
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleFileUpload = async (e, type) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const isLogo = type === 'logo';
-    isLogo ? setUploadingLogo(true) : setUploadingCover(true);
+  const handleImageUpload = async (file, type) => {
+    if (type === 'logo') setUploadingLogo(true);
+    else setUploadingCover(true);
 
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setFormData({
-        ...formData,
-        [isLogo ? 'logo_url' : 'cover_image_url']: file_url
-      });
-      toast.success(`${isLogo ? 'Logo' : 'Cover image'} uploaded successfully`);
+      setFormData(prev => ({
+        ...prev,
+        [type === 'logo' ? 'logo_url' : 'cover_image_url']: file_url
+      }));
     } catch (error) {
       toast.error('Failed to upload image');
     } finally {
-      isLogo ? setUploadingLogo(false) : setUploadingCover(false);
+      if (type === 'logo') setUploadingLogo(false);
+      else setUploadingCover(false);
     }
   };
 
   const toggleCuisine = (cuisine) => {
-    setSelectedCuisines(prev => 
-      prev.includes(cuisine) 
-        ? prev.filter(c => c !== cuisine)
-        : [...prev, cuisine]
-    );
+    setFormData(prev => ({
+      ...prev,
+      cuisine_types: prev.cuisine_types.includes(cuisine)
+        ? prev.cuisine_types.filter(c => c !== cuisine)
+        : [...prev.cuisine_types, cuisine]
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.address || !formData.phone) {
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.address || !formData.city) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    if (selectedCuisines.length === 0) {
-      toast.error('Please select at least one cuisine type');
-      return;
-    }
-
-    setLoading(true);
-
+    setIsSubmitting(true);
     try {
       await base44.entities.Restaurant.create({
         ...formData,
-        cuisine_types: selectedCuisines,
         owner_email: user.email,
         is_approved: false,
-        is_open: true
+        is_open: true,
+        rating: 0,
+        total_reviews: 0
       });
-
-      toast.success('Restaurant registered successfully! Awaiting approval.');
-      navigate(createPageUrl('DashboardHome'));
+      
+      toast.success('Restaurant registered successfully!');
+      window.location.href = createPageUrl('DashboardHome');
     } catch (error) {
-      console.error(error);
       toast.error('Failed to register restaurant');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return formData.name && formData.description;
+      case 2:
+        return formData.address && formData.city;
+      case 3:
+        return formData.phone;
+      default:
+        return false;
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <ChefHat className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Register Your Restaurant</h1>
-          <p className="text-gray-600">Join Foodanaija and reach thousands of hungry customers</p>
+    <div className="max-w-xl mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <Link to={createPageUrl('Home')}>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Partner with Foodanaija</h1>
+          <p className="text-sm text-gray-500">Register your restaurant</p>
         </div>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl border border-emerald-50 p-8 space-y-6">
-          {/* Basic Info */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Basic Information</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Restaurant Name *</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Mama's Kitchen"
-                  required
-                  className="mt-1"
-                />
+      {/* Progress Steps */}
+      <div className="flex items-center justify-between mb-8">
+        {steps.map((step, idx) => (
+          <React.Fragment key={step.id}>
+            <div className="flex flex-col items-center">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                currentStep >= step.id 
+                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30' 
+                  : 'bg-gray-100 text-gray-400'
+              }`}>
+                {currentStep > step.id ? (
+                  <Check className="w-6 h-6" />
+                ) : (
+                  <step.icon className="w-6 h-6" />
+                )}
               </div>
-
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Tell customers about your restaurant..."
-                  rows={3}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Restaurant Logo</Label>
-                  <div className="mt-1">
-                    {formData.logo_url ? (
-                      <div className="relative">
-                        <img src={formData.logo_url} alt="Logo" className="w-full h-32 object-cover rounded-xl" />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setFormData({ ...formData, logo_url: '' })}
-                          className="absolute top-2 right-2 bg-white"
-                        >
-                          Change
-                        </Button>
-                      </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-400 transition-colors">
-                        <Upload className="w-8 h-8 text-emerald-600 mb-2" />
-                        <span className="text-sm text-gray-600">
-                          {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileUpload(e, 'logo')}
-                          className="hidden"
-                          disabled={uploadingLogo}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Cover Image</Label>
-                  <div className="mt-1">
-                    {formData.cover_image_url ? (
-                      <div className="relative">
-                        <img src={formData.cover_image_url} alt="Cover" className="w-full h-32 object-cover rounded-xl" />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setFormData({ ...formData, cover_image_url: '' })}
-                          className="absolute top-2 right-2 bg-white"
-                        >
-                          Change
-                        </Button>
-                      </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-400 transition-colors">
-                        <Upload className="w-8 h-8 text-emerald-600 mb-2" />
-                        <span className="text-sm text-gray-600">
-                          {uploadingCover ? 'Uploading...' : 'Upload Cover'}
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileUpload(e, 'cover')}
-                          className="hidden"
-                          disabled={uploadingCover}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <span className={`text-xs mt-2 ${
+                currentStep >= step.id ? 'text-emerald-600 font-medium' : 'text-gray-400'
+              }`}>
+                {step.title}
+              </span>
             </div>
-          </div>
+            {idx < steps.length - 1 && (
+              <div className={`flex-1 h-1 mx-3 rounded-full ${
+                currentStep > step.id ? 'bg-emerald-500' : 'bg-gray-100'
+              }`} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
 
-          {/* Location & Contact */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Location & Contact</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="address">Address *</Label>
-                <Textarea
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter full address"
-                  required
-                  rows={2}
-                  className="mt-1"
-                />
-              </div>
+      {/* Step Content */}
+      <div className="bg-white rounded-3xl shadow-sm border border-emerald-50 p-6">
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Restaurant Name *</Label>
+              <Input
+                placeholder="e.g., Mama's Kitchen"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">City *</Label>
-                  <select
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    required
+            <div className="space-y-2">
+              <Label>Description *</Label>
+              <Textarea
+                placeholder="Tell customers about your restaurant..."
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                className="min-h-[100px] rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Cuisine Types</Label>
+              <div className="flex flex-wrap gap-2">
+                {cuisineTypes.map((cuisine) => (
+                  <button
+                    key={cuisine}
+                    type="button"
+                    onClick={() => toggleCuisine(cuisine)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      formData.cuisine_types.includes(cuisine)
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
                   >
-                    <option value="Lagos">Lagos</option>
-                    <option value="Abuja">Abuja</option>
-                    <option value="Port Harcourt">Port Harcourt</option>
-                    <option value="Ibadan">Ibadan</option>
-                    <option value="Kano">Kano</option>
-                    <option value="Enugu">Enugu</option>
-                  </select>
-                </div>
-
-                <div>
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="08012345678"
-                    required
-                    className="mt-1"
-                  />
-                </div>
+                    {cuisine}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Operating Hours */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Operating Hours</h2>
-            
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="opening_time">Opening Time</Label>
-                <Input
-                  id="opening_time"
-                  name="opening_time"
-                  type="time"
-                  value={formData.opening_time}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
+              <div className="space-y-2">
+                <Label>Logo</Label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'logo')}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <label
+                    htmlFor="logo-upload"
+                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-emerald-300 transition-colors"
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                    ) : formData.logo_url ? (
+                      <img src={formData.logo_url} alt="" className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <>
+                        <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                        <span className="text-xs text-gray-400">Upload Logo</span>
+                      </>
+                    )}
+                  </label>
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="closing_time">Closing Time</Label>
-                <Input
-                  id="closing_time"
-                  name="closing_time"
-                  type="time"
-                  value={formData.closing_time}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
+              <div className="space-y-2">
+                <Label>Cover Image</Label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'cover')}
+                    className="hidden"
+                    id="cover-upload"
+                  />
+                  <label
+                    htmlFor="cover-upload"
+                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-emerald-300 transition-colors"
+                  >
+                    {uploadingCover ? (
+                      <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                    ) : formData.cover_image_url ? (
+                      <img src={formData.cover_image_url} alt="" className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <>
+                        <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                        <span className="text-xs text-gray-400">Upload Cover</span>
+                      </>
+                    )}
+                  </label>
+                </div>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Cuisine Types */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Cuisine Types *</h2>
-            <div className="flex flex-wrap gap-2">
-              {cuisineOptions.map(cuisine => (
-                <button
-                  key={cuisine}
-                  type="button"
-                  onClick={() => toggleCuisine(cuisine)}
-                  className={`px-4 py-2 rounded-full transition-all ${
-                    selectedCuisines.includes(cuisine)
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                  }`}
-                >
-                  {selectedCuisines.includes(cuisine) && <CheckCircle className="w-4 h-4 inline mr-1" />}
-                  {cuisine}
-                </button>
-              ))}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Full Address *</Label>
+              <Textarea
+                placeholder="Street address, landmark..."
+                value={formData.address}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                className="min-h-[80px] rounded-xl"
+              />
             </div>
-          </div>
 
-          {/* Delivery Settings */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Delivery Settings</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="delivery_fee">Delivery Fee (₦)</Label>
+            <div className="space-y-2">
+              <Label>City *</Label>
+              <Select 
+                value={formData.city} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
+              >
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Delivery Fee (₦)</Label>
                 <Input
-                  id="delivery_fee"
-                  name="delivery_fee"
                   type="number"
                   value={formData.delivery_fee}
-                  onChange={handleInputChange}
-                  className="mt-1"
+                  onChange={(e) => setFormData(prev => ({ ...prev, delivery_fee: parseInt(e.target.value) || 0 }))}
+                  className="h-12 rounded-xl"
                 />
               </div>
-
-              <div>
-                <Label htmlFor="min_order">Min Order (₦)</Label>
+              <div className="space-y-2">
+                <Label>Min. Order (₦)</Label>
                 <Input
-                  id="min_order"
-                  name="min_order"
                   type="number"
                   value={formData.min_order}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="delivery_time">Delivery Time</Label>
-                <Input
-                  id="delivery_time"
-                  name="delivery_time"
-                  value={formData.delivery_time}
-                  onChange={handleInputChange}
-                  placeholder="e.g., 30-45 mins"
-                  className="mt-1"
+                  onChange={(e) => setFormData(prev => ({ ...prev, min_order: parseInt(e.target.value) || 0 }))}
+                  className="h-12 rounded-xl"
                 />
               </div>
             </div>
           </div>
+        )}
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-emerald-500/20"
-          >
-            {loading ? 'Registering...' : 'Register Restaurant'}
-          </Button>
-        </form>
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Phone Number *</Label>
+              <Input
+                type="tel"
+                placeholder="08012345678"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Opening Time</Label>
+                <Input
+                  type="time"
+                  value={formData.opening_time}
+                  onChange={(e) => setFormData(prev => ({ ...prev, opening_time: e.target.value }))}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Closing Time</Label>
+                <Input
+                  type="time"
+                  value={formData.closing_time}
+                  onChange={(e) => setFormData(prev => ({ ...prev, closing_time: e.target.value }))}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Estimated Delivery Time</Label>
+              <Select 
+                value={formData.delivery_time} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, delivery_time: value }))}
+              >
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="15-30 mins">15-30 mins</SelectItem>
+                  <SelectItem value="30-45 mins">30-45 mins</SelectItem>
+                  <SelectItem value="45-60 mins">45-60 mins</SelectItem>
+                  <SelectItem value="1-2 hours">1-2 hours</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+          {currentStep > 1 ? (
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(prev => prev - 1)}
+              className="rounded-xl"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          ) : (
+            <div />
+          )}
+
+          {currentStep < 3 ? (
+            <Button
+              onClick={() => setCurrentStep(prev => prev + 1)}
+              disabled={!canProceed()}
+              className="bg-emerald-500 hover:bg-emerald-600 rounded-xl"
+            >
+              Next
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={!canProceed() || isSubmitting}
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 rounded-xl px-8"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Complete Setup'
+              )}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
