@@ -51,7 +51,7 @@ export default function Layout({ children, currentPageName }) {
               <ChefHat className="w-6 h-6 text-white" />
             </div>
             <div>
-              <span className="font-bold text-lg text-gray-900">Foodanaija</span>
+              <span className="font-bold text-lg text-gray-900">Fooda Niger</span>
               <span className="block text-xs text-emerald-600">Business Portal</span>
             </div>
           </Link>
@@ -88,7 +88,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
             <ChefHat className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-gray-900">Business</span>
+          <span className="font-bold text-gray-900">Fooda Niger</span>
         </Link>
         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
