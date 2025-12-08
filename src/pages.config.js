@@ -5,6 +5,7 @@ import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
+import RestaurantSetup from './pages/RestaurantSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "Orders": Orders,
     "Profile": Profile,
     "Search": Search,
+    "RestaurantSetup": RestaurantSetup,
 }
 
 export const pagesConfig = {
