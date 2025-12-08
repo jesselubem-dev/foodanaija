@@ -7,7 +7,6 @@ import {
   BarChart3, Settings, Menu, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
