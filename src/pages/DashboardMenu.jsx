@@ -252,7 +252,7 @@ export default function DashboardMenu() {
               setCategoryForm({ name: '', description: '' });
               setShowCategoryDialog(true);
             }}
-            className="border-emerald-200 text-emerald-700"
+            className="border-orange-200 text-orange-700"
           >
             <FolderPlus className="w-4 h-4 mr-2" />
             Add Category
@@ -263,7 +263,7 @@ export default function DashboardMenu() {
               resetItemForm();
               setShowItemDialog(true);
             }}
-            className="bg-emerald-500 hover:bg-emerald-600"
+            className="bg-orange-500 hover:bg-orange-600"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Item
@@ -279,8 +279,8 @@ export default function DashboardMenu() {
             onClick={() => setSelectedCategory('all')}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               selectedCategory === 'all'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-white text-gray-600 border border-gray-200 hover:border-emerald-300'
+                ? 'bg-orange-500 text-white'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300'
             }`}
           >
             All ({menuItems.length})
@@ -293,8 +293,8 @@ export default function DashboardMenu() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     selectedCategory === category.id
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-emerald-300'
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300'
                   }`}
                 >
                   {category.name} ({itemCount})
@@ -335,18 +335,18 @@ export default function DashboardMenu() {
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-emerald-50">
+        <div className="text-center py-16 bg-white rounded-2xl border border-orange-50">
           <div className="text-5xl mb-4">🍽️</div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No menu items</h3>
           <p className="text-gray-500 text-sm mb-4">Start by adding items to your menu</p>
-          <Button onClick={() => setShowItemDialog(true)} className="bg-emerald-500 hover:bg-emerald-600">
+          <Button onClick={() => setShowItemDialog(true)} className="bg-orange-500 hover:bg-orange-600">
             <Plus className="w-4 h-4 mr-2" /> Add First Item
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden border-emerald-50 hover:shadow-lg transition-shadow">
+            <Card key={item.id} className="overflow-hidden border-orange-50 hover:shadow-lg transition-shadow">
               <div className="relative h-36">
                 <img 
                   src={item.images?.[0] || item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300'} 
@@ -422,7 +422,7 @@ export default function DashboardMenu() {
                     <h4 className="font-semibold text-gray-900">{item.name}</h4>
                     <p className="text-sm text-gray-500 line-clamp-1">{item.description}</p>
                   </div>
-                  <span className="font-bold text-emerald-600 whitespace-nowrap">
+                  <span className="font-bold text-orange-600 whitespace-nowrap">
                     ₦{item.price?.toLocaleString()}
                   </span>
                 </div>
@@ -458,7 +458,7 @@ export default function DashboardMenu() {
             <Button 
               onClick={handleSaveCategory} 
               disabled={!categoryForm.name || createCategoryMutation.isPending || updateCategoryMutation.isPending}
-              className="w-full bg-emerald-500 hover:bg-emerald-600"
+              className="w-full bg-orange-500 hover:bg-orange-600"
             >
               {(createCategoryMutation.isPending || updateCategoryMutation.isPending) && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -518,11 +518,11 @@ export default function DashboardMenu() {
                 <label
                   htmlFor="item-image"
                   className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl transition-colors ${
-                    uploading ? 'cursor-not-allowed' : 'cursor-pointer hover:border-emerald-300'
+                    uploading ? 'cursor-not-allowed' : 'cursor-pointer hover:border-orange-300'
                   }`}
                 >
                   {uploading ? (
-                    <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                    <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
                   ) : (
                     <>
                       <Upload className="w-5 h-5 text-gray-400 mb-1" />
@@ -609,7 +609,7 @@ export default function DashboardMenu() {
             <Button 
               onClick={handleSaveItem}
               disabled={!itemForm.name || !itemForm.price || !itemForm.category_id || createItemMutation.isPending || updateItemMutation.isPending}
-              className="w-full bg-emerald-500 hover:bg-emerald-600"
+              className="w-full bg-orange-500 hover:bg-orange-600"
             >
               {(createItemMutation.isPending || updateItemMutation.isPending) && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
