@@ -44,15 +44,15 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
       {/* Dashboard Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-emerald-100 z-50 hidden lg:block">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">
         <div className="p-6">
           <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
               <ChefHat className="w-6 h-6 text-white" />
             </div>
             <div>
               <span className="font-bold text-lg text-gray-900">Fooda Niger</span>
-              <span className="block text-xs text-emerald-600">Business Portal</span>
+              <span className="block text-xs text-orange-600">Business Portal</span>
             </div>
           </Link>
         </div>
@@ -65,13 +65,13 @@ export default function Layout({ children, currentPageName }) {
           <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} />
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-emerald-100">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-orange-100">
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
               {restaurant.logo_url ? (
                 <img src={restaurant.logo_url} alt="" className="w-10 h-10 rounded-full object-cover" />
               ) : (
-                <ChefHat className="w-5 h-5 text-emerald-600" />
+                <ChefHat className="w-5 h-5 text-orange-600" />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -83,9 +83,9 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Header for Dashboard */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-emerald-100 z-50 px-4 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
         <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
             <ChefHat className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-gray-900">Fooda Niger</span>
@@ -123,8 +123,8 @@ function DashboardNavLink({ to, icon: Icon, label, current, onClick }) {
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
         isActive 
-          ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20' 
-          : 'text-gray-600 hover:bg-emerald-50'
+          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20' 
+          : 'text-gray-600 hover:bg-orange-50'
       }`}
     >
       <Icon className="w-5 h-5" />
