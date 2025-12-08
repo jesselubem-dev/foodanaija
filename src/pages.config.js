@@ -1,15 +1,15 @@
 import Home from './pages/Home';
+import Search from './pages/Search';
 import Restaurant from './pages/Restaurant';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Home": Home,
+    "Search": Search,
     "Restaurant": Restaurant,
     "Cart": Cart,
-    "Checkout": Checkout,
 }
 
 export const pagesConfig = {
