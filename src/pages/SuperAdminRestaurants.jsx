@@ -51,6 +51,26 @@ export default function SuperAdminRestaurants() {
     enabled: !!user,
   });
 
+  const { data: allMenuItems = [] } = useQuery({
+    queryKey: ['all-menu-items'],
+    queryFn: () => base44.entities.MenuItem.list(),
+    enabled: !!user,
+  });
+
+  const { data: allCategories = [] } = useQuery({
+    queryKey: ['all-menu-categories'],
+    queryFn: () => base44.entities.MenuCategory.list(),
+    enabled: !!user,
+  });
+
+  const getRestaurantMenuItems = (restaurantId) => {
+    return allMenuItems.filter(item => item.restaurant_id === restaurantId);
+  };
+
+  const getRestaurantCategories = (restaurantId) => {
+    return allCategories.filter(cat => cat.restaurant_id === restaurantId);
+  };
+
   const approveRestaurantMutation = useMutation({
     mutationFn: ({ id }) => base44.entities.Restaurant.update(id, { is_approved: true }),
     onSuccess: () => {
@@ -215,6 +235,27 @@ export default function SuperAdminRestaurants() {
                         </div>
                       </div>
 
+                      <div className="flex gap-4 mb-4 p-3 bg-orange-50 rounded-lg">
+                        <div>
+                          <p className="text-xs text-gray-500">Menu Items</p>
+                          <p className="text-lg font-bold text-orange-600">
+                            {getRestaurantMenuItems(restaurant.id).length}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Categories</p>
+                          <p className="text-lg font-bold text-blue-600">
+                            {getRestaurantCategories(restaurant.id).length}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Rating</p>
+                          <p className="text-lg font-bold text-gray-900">
+                            {restaurant.rating || 0} ⭐
+                          </p>
+                        </div>
+                      </div>
+
                       <div className="flex gap-2">
                         <Button
                           size="sm"
@@ -346,6 +387,57 @@ export default function SuperAdminRestaurants() {
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Full Address</p>
                   <p className="text-gray-700">{selectedRestaurant.address}</p>
+                </div>
+
+                {/* Menu Items Section */}
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    Menu Items ({getRestaurantMenuItems(selectedRestaurant.id).length})
+                  </h3>
+                  {getRestaurantMenuItems(selectedRestaurant.id).length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-4">No menu items added yet</p>
+                  ) : (
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {getRestaurantMenuItems(selectedRestaurant.id).map((item) => (
+                        <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          {item.images?.[0] && (
+                            <img 
+                              src={item.images[0]} 
+                              alt="" 
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{item.name}</p>
+                            <p className="text-xs text-gray-500 line-clamp-1">{item.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-sm text-orange-600">₦{item.price?.toLocaleString()}</p>
+                            <Badge 
+                              variant="outline" 
+                              className={item.is_available ? 'text-green-600' : 'text-gray-400'}
+                            >
+                              {item.is_available ? 'Available' : 'Unavailable'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Categories Section */}
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    Menu Categories ({getRestaurantCategories(selectedRestaurant.id).length})
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {getRestaurantCategories(selectedRestaurant.id).map((cat) => (
+                      <Badge key={cat.id} variant="outline">
+                        {cat.name}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,6 +46,12 @@ export default function SuperAdminDashboard() {
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
+    enabled: !!user,
+  });
+
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ['all-menu-items'],
+    queryFn: () => base44.entities.MenuItem.list(),
     enabled: !!user,
   });
 
@@ -92,11 +98,11 @@ export default function SuperAdminDashboard() {
             link={createPageUrl('SuperAdminRestaurants')}
           />
           <StatCard
-            title="Total Orders"
-            value={orders.length}
-            icon={ShoppingBag}
+            title="Total Menu Items"
+            value={menuItems.length}
+            icon={UtensilsCrossed}
             color="emerald"
-            subtitle={`${todayOrders.length} today`}
+            subtitle={`Across all restaurants`}
           />
           <StatCard
             title="Platform Revenue"
