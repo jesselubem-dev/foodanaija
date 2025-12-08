@@ -58,7 +58,7 @@ export default function DashboardMenu() {
     description: '',
     price: '',
     images: [],
-    category_id: categories[0]?.id || '',
+    category_id: '',
     is_available: true,
     is_popular: false,
     preparation_time: '15-20 mins'
@@ -97,6 +97,13 @@ export default function DashboardMenu() {
     queryFn: () => base44.entities.MenuItem.filter({ restaurant_id: restaurant.id }),
     enabled: !!restaurant?.id,
   });
+
+  // Set default category when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && !itemForm.category_id) {
+      setItemForm(prev => ({ ...prev, category_id: categories[0].id }));
+    }
+  }, [categories]);
 
   // Category mutations
   const createCategoryMutation = useMutation({
