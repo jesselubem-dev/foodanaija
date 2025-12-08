@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { 
-  Home, Search, ShoppingBag, User, ChefHat, 
-  LayoutDashboard, UtensilsCrossed, ClipboardList, 
-  BarChart3, Settings, LogOut, Menu, X, Bell
+  ChefHat, LayoutDashboard, UtensilsCrossed, ClipboardList, 
+  BarChart3, Settings, Menu, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
