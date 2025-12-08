@@ -223,6 +223,11 @@ export default function RestaurantSetup() {
 
         {currentStep === 2 && (
           <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Tell us about your restaurant</h2>
+              <p className="text-gray-500 text-sm">Basic information about your business</p>
+            </div>
+
             <div className="space-y-2">
               <Label>Restaurant Name *</Label>
               <Input
