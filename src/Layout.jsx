@@ -32,6 +32,16 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
+  // Super Admin pages don't need restaurant check
+  const superAdminPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'Home'];
+  if (superAdminPages.includes(currentPageName)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+        {children}
+      </div>
+    );
+  }
+
   // Allow RestaurantSetup page to render without restaurant
   if (!restaurant && currentPageName !== 'RestaurantSetup') {
     return (
