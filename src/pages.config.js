@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Search from './pages/Search';
 import RestaurantSetup from './pages/RestaurantSetup';
 import DashboardHome from './pages/DashboardHome';
+import DashboardMenu from './pages/DashboardMenu';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Search": Search,
     "RestaurantSetup": RestaurantSetup,
     "DashboardHome": DashboardHome,
+    "DashboardMenu": DashboardMenu,
 }
 
 export const pagesConfig = {
