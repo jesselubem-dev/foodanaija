@@ -103,7 +103,7 @@ export default function RestaurantSetup() {
 
     setIsSubmitting(true);
     try {
-      await base44.entities.Restaurant.create({
+      const restaurant = await base44.entities.Restaurant.create({
         ...formData,
         owner_email: user.email,
         is_approved: false,
@@ -111,6 +111,31 @@ export default function RestaurantSetup() {
         rating: 0,
         total_reviews: 0
       });
+
+      // Create default categories
+      const defaultCategories = [
+        'Rice Dishes',
+        'Swallow & Soup',
+        'Local Dishes',
+        'Protein & Meat',
+        'Stews & Sauces',
+        'Fast Food',
+        'Snacks & Small Chops',
+        'Breakfast',
+        'Drinks & Beverages',
+        'Desserts',
+        'Family Packs / Combo Meals',
+        'Healthy Options'
+      ];
+
+      await base44.entities.MenuCategory.bulkCreate(
+        defaultCategories.map((name, index) => ({
+          restaurant_id: restaurant.id,
+          name,
+          display_order: index,
+          is_active: true
+        }))
+      );
       
       toast.success('Welcome to Foodanaija! Your restaurant has been registered.');
       window.location.href = createPageUrl('DashboardHome');
