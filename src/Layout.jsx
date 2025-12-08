@@ -13,12 +13,10 @@ import { Badge } from '@/components/ui/badge';
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
-  const [cartCount, setCartCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadUser();
-    loadCart();
   }, []);
 
   const loadUser = async () => {
@@ -35,23 +33,6 @@ export default function Layout({ children, currentPageName }) {
       // Not logged in
     }
   };
-
-  const loadCart = () => {
-    const cart = JSON.parse(localStorage.getItem('foodanaija_cart') || '[]');
-    setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
-  };
-
-  useEffect(() => {
-    const handleStorageChange = () => loadCart();
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('cartUpdated', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('cartUpdated', handleStorageChange);
-    };
-  }, []);
-
-  const isDashboard = currentPageName?.startsWith('Dashboard') || currentPageName === 'RestaurantSetup';
 
   // Dashboard pages
   if (isDashboard && restaurant) {
