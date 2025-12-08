@@ -4,6 +4,7 @@ import DashboardMenu from './pages/DashboardMenu';
 import DashboardOrders from './pages/DashboardOrders';
 import DashboardAnalytics from './pages/DashboardAnalytics';
 import DashboardSettings from './pages/DashboardSettings';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "DashboardOrders": DashboardOrders,
     "DashboardAnalytics": DashboardAnalytics,
     "DashboardSettings": DashboardSettings,
+    "Home": Home,
 }
 
 export const pagesConfig = {
