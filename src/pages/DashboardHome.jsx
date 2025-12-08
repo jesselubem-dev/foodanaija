@@ -76,7 +76,7 @@ export default function DashboardHome() {
   if (!restaurant) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -87,8 +87,10 @@ export default function DashboardHome() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-1">Welcome back! Here's what's happening today.</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Welcome back, {restaurant.owner_name}! 👋
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">Here's what's happening at {restaurant.name} today.</p>
           </div>
           <div className="flex items-center gap-2">
             {!restaurant.is_approved && (
@@ -136,7 +138,7 @@ export default function DashboardHome() {
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Chart */}
-        <Card className="lg:col-span-2 border-emerald-100">
+        <Card className="lg:col-span-2 border-orange-100">
           <CardHeader>
             <CardTitle className="text-lg">Weekly Overview</CardTitle>
           </CardHeader>
@@ -146,8 +148,8 @@ export default function DashboardHome() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#ff6b35" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#ff6b35" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -163,7 +165,7 @@ export default function DashboardHome() {
                   <Area 
                     type="monotone" 
                     dataKey="revenue" 
-                    stroke="#10b981" 
+                    stroke="#ff6b35" 
                     strokeWidth={2}
                     fillOpacity={1} 
                     fill="url(#colorRevenue)" 
@@ -175,11 +177,11 @@ export default function DashboardHome() {
         </Card>
 
         {/* Recent Orders */}
-        <Card className="border-emerald-100">
+        <Card className="border-orange-100">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Recent Orders</CardTitle>
             <Link to={createPageUrl('DashboardOrders')}>
-              <Button variant="ghost" size="sm" className="text-emerald-600">
+              <Button variant="ghost" size="sm" className="text-orange-600">
                 View All <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -224,14 +226,14 @@ export default function DashboardHome() {
 
 function StatCard({ title, value, icon: Icon, color }) {
   const colors = {
-    emerald: 'bg-emerald-100 text-emerald-600',
+    emerald: 'bg-orange-100 text-orange-600',
     blue: 'bg-blue-100 text-blue-600',
     amber: 'bg-amber-100 text-amber-600',
     purple: 'bg-purple-100 text-purple-600',
   };
 
   return (
-    <Card className="border-emerald-50 hover:shadow-lg transition-shadow">
+    <Card className="border-orange-50 hover:shadow-lg transition-shadow">
       <CardContent className="p-4">
         <div className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center mb-3`}>
           <Icon className="w-5 h-5" />
@@ -270,9 +272,9 @@ function OrderItem({ order }) {
 
 function QuickAction({ icon: Icon, label, count }) {
   return (
-    <div className="bg-white rounded-2xl p-4 border border-emerald-50 hover:shadow-lg transition-all cursor-pointer group">
+    <div className="bg-white rounded-2xl p-4 border border-orange-50 hover:shadow-lg transition-all cursor-pointer group">
       <div className="relative">
-        <Icon className="w-6 h-6 text-emerald-600 mb-2 group-hover:scale-110 transition-transform" />
+        <Icon className="w-6 h-6 text-orange-600 mb-2 group-hover:scale-110 transition-transform" />
         {count > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
             {count}

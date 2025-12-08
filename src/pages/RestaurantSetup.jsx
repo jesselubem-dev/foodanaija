@@ -14,9 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 const steps = [
-  { id: 1, title: 'Basic Info', icon: Store },
-  { id: 2, title: 'Location', icon: MapPin },
-  { id: 3, title: 'Hours & Contact', icon: Clock },
+  { id: 1, title: 'Your Details', icon: Store },
+  { id: 2, title: 'Restaurant Info', icon: Store },
+  { id: 3, title: 'Location', icon: MapPin },
+  { id: 4, title: 'Hours & Contact', icon: Clock },
 ];
 
 const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu'];
@@ -29,6 +30,8 @@ export default function RestaurantSetup() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [formData, setFormData] = useState({
+    owner_name: '',
+    owner_phone: '',
     name: '',
     description: '',
     logo_url: '',
@@ -93,7 +96,7 @@ export default function RestaurantSetup() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.address || !formData.city) {
+    if (!formData.owner_name || !formData.name || !formData.address || !formData.city) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -109,7 +112,7 @@ export default function RestaurantSetup() {
         total_reviews: 0
       });
       
-      toast.success('Restaurant registered successfully!');
+      toast.success('Welcome to Fooda Niger! Your restaurant has been registered.');
       window.location.href = createPageUrl('DashboardHome');
     } catch (error) {
       toast.error('Failed to register restaurant');
@@ -121,10 +124,12 @@ export default function RestaurantSetup() {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return formData.name && formData.description;
+        return formData.owner_name;
       case 2:
-        return formData.address && formData.city;
+        return formData.name && formData.description;
       case 3:
+        return formData.address && formData.city;
+      case 4:
         return formData.phone;
       default:
         return false;
@@ -134,7 +139,7 @@ export default function RestaurantSetup() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -154,7 +159,7 @@ export default function RestaurantSetup() {
             <div className="flex flex-col items-center">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                 currentStep >= step.id 
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30' 
+                  ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30' 
                   : 'bg-gray-100 text-gray-400'
               }`}>
                 {currentStep > step.id ? (
@@ -164,14 +169,14 @@ export default function RestaurantSetup() {
                 )}
               </div>
               <span className={`text-xs mt-2 ${
-                currentStep >= step.id ? 'text-emerald-600 font-medium' : 'text-gray-400'
+                currentStep >= step.id ? 'text-orange-600 font-medium' : 'text-gray-400'
               }`}>
                 {step.title}
               </span>
             </div>
             {idx < steps.length - 1 && (
               <div className={`flex-1 h-1 mx-3 rounded-full ${
-                currentStep > step.id ? 'bg-emerald-500' : 'bg-gray-100'
+                currentStep > step.id ? 'bg-orange-500' : 'bg-gray-100'
               }`} />
             )}
           </React.Fragment>
@@ -179,8 +184,44 @@ export default function RestaurantSetup() {
       </div>
 
       {/* Step Content */}
-      <div className="bg-white rounded-3xl shadow-sm border border-emerald-50 p-6">
+      <div className="bg-white rounded-3xl shadow-sm border border-orange-50 p-6">
         {currentStep === 1 && (
+          <div className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Let's get to know you!</h2>
+              <p className="text-gray-500 text-sm">Tell us about yourself</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Your Full Name *</Label>
+              <Input
+                placeholder="e.g., John Doe"
+                value={formData.owner_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, owner_name: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Your Phone Number *</Label>
+              <Input
+                type="tel"
+                placeholder="08012345678"
+                value={formData.owner_phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, owner_phone: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="bg-orange-50 p-4 rounded-xl">
+              <p className="text-sm text-gray-600">
+                👋 This information will be used to personalize your dashboard and for communication purposes.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 2 && (
           <div className="space-y-6">
             <div className="space-y-2">
               <Label>Restaurant Name *</Label>
@@ -212,7 +253,7 @@ export default function RestaurantSetup() {
                     onClick={() => toggleCuisine(cuisine)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                       formData.cuisine_types.includes(cuisine)
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -235,10 +276,10 @@ export default function RestaurantSetup() {
                   />
                   <label
                     htmlFor="logo-upload"
-                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-emerald-300 transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-orange-300 transition-colors"
                   >
                     {uploadingLogo ? (
-                      <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                      <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
                     ) : formData.logo_url ? (
                       <img src={formData.logo_url} alt="" className="w-full h-full object-cover rounded-xl" />
                     ) : (
@@ -263,10 +304,10 @@ export default function RestaurantSetup() {
                   />
                   <label
                     htmlFor="cover-upload"
-                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-emerald-300 transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-orange-300 transition-colors"
                   >
                     {uploadingCover ? (
-                      <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                      <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
                     ) : formData.cover_image_url ? (
                       <img src={formData.cover_image_url} alt="" className="w-full h-full object-cover rounded-xl" />
                     ) : (
@@ -334,7 +375,7 @@ export default function RestaurantSetup() {
           </div>
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 4 && (
           <div className="space-y-6">
             <div className="space-y-2">
               <Label>Phone Number *</Label>
@@ -413,11 +454,11 @@ export default function RestaurantSetup() {
             <div />
           )}
 
-          {currentStep < 3 ? (
+          {currentStep < 4 ? (
             <Button
               onClick={() => setCurrentStep(prev => prev + 1)}
               disabled={!canProceed()}
-              className="bg-emerald-500 hover:bg-emerald-600 rounded-xl"
+              className="bg-orange-500 hover:bg-orange-600 rounded-xl"
             >
               Next
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -426,7 +467,7 @@ export default function RestaurantSetup() {
             <Button
               onClick={handleSubmit}
               disabled={!canProceed() || isSubmitting}
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 rounded-xl px-8"
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-xl px-8"
             >
               {isSubmitting ? (
                 <>
