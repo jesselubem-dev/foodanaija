@@ -1,257 +1,285 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
-import { Package, DollarSign, UtensilsCrossed, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { format, startOfDay, endOfDay, subDays } from 'date-fns';
+import { 
+  TrendingUp, ShoppingBag, DollarSign, UtensilsCrossed,
+  Clock, CheckCircle, XCircle, ChevronRight, Bell
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+} from 'recharts';
 
 export default function DashboardHome() {
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
 
   useEffect(() => {
-    loadRestaurant();
+    loadData();
   }, []);
 
-  const loadRestaurant = async () => {
+  const loadData = async () => {
     try {
-      const user = await base44.auth.me();
-      const restaurants = await base44.entities.Restaurant.filter({ owner_email: user.email });
+      const userData = await base44.auth.me();
+      setUser(userData);
       
-      if (restaurants.length === 0) {
-        navigate(createPageUrl('RestaurantSetup'));
-        return;
+      const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
+      if (restaurants.length > 0) {
+        setRestaurant(restaurants[0]);
+      } else {
+        window.location.href = createPageUrl('RestaurantSetup');
       }
-      
-      setRestaurant(restaurants[0]);
     } catch (e) {
-      navigate(createPageUrl('Home'));
+      base44.auth.redirectToLogin(window.location.href);
     }
   };
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
-    queryKey: ['restaurantOrders', restaurant?.id],
-    queryFn: async () => {
-      if (!restaurant?.id) return [];
-      return await base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date');
-    },
-    enabled: !!restaurant?.id
+    queryKey: ['dashboard-orders', restaurant?.id],
+    queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date'),
+    enabled: !!restaurant?.id,
   });
 
   const { data: menuItems = [] } = useQuery({
-    queryKey: ['restaurantMenuItems', restaurant?.id],
-    queryFn: async () => {
-      if (!restaurant?.id) return [];
-      return await base44.entities.MenuItem.filter({ restaurant_id: restaurant.id });
-    },
-    enabled: !!restaurant?.id
+    queryKey: ['dashboard-menu', restaurant?.id],
+    queryFn: () => base44.entities.MenuItem.filter({ restaurant_id: restaurant.id }),
+    enabled: !!restaurant?.id,
   });
 
   // Calculate stats
-  const today = new Date().toDateString();
-  const todayOrders = orders.filter(o => new Date(o.created_date).toDateString() === today);
-  const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'accepted');
-  const totalRevenue = orders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((sum, o) => sum + (o.total || 0), 0);
-  const todayRevenue = todayOrders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((sum, o) => sum + (o.total || 0), 0);
+  const todayStart = startOfDay(new Date());
+  const todayOrders = orders.filter(o => new Date(o.created_date) >= todayStart);
+  const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+  const pendingOrders = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
+
+  // Chart data (last 7 days)
+  const chartData = Array.from({ length: 7 }, (_, i) => {
+    const date = subDays(new Date(), 6 - i);
+    const dayOrders = orders.filter(o => {
+      const orderDate = new Date(o.created_date);
+      return orderDate >= startOfDay(date) && orderDate <= endOfDay(date);
+    });
+    return {
+      day: format(date, 'EEE'),
+      orders: dayOrders.length,
+      revenue: dayOrders.reduce((sum, o) => sum + (o.total || 0), 0)
+    };
+  });
 
   if (!restaurant) {
     return (
-      <div className="p-6">
-        <div className="space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!restaurant.is_approved) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-6">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-8 text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-              <Clock className="w-10 h-10 text-amber-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Awaiting Approval</h2>
-            <p className="text-gray-600 mb-6">
-              Your restaurant is currently under review. You'll be notified once it's approved and live on Foodanaija.
-            </p>
-            <div className="bg-emerald-50 rounded-xl p-4 text-left">
-              <p className="font-semibold text-emerald-900 mb-2">{restaurant.name}</p>
-              <p className="text-sm text-gray-600">{restaurant.address}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      {/* Welcome Header */}
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back! 👋</h1>
-        <p className="text-gray-600">Here's what's happening with {restaurant.name} today</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-500 text-sm mt-1">Welcome back! Here's what's happening today.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {!restaurant.is_approved && (
+              <Badge className="bg-amber-100 text-amber-700">Pending Approval</Badge>
+            )}
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="w-5 h-5" />
+              {pendingOrders.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {pendingOrders.length}
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Today's Orders"
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard 
+          title="Today's Orders" 
           value={todayOrders.length}
-          icon={Package}
-          color="bg-blue-500"
-          trend={`${pendingOrders.length} pending`}
+          icon={ShoppingBag}
+          color="emerald"
         />
-        <StatCard
-          title="Today's Revenue"
+        <StatCard 
+          title="Today's Revenue" 
           value={`₦${todayRevenue.toLocaleString()}`}
           icon={DollarSign}
-          color="bg-emerald-500"
+          color="blue"
         />
-        <StatCard
-          title="Total Orders"
-          value={orders.length}
+        <StatCard 
+          title="Total Revenue" 
+          value={`₦${totalRevenue.toLocaleString()}`}
           icon={TrendingUp}
-          color="bg-purple-500"
+          color="amber"
         />
-        <StatCard
-          title="Menu Items"
+        <StatCard 
+          title="Menu Items" 
           value={menuItems.length}
           icon={UtensilsCrossed}
-          color="bg-amber-500"
+          color="purple"
         />
       </div>
 
-      {/* Recent Orders */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {ordersLoading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-20 w-full" />
-              ))}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Chart */}
+        <Card className="lg:col-span-2 border-emerald-100">
+          <CardHeader>
+            <CardTitle className="text-lg">Weekly Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="day" stroke="#9ca3af" fontSize={12} />
+                  <YAxis stroke="#9ca3af" fontSize={12} />
+                  <Tooltip 
+                    formatter={(value, name) => [
+                      name === 'revenue' ? `₦${value.toLocaleString()}` : value,
+                      name === 'revenue' ? 'Revenue' : 'Orders'
+                    ]}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#10b981" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorRevenue)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-12">
-              <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500">No orders yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.slice(0, 10).map(order => (
-                <div key={order.id} className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <p className="font-semibold text-gray-900">Order #{order.id.slice(-6).toUpperCase()}</p>
-                      <StatusBadge status={order.status} />
-                    </div>
-                    <p className="text-sm text-gray-600">{order.customer_name} • {order.items?.length} items</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {format(new Date(order.created_date), 'MMM d, h:mm a')}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-emerald-600 text-lg">₦{order.total?.toLocaleString()}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {/* Recent Orders */}
+        <Card className="border-emerald-100">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Recent Orders</CardTitle>
+            <Link to={createPageUrl('DashboardOrders')}>
+              <Button variant="ghost" size="sm" className="text-emerald-600">
+                View All <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {ordersLoading ? (
+              [1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+              ))
+            ) : orders.slice(0, 5).length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">No orders yet</p>
+              </div>
+            ) : (
+              orders.slice(0, 5).map((order) => (
+                <OrderItem key={order.id} order={order} />
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        <QuickActionCard
-          title="Manage Menu"
-          description="Add or edit menu items"
-          icon={UtensilsCrossed}
-          onClick={() => navigate(createPageUrl('DashboardMenu'))}
-          color="bg-emerald-500"
-        />
-        <QuickActionCard
-          title="View Orders"
-          description="Check pending orders"
-          icon={Package}
-          onClick={() => navigate(createPageUrl('DashboardOrders'))}
-          color="bg-blue-500"
-          badge={pendingOrders.length > 0 ? pendingOrders.length : null}
-        />
-        <QuickActionCard
-          title="Analytics"
-          description="View detailed reports"
-          icon={TrendingUp}
-          onClick={() => navigate(createPageUrl('DashboardAnalytics'))}
-          color="bg-purple-500"
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+        <Link to={createPageUrl('DashboardMenu')}>
+          <QuickAction icon={UtensilsCrossed} label="Manage Menu" />
+        </Link>
+        <Link to={createPageUrl('DashboardOrders')}>
+          <QuickAction icon={ShoppingBag} label="View Orders" count={pendingOrders.length} />
+        </Link>
+        <Link to={createPageUrl('DashboardAnalytics')}>
+          <QuickAction icon={TrendingUp} label="Analytics" />
+        </Link>
+        <Link to={createPageUrl('DashboardSettings')}>
+          <QuickAction icon={Clock} label="Settings" />
+        </Link>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, icon: Icon, color, trend }) {
+function StatCard({ title, value, icon: Icon, color }) {
+  const colors = {
+    emerald: 'bg-emerald-100 text-emerald-600',
+    blue: 'bg-blue-100 text-blue-600',
+    amber: 'bg-amber-100 text-amber-600',
+    purple: 'bg-purple-100 text-purple-600',
+  };
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-600 font-medium">{title}</p>
-          <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}>
-            <Icon className="w-6 h-6 text-white" />
-          </div>
+    <Card className="border-emerald-50 hover:shadow-lg transition-shadow">
+      <CardContent className="p-4">
+        <div className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center mb-3`}>
+          <Icon className="w-5 h-5" />
         </div>
-        <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
-        {trend && <p className="text-sm text-gray-500">{trend}</p>}
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-sm text-gray-500">{title}</p>
       </CardContent>
     </Card>
   );
 }
 
-function StatusBadge({ status }) {
-  const config = {
+function OrderItem({ order }) {
+  const statusColors = {
     pending: 'bg-amber-100 text-amber-700',
     accepted: 'bg-blue-100 text-blue-700',
     preparing: 'bg-purple-100 text-purple-700',
     ready: 'bg-emerald-100 text-emerald-700',
     delivered: 'bg-green-100 text-green-700',
-    cancelled: 'bg-red-100 text-red-700'
+    cancelled: 'bg-red-100 text-red-700',
   };
 
   return (
-    <Badge className={config[status] || config.pending}>
-      {status}
-    </Badge>
+    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+      <div>
+        <p className="font-medium text-gray-900 text-sm">{order.customer_name || 'Customer'}</p>
+        <p className="text-xs text-gray-500">
+          {order.items?.length || 0} items • ₦{order.total?.toLocaleString()}
+        </p>
+      </div>
+      <Badge className={statusColors[order.status]}>
+        {order.status}
+      </Badge>
+    </div>
   );
 }
 
-function QuickActionCard({ title, description, icon: Icon, onClick, color, badge }) {
+function QuickAction({ icon: Icon, label, count }) {
   return (
-    <button
-      onClick={onClick}
-      className="relative bg-white rounded-2xl p-6 border border-emerald-50 hover:shadow-lg transition-all text-left group"
-    >
-      <div className={`w-14 h-14 rounded-xl ${color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-        <Icon className="w-7 h-7 text-white" />
+    <div className="bg-white rounded-2xl p-4 border border-emerald-50 hover:shadow-lg transition-all cursor-pointer group">
+      <div className="relative">
+        <Icon className="w-6 h-6 text-emerald-600 mb-2 group-hover:scale-110 transition-transform" />
+        {count > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            {count}
+          </span>
+        )}
       </div>
-      <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
-      {badge && (
-        <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
-          {badge}
-        </div>
-      )}
-    </button>
+      <p className="font-medium text-gray-700 text-sm">{label}</p>
+    </div>
   );
 }
