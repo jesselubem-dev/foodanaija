@@ -562,7 +562,9 @@ export default function DashboardMenu() {
                 onValueChange={(value) => setItemForm(prev => ({ ...prev, category_id: value }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue>
+                    {categories.find(c => c.id === itemForm.category_id)?.name || 'Select category'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
