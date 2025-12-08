@@ -1,232 +1,405 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
-import { Package, Clock, CheckCircle, XCircle, MapPin, Phone, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
 import { format } from 'date-fns';
-
-const statusFlow = ['pending', 'accepted', 'preparing', 'ready', 'delivered'];
+import { 
+  Clock, CheckCircle, Package, Truck, XCircle,
+  Phone, MapPin, User, ChevronDown, RefreshCw, Search
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { createPageUrl } from '../utils';
 
 const statusConfig = {
-  pending: { color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock, label: 'Pending', next: 'accepted' },
-  accepted: { color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Package, label: 'Accepted', next: 'preparing' },
-  preparing: { color: 'bg-purple-100 text-purple-700 border-purple-200', icon: Package, label: 'Preparing', next: 'ready' },
-  ready: { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: Package, label: 'Ready for Delivery', next: 'delivered' },
-  delivered: { color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle, label: 'Delivered', next: null },
-  cancelled: { color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle, label: 'Cancelled', next: null }
+  pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock, next: 'accepted' },
+  accepted: { label: 'Accepted', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: CheckCircle, next: 'preparing' },
+  preparing: { label: 'Preparing', color: 'bg-purple-100 text-purple-700 border-purple-200', icon: Package, next: 'ready' },
+  ready: { label: 'Ready', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: Truck, next: 'delivered' },
+  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle, next: null },
+  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle, next: null },
 };
 
 export default function DashboardOrders() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('active');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    loadRestaurant();
+    loadData();
   }, []);
 
-  const loadRestaurant = async () => {
+  const loadData = async () => {
     try {
-      const user = await base44.auth.me();
-      const restaurants = await base44.entities.Restaurant.filter({ owner_email: user.email });
+      const userData = await base44.auth.me();
+      setUser(userData);
       
-      if (restaurants.length === 0) {
-        navigate(createPageUrl('RestaurantSetup'));
-        return;
+      const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
+      if (restaurants.length > 0) {
+        setRestaurant(restaurants[0]);
+      } else {
+        window.location.href = createPageUrl('RestaurantSetup');
       }
-      
-      setRestaurant(restaurants[0]);
     } catch (e) {
-      navigate(createPageUrl('Home'));
+      base44.auth.redirectToLogin(window.location.href);
     }
   };
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['restaurantOrders', restaurant?.id],
-    queryFn: async () => {
-      if (!restaurant?.id) return [];
-      return await base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date');
-    },
+  const { data: orders = [], isLoading, refetch } = useQuery({
+    queryKey: ['restaurant-orders', restaurant?.id],
+    queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date'),
     enabled: !!restaurant?.id,
-    refetchInterval: 30000 // Refetch every 30 seconds
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const updateOrderMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Order.update(id, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurantOrders'] });
+      queryClient.invalidateQueries(['restaurant-orders']);
       toast.success('Order status updated');
-    }
+    },
   });
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    updateOrderMutation.mutate({ id: orderId, data: { status: newStatus } });
-  };
+  const activeOrders = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
+  const completedOrders = orders.filter(o => ['delivered', 'cancelled'].includes(o.status));
 
-  const filterOrders = (status) => {
-    if (status === 'all') return orders;
-    if (status === 'active') {
-      return orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
-    }
-    return orders.filter(o => o.status === status);
-  };
+  const filteredOrders = (activeTab === 'active' ? activeOrders : completedOrders).filter(order =>
+    !searchQuery || 
+    order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.id?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (!restaurant) {
-    return <div className="p-6"><Skeleton className="h-64 w-full" /></div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
-  const pendingCount = orders.filter(o => o.status === 'pending').length;
-  const activeCount = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status)).length;
-
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Orders</h1>
-        <p className="text-gray-600">Manage and track your restaurant orders</p>
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Orders</h1>
+          <p className="text-gray-500 text-sm mt-1">Manage incoming orders</p>
+        </div>
+        <div className="flex gap-2">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button variant="outline" onClick={() => refetch()} className="border-emerald-200">
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="pending" className="relative">
-            Pending
-            {pendingCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">
-                {pendingCount}
-              </span>
-            )}
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard 
+          label="Pending" 
+          count={orders.filter(o => o.status === 'pending').length}
+          color="amber"
+        />
+        <StatCard 
+          label="Preparing" 
+          count={orders.filter(o => o.status === 'preparing').length}
+          color="purple"
+        />
+        <StatCard 
+          label="Ready" 
+          count={orders.filter(o => o.status === 'ready').length}
+          color="emerald"
+        />
+        <StatCard 
+          label="Delivered Today" 
+          count={orders.filter(o => {
+            const today = new Date().toDateString();
+            return o.status === 'delivered' && new Date(o.updated_date).toDateString() === today;
+          }).length}
+          color="green"
+        />
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="bg-gray-100 rounded-xl p-1">
+          <TabsTrigger 
+            value="active" 
+            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            Active Orders ({activeOrders.length})
           </TabsTrigger>
-          <TabsTrigger value="active">
-            Active ({activeCount})
+          <TabsTrigger 
+            value="completed"
+            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            Completed ({completedOrders.length})
           </TabsTrigger>
-          <TabsTrigger value="delivered">Completed</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-          <TabsTrigger value="all">All Orders</TabsTrigger>
         </TabsList>
-
-        {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full" />
-            ))}
-          </div>
-        ) : filterOrders(activeTab).length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-emerald-50">
-            <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500">No {activeTab !== 'all' ? activeTab : ''} orders</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filterOrders(activeTab).map(order => {
-              const config = statusConfig[order.status];
-              const StatusIcon = config.icon;
-
-              return (
-                <Card key={order.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-500">Order #{order.id.slice(-6).toUpperCase()}</p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {format(new Date(order.created_date), 'MMM d, h:mm a')}
-                        </p>
-                      </div>
-                      <Badge className={`${config.color} border flex items-center gap-1.5`}>
-                        <StatusIcon className="w-3.5 h-3.5" />
-                        {config.label}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Customer Info */}
-                    <div className="space-y-2 mb-4 pb-4 border-b border-gray-100">
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium text-gray-900">{order.customer_name}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">{order.customer_phone}</span>
-                      </div>
-                      <div className="flex items-start gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-600">{order.delivery_address}</span>
-                      </div>
-                    </div>
-
-                    {/* Order Items */}
-                    <div className="space-y-2 mb-4">
-                      {order.items?.map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-sm">
-                          <span className="text-gray-700">
-                            {item.quantity}x {item.name}
-                          </span>
-                          <span className="font-medium text-gray-900">
-                            ₦{(item.price * item.quantity).toLocaleString()}
-                          </span>
-                        </div>
-                      ))}
-                      <div className="flex justify-between text-sm font-semibold text-gray-900 pt-2 border-t border-gray-200">
-                        <span>Total</span>
-                        <span className="text-emerald-600">₦{order.total?.toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    {/* Payment */}
-                    <div className="mb-4">
-                      <span className="text-xs text-gray-500">Payment: </span>
-                      <Badge variant="outline" className="capitalize">{order.payment_method}</Badge>
-                      <Badge className={`ml-2 ${order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {order.payment_status}
-                      </Badge>
-                    </div>
-
-                    {/* Notes */}
-                    {order.notes && (
-                      <div className="bg-amber-50 rounded-lg p-3 mb-4">
-                        <p className="text-xs text-gray-500 mb-1">Special Instructions:</p>
-                        <p className="text-sm text-gray-700">{order.notes}</p>
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    {config.next && (
-                      <Button
-                        onClick={() => updateOrderStatus(order.id, config.next)}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700"
-                      >
-                        Mark as {statusConfig[config.next].label}
-                      </Button>
-                    )}
-
-                    {order.status === 'pending' && (
-                      <Button
-                        onClick={() => {
-                          if (confirm('Cancel this order?')) {
-                            updateOrderStatus(order.id, 'cancelled');
-                          }
-                        }}
-                        variant="outline"
-                        className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
-                      >
-                        Cancel Order
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
       </Tabs>
+
+      {/* Orders List */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-32 rounded-2xl" />
+          ))}
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-2xl border border-emerald-50">
+          <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders</h3>
+          <p className="text-gray-500 text-sm">
+            {activeTab === 'active' ? 'No active orders at the moment' : 'No completed orders yet'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredOrders.map((order) => (
+            <OrderCard 
+              key={order.id} 
+              order={order}
+              onViewDetails={() => setSelectedOrder(order)}
+              onUpdateStatus={(status) => updateStatusMutation.mutate({ id: order.id, status })}
+              isUpdating={updateStatusMutation.isPending}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Order Details Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-6 py-4">
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <Badge className={`${statusConfig[selectedOrder.status]?.color} border`}>
+                  {statusConfig[selectedOrder.status]?.label}
+                </Badge>
+                <span className="text-sm text-gray-500">
+                  {selectedOrder.created_date && format(new Date(selectedOrder.created_date), 'MMM d, h:mm a')}
+                </span>
+              </div>
+
+              {/* Customer Info */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-gray-400" />
+                  <span className="font-medium">{selectedOrder.customer_name || 'Customer'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  <a href={`tel:${selectedOrder.customer_phone}`} className="text-emerald-600">
+                    {selectedOrder.customer_phone}
+                  </a>
+                </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                  <span className="text-sm">{selectedOrder.delivery_address}</span>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <h4 className="font-semibold mb-3">Order Items</h4>
+                <div className="space-y-2">
+                  {selectedOrder.items?.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=50'} 
+                          alt=""
+                          className="w-10 h-10 rounded-lg object-cover"
+                        />
+                        <div>
+                          <p className="font-medium text-sm">{item.name}</p>
+                          <p className="text-xs text-gray-500">x{item.quantity}</p>
+                        </div>
+                      </div>
+                      <span className="font-medium">₦{(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Special Notes */}
+              {selectedOrder.notes && (
+                <div>
+                  <h4 className="font-semibold mb-2">Special Instructions</h4>
+                  <p className="text-sm text-gray-600 bg-amber-50 p-3 rounded-xl">{selectedOrder.notes}</p>
+                </div>
+              )}
+
+              {/* Totals */}
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Subtotal</span>
+                  <span>₦{selectedOrder.subtotal?.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Delivery Fee</span>
+                  <span>₦{selectedOrder.delivery_fee?.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span className="text-emerald-600">₦{selectedOrder.total?.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Payment Info */}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">Payment Method</span>
+                <Badge variant="outline" className="capitalize">{selectedOrder.payment_method}</Badge>
+              </div>
+
+              {/* Action Buttons */}
+              {statusConfig[selectedOrder.status]?.next && (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      updateStatusMutation.mutate({ id: selectedOrder.id, status: 'cancelled' });
+                      setSelectedOrder(null);
+                    }}
+                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    Cancel Order
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      updateStatusMutation.mutate({ 
+                        id: selectedOrder.id, 
+                        status: statusConfig[selectedOrder.status].next 
+                      });
+                      setSelectedOrder(null);
+                    }}
+                    className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+                  >
+                    Mark as {statusConfig[statusConfig[selectedOrder.status].next]?.label}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function StatCard({ label, count, color }) {
+  const colors = {
+    amber: 'bg-amber-100 text-amber-700',
+    purple: 'bg-purple-100 text-purple-700',
+    emerald: 'bg-emerald-100 text-emerald-700',
+    green: 'bg-green-100 text-green-700',
+  };
+
+  return (
+    <div className="bg-white rounded-xl p-4 border border-emerald-50">
+      <div className={`text-2xl font-bold ${colors[color].split(' ')[1]}`}>{count}</div>
+      <div className="text-sm text-gray-500">{label}</div>
+    </div>
+  );
+}
+
+function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
+  const status = statusConfig[order.status];
+  const StatusIcon = status?.icon || Clock;
+
+  return (
+    <Card className="border-emerald-50 hover:shadow-lg transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Order Info */}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <Badge className={`${status?.color} border gap-1`}>
+                <StatusIcon className="w-3 h-3" />
+                {status?.label}
+              </Badge>
+              <span className="text-sm text-gray-500">
+                {order.created_date && format(new Date(order.created_date), 'h:mm a')}
+              </span>
+            </div>
+            <h4 className="font-semibold text-gray-900">{order.customer_name || 'Customer'}</h4>
+            <p className="text-sm text-gray-500">
+              {order.items?.length} items • ₦{order.total?.toLocaleString()}
+            </p>
+          </div>
+
+          {/* Items Preview */}
+          <div className="flex -space-x-2">
+            {order.items?.slice(0, 3).map((item, idx) => (
+              <img 
+                key={idx}
+                src={item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=50'} 
+                alt=""
+                className="w-10 h-10 rounded-full border-2 border-white object-cover"
+              />
+            ))}
+            {(order.items?.length || 0) > 3 && (
+              <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600">
+                +{order.items.length - 3}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={onViewDetails}>
+              View Details
+            </Button>
+            {status?.next && (
+              <Select 
+                onValueChange={(value) => onUpdateStatus(value)}
+                disabled={isUpdating}
+              >
+                <SelectTrigger className="w-[140px] bg-emerald-500 text-white border-0 hover:bg-emerald-600">
+                  <SelectValue placeholder="Update Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {status.next && (
+                    <SelectItem value={status.next}>
+                      Mark as {statusConfig[status.next]?.label}
+                    </SelectItem>
+                  )}
+                  <SelectItem value="cancelled" className="text-red-600">
+                    Cancel Order
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
