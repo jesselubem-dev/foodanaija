@@ -112,7 +112,7 @@ export default function RestaurantSetup() {
         total_reviews: 0
       });
       
-      toast.success('Welcome to Fooda Niger! Your restaurant has been registered.');
+      toast.success('Welcome to Foodanaija! Your restaurant has been registered.');
       window.location.href = createPageUrl('DashboardHome');
     } catch (error) {
       toast.error('Failed to register restaurant');
@@ -148,7 +148,7 @@ export default function RestaurantSetup() {
     <div className="max-w-xl mx-auto px-4 py-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Partner with Fooda Niger</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Partner with Foodanaija</h1>
         <p className="text-sm text-gray-500">Register your restaurant</p>
       </div>
 
