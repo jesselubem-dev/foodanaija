@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Store, MapPin, Phone, Mail, CheckCircle, XCircle, 
-  Eye, Search, Filter, ArrowLeft, ExternalLink, Trash2
+  Eye, Search, Filter, ArrowLeft, ExternalLink, Trash2, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,9 @@ export default function SuperAdminRestaurants() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [restaurantToDelete, setRestaurantToDelete] = useState(null);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messageRestaurant, setMessageRestaurant] = useState(null);
+  const [messageForm, setMessageForm] = useState({ title: '', content: '' });
 
   const queryClient = useQueryClient();
 
@@ -147,6 +150,23 @@ export default function SuperAdminRestaurants() {
       queryClient.invalidateQueries(['all-menu-categories']);
       setSelectedRestaurant(null);
       toast.success('Restaurant deleted successfully');
+    },
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: ({ restaurant_id, restaurant_name, title, content }) => 
+      base44.entities.Message.create({
+        restaurant_id,
+        restaurant_name,
+        title,
+        content,
+        sent_by: user.email,
+      }),
+    onSuccess: () => {
+      toast.success('Message sent successfully');
+      setMessageDialogOpen(false);
+      setMessageForm({ title: '', content: '' });
+      setMessageRestaurant(null);
     },
   });
 
@@ -311,7 +331,7 @@ export default function SuperAdminRestaurants() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           size="sm"
                           variant="outline"
@@ -319,6 +339,18 @@ export default function SuperAdminRestaurants() {
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setMessageRestaurant(restaurant);
+                            setMessageDialogOpen(true);
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Send Message
                         </Button>
                         
                         {!restaurant.is_approved ? (
@@ -541,6 +573,55 @@ export default function SuperAdminRestaurants() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Send Message Dialog */}
+        <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Send Message to {messageRestaurant?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Message Title</label>
+                <Input
+                  placeholder="Enter message title"
+                  value={messageForm.title}
+                  onChange={(e) => setMessageForm({ ...messageForm, title: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Message Content</label>
+                <textarea
+                  placeholder="Enter your message..."
+                  value={messageForm.content}
+                  onChange={(e) => setMessageForm({ ...messageForm, content: e.target.value })}
+                  className="mt-1 w-full min-h-[120px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => {
+                  setMessageDialogOpen(false);
+                  setMessageForm({ title: '', content: '' });
+                }}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => sendMessageMutation.mutate({
+                    restaurant_id: messageRestaurant.id,
+                    restaurant_name: messageRestaurant.name,
+                    title: messageForm.title,
+                    content: messageForm.content,
+                  })}
+                  disabled={!messageForm.title || !messageForm.content}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  Send Message
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
         </div>
         </div>
         );
