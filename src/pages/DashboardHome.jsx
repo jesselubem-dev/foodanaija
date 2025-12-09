@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { 
   TrendingUp, ShoppingBag, DollarSign, UtensilsCrossed,
@@ -19,6 +19,7 @@ import {
 export default function DashboardHome() {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadData();
@@ -52,12 +53,26 @@ export default function DashboardHome() {
     enabled: !!restaurant?.id,
   });
 
+  const { data: messages = [] } = useQuery({
+    queryKey: ['messages', restaurant?.id],
+    queryFn: () => base44.entities.Message.filter({ restaurant_id: restaurant.id }, '-created_date'),
+    enabled: !!restaurant?.id,
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: (id) => base44.entities.Message.update(id, { is_read: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['messages']);
+    },
+  });
+
   // Calculate stats
   const todayStart = startOfDay(new Date());
   const todayOrders = orders.filter(o => new Date(o.created_date) >= todayStart);
   const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
   const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
   const pendingOrders = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
+  const unreadMessages = messages.filter(m => !m.is_read);
 
   // Chart data (last 7 days)
   const chartData = Array.from({ length: 7 }, (_, i) => {
@@ -115,6 +130,39 @@ export default function DashboardHome() {
           </div>
         </div>
       </div>
+
+      {/* Notifications Section */}
+      {unreadMessages.length > 0 && (
+        <Card className="mb-6 border-orange-200 bg-orange-50">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-orange-600" />
+              <CardTitle className="text-orange-900">Messages ({unreadMessages.length} unread)</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {unreadMessages.slice(0, 3).map((message) => (
+              <div key={message.id} className="bg-white p-4 rounded-xl border border-orange-200">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-semibold text-gray-900">{message.title}</h4>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => markAsReadMutation.mutate(message.id)}
+                    className="text-xs"
+                  >
+                    Mark as read
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600">{message.content}</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  From Admin • {new Date(message.created_date).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
