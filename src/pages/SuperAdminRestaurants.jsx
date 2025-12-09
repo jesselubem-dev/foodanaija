@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Store, MapPin, Phone, Mail, CheckCircle, XCircle, 
-  Eye, Search, Filter, ArrowLeft, ExternalLink
+  Eye, Search, Filter, ArrowLeft, ExternalLink, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 export default function SuperAdminRestaurants() {
@@ -25,6 +35,8 @@ export default function SuperAdminRestaurants() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [restaurantToDelete, setRestaurantToDelete] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -93,6 +105,28 @@ export default function SuperAdminRestaurants() {
     onSuccess: () => {
       queryClient.invalidateQueries(['all-restaurants']);
       toast.success('Status updated');
+    },
+  });
+
+  const deleteRestaurantMutation = useMutation({
+    mutationFn: async ({ id }) => {
+      // Delete all menu items first
+      const items = allMenuItems.filter(item => item.restaurant_id === id);
+      await Promise.all(items.map(item => base44.entities.MenuItem.delete(item.id)));
+      
+      // Delete all categories
+      const cats = allCategories.filter(cat => cat.restaurant_id === id);
+      await Promise.all(cats.map(cat => base44.entities.MenuCategory.delete(cat.id)));
+      
+      // Delete restaurant
+      await base44.entities.Restaurant.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['all-restaurants']);
+      queryClient.invalidateQueries(['all-menu-items']);
+      queryClient.invalidateQueries(['all-menu-categories']);
+      setSelectedRestaurant(null);
+      toast.success('Restaurant deleted successfully');
     },
   });
 
@@ -297,7 +331,20 @@ export default function SuperAdminRestaurants() {
                         >
                           {restaurant.is_open ? 'Close' : 'Open'}
                         </Button>
-                      </div>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => {
+                            setRestaurantToDelete(restaurant);
+                            setDeleteConfirmOpen(true);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                        </div>
                     </div>
                   </div>
                 </CardContent>
@@ -444,7 +491,37 @@ export default function SuperAdminRestaurants() {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-    </div>
-  );
-}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Restaurant</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete <strong>{restaurantToDelete?.name}</strong>? 
+                This will permanently remove the restaurant, all its menu items, categories, and cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setRestaurantToDelete(null)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  if (restaurantToDelete) {
+                    deleteRestaurantMutation.mutate({ id: restaurantToDelete.id });
+                    setDeleteConfirmOpen(false);
+                    setRestaurantToDelete(null);
+                  }
+                }}
+              >
+                Delete Restaurant
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        </div>
+        </div>
+        );
+        }
