@@ -127,7 +127,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Link to={createPageUrl('SuperAdminRestaurants')}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -172,6 +172,22 @@ export default function SuperAdminDashboard() {
                 <div className="text-2xl font-bold">{orders.length}</div>
                 <p className="text-xs text-muted-foreground">Platform-wide orders</p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-emerald-600">
+                  View All <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl('SuperAdminMessages')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Sent Messages</CardTitle>
+                <ShoppingBag className="w-4 h-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Track</div>
+                <p className="text-xs text-muted-foreground">All sent notifications</p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-purple-600">
                   View All <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>

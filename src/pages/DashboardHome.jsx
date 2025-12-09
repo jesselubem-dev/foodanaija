@@ -13,12 +13,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 
 export default function DashboardHome() {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -119,11 +126,16 @@ export default function DashboardHome() {
             ) : (
               <Badge className="bg-amber-100 text-amber-700">Pending Approval</Badge>
             )}
-            <Button variant="outline" size="icon" className="relative">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="relative"
+              onClick={() => setNotificationsOpen(true)}
+            >
               <Bell className="w-5 h-5" />
-              {pendingOrders.length > 0 && (
+              {unreadMessages.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {pendingOrders.length}
+                  {unreadMessages.length}
                 </span>
               )}
             </Button>
@@ -294,6 +306,61 @@ export default function DashboardHome() {
           <QuickAction icon={Clock} label="Settings" />
         </Link>
       </div>
+
+      {/* Notifications Dialog */}
+      <Dialog open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Notifications ({unreadMessages.length} unread)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {messages.length === 0 ? (
+              <div className="text-center py-8">
+                <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No notifications yet</p>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div 
+                  key={message.id} 
+                  className={`p-4 rounded-xl border transition-all ${
+                    message.is_read 
+                      ? 'bg-gray-50 border-gray-200' 
+                      : 'bg-orange-50 border-orange-200'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className={`font-semibold ${message.is_read ? 'text-gray-700' : 'text-gray-900'}`}>
+                      {message.title}
+                    </h4>
+                    {!message.is_read && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => markAsReadMutation.mutate(message.id)}
+                        className="text-xs"
+                      >
+                        Mark as read
+                      </Button>
+                    )}
+                  </div>
+                  <p className={`text-sm ${message.is_read ? 'text-gray-500' : 'text-gray-600'}`}>
+                    {message.content}
+                  </p>
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-xs text-gray-400">
+                      From Admin • {new Date(message.created_date).toLocaleDateString()}
+                    </p>
+                    {message.is_read && (
+                      <Badge variant="outline" className="text-xs">Read</Badge>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
