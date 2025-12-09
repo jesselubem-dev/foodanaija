@@ -93,7 +93,15 @@ export default function DashboardHome() {
             <p className="text-gray-500 text-sm mt-1">Here's what's happening at {restaurant.name} today.</p>
           </div>
           <div className="flex items-center gap-2">
-            {!restaurant.is_approved && (
+            {restaurant.is_approved ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border-2 border-green-200 rounded-xl">
+                <div className="relative">
+                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+                  <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping opacity-75" />
+                </div>
+                <span className="text-green-700 font-semibold text-sm">LIVE</span>
+              </div>
+            ) : (
               <Badge className="bg-amber-100 text-amber-700">Pending Approval</Badge>
             )}
             <Button variant="outline" size="icon" className="relative">
