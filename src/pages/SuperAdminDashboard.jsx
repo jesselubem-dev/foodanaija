@@ -65,6 +65,19 @@ export default function SuperAdminDashboard() {
     return orderDate.toDateString() === today.toDateString();
   });
 
+  // Calculate revenue per restaurant
+  const restaurantRevenue = restaurants.map(restaurant => {
+    const restaurantOrders = orders.filter(o => 
+      o.restaurant_id === restaurant.id && o.status === 'delivered'
+    );
+    const revenue = restaurantOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    return {
+      ...restaurant,
+      revenue,
+      orderCount: restaurantOrders.length
+    };
+  }).sort((a, b) => b.revenue - a.revenue);
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -165,6 +178,40 @@ export default function SuperAdminDashboard() {
             </Card>
           </Link>
         </div>
+
+        {/* Restaurant Revenue Breakdown */}
+        <Card className="border-orange-100 mb-8">
+          <CardHeader>
+            <CardTitle>Revenue by Restaurant</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {restaurantRevenue.filter(r => r.is_approved).slice(0, 10).map((restaurant) => (
+                <div key={restaurant.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3 flex-1">
+                    {restaurant.logo_url ? (
+                      <img src={restaurant.logo_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                        <Store className="w-5 h-5 text-orange-600" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{restaurant.name}</p>
+                      <p className="text-sm text-gray-500">{restaurant.city} • {restaurant.orderCount} orders</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-green-600">₦{restaurant.revenue.toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+              {restaurantRevenue.filter(r => r.is_approved).length === 0 && (
+                <p className="text-center text-gray-500 py-4">No revenue data yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Recent Activity */}
         <Card className="border-orange-100">
