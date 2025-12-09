@@ -85,10 +85,19 @@ export default function SuperAdminRestaurants() {
   };
 
   const approveRestaurantMutation = useMutation({
-    mutationFn: ({ id }) => base44.entities.Restaurant.update(id, { is_approved: true }),
-    onSuccess: () => {
+    mutationFn: ({ id, name }) => base44.entities.Restaurant.update(id, { is_approved: true }),
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['all-restaurants']);
       toast.success('Restaurant approved');
+      
+      // Text-to-speech announcement
+      const utterance = new SpeechSynthesisUtterance(
+        `${variables.name} has been approved and is now live!`
+      );
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      window.speechSynthesis.speak(utterance);
     },
   });
 
@@ -304,7 +313,7 @@ export default function SuperAdminRestaurants() {
                         {!restaurant.is_approved ? (
                           <Button
                             size="sm"
-                            onClick={() => approveRestaurantMutation.mutate({ id: restaurant.id })}
+                            onClick={() => approveRestaurantMutation.mutate({ id: restaurant.id, name: restaurant.name })}
                             className="bg-green-600 hover:bg-green-700"
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
