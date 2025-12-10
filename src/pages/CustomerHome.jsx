@@ -108,6 +108,11 @@ export default function CustomerHome() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
+          {user && (
+            <p className="text-lg text-orange-600 font-medium mb-2">
+              Welcome back, {user.full_name}! 👋
+            </p>
+          )}
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Order Food from Your <span className="gradient-text">Favorite Restaurants</span>
           </h2>
