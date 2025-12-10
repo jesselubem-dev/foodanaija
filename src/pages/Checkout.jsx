@@ -52,14 +52,13 @@ export default function Checkout() {
     }
   };
 
-  const placeOrderMutation = useMutation({
-    mutationFn: async (orderData) => {
-      return await base44.entities.Order.create(orderData);
+  const initializePaymentMutation = useMutation({
+    mutationFn: async (paymentData) => {
+      const response = await base44.functions.invoke('initializePayment', paymentData);
+      return response.data;
     },
-    onSuccess: () => {
-      localStorage.removeItem('cart');
-      toast.success('Order placed successfully!');
-      window.location.href = createPageUrl('OrderConfirmation');
+    onSuccess: (data) => {
+      window.location.href = data.authorization_url;
     },
   });
 
@@ -92,13 +91,15 @@ export default function Checkout() {
       subtotal,
       delivery_fee: deliveryFee,
       total,
-      payment_method: formData.payment_method,
       notes: formData.notes,
-      status: 'pending',
-      payment_status: 'pending'
+      status: 'pending'
     };
 
-    placeOrderMutation.mutate(orderData);
+    initializePaymentMutation.mutate({
+      email: formData.customer_email,
+      amount: total,
+      orderData: orderData
+    });
   };
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -201,22 +202,13 @@ export default function Checkout() {
                   />
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-2">Payment Method</label>
-                  <Select 
-                    value={formData.payment_method} 
-                    onValueChange={(value) => setFormData({...formData, payment_method: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="card">Card Payment</SelectItem>
-                      <SelectItem value="transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="ussd">USSD</SelectItem>
-                      <SelectItem value="cash">Cash on Delivery</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                  <p className="text-sm text-emerald-800 font-medium">
+                    💳 Secure Payment via Paystack
+                  </p>
+                  <p className="text-xs text-emerald-700 mt-1">
+                    You will be redirected to complete your payment securely
+                  </p>
                 </div>
 
                 <div>
@@ -270,9 +262,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 h-12"
-                  disabled={placeOrderMutation.isPending}
+                  disabled={initializePaymentMutation.isPending}
                 >
-                  {placeOrderMutation.isPending ? 'Placing Order...' : 'Place Order'}
+                  {initializePaymentMutation.isPending ? 'Processing...' : 'Proceed to Payment'}
                 </Button>
               </CardContent>
             </Card>
