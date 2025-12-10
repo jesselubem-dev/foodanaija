@@ -17,13 +17,25 @@ export default function RestaurantDetail() {
   const restaurantId = urlParams.get('id');
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+      
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (e) {
+      base44.auth.redirectToLogin(window.location.href);
+    }
+  };
 
   const { data: restaurant, isLoading: loadingRestaurant } = useQuery({
     queryKey: ['restaurant', restaurantId],

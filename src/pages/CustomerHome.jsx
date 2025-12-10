@@ -22,20 +22,32 @@ export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check if onboarding is completed
-    const onboardingCompleted = localStorage.getItem('onboarding_completed');
-    if (!onboardingCompleted) {
-      window.location.href = createPageUrl('Onboarding');
-      return;
-    }
-
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+      
+      // Check if onboarding is completed
+      const onboardingCompleted = localStorage.getItem('onboarding_completed');
+      if (!onboardingCompleted) {
+        window.location.href = createPageUrl('Onboarding');
+        return;
+      }
+
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (e) {
+      base44.auth.redirectToLogin(window.location.href);
+    }
+  };
 
   const { data: restaurants = [], isLoading, error } = useQuery({
     queryKey: ['approved-restaurants'],

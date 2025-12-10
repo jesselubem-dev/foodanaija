@@ -9,13 +9,25 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export default function Cart() {
   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+      
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (e) {
+      base44.auth.redirectToLogin(window.location.href);
+    }
+  };
 
   const updateQuantity = (itemId, delta) => {
     const newCart = cart.map(i => {
