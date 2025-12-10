@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { ChevronLeft, CreditCard, Building2, Phone as PhoneIcon, Banknote } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useMutation } from '@tanstack/react-query';
+import { ArrowLeft, User, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 export default function Checkout() {
-  const navigate = useNavigate();
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    notes: '',
-    payment_method: 'card'
+    customer_name: '',
+    customer_email: '',
+    customer_phone: '',
+    delivery_address: '',
+    payment_method: 'card',
+    notes: ''
   });
 
   useEffect(() => {
@@ -30,37 +34,39 @@ export default function Checkout() {
   }, []);
 
   const loadData = async () => {
-    const savedCart = JSON.parse(localStorage.getItem('foodanaija_cart') || '[]');
-    setCart(savedCart);
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
 
     try {
       const userData = await base44.auth.me();
       setUser(userData);
       setFormData(prev => ({
         ...prev,
-        name: userData.full_name || '',
-        email: userData.email || ''
+        customer_name: userData.full_name || '',
+        customer_email: userData.email || ''
       }));
     } catch (e) {
-      // Not logged in - they can still checkout as guest
+      // Not logged in
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const placeOrderMutation = useMutation({
+    mutationFn: async (orderData) => {
+      return await base44.entities.Order.create(orderData);
+    },
+    onSuccess: () => {
+      localStorage.removeItem('cart');
+      toast.success('Order placed successfully!');
+      window.location.href = createPageUrl('OrderConfirmation');
+    },
+  });
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = 500;
-  const total = subtotal + deliveryFee;
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.phone || !formData.address) {
+    if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.delivery_address) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -70,235 +76,209 @@ export default function Checkout() {
       return;
     }
 
-    setIsProcessing(true);
+    const restaurant = cart[0];
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = 500;
+    const total = subtotal + deliveryFee;
 
-    try {
-      // Group items by restaurant and create separate orders
-      const itemsByRestaurant = cart.reduce((acc, item) => {
-        const restaurantId = item.restaurant_id;
-        if (!acc[restaurantId]) {
-          acc[restaurantId] = {
-            restaurant_id: restaurantId,
-            restaurant_name: item.restaurant_name,
-            items: []
-          };
-        }
-        acc[restaurantId].items.push({
-          item_id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image_url: item.image_url
-        });
-        return acc;
-      }, {});
+    const orderData = {
+      restaurant_id: restaurant.restaurant_id,
+      restaurant_name: restaurant.restaurant_name,
+      customer_email: formData.customer_email,
+      customer_name: formData.customer_name,
+      customer_phone: formData.customer_phone,
+      delivery_address: formData.delivery_address,
+      items: cart,
+      subtotal,
+      delivery_fee: deliveryFee,
+      total,
+      payment_method: formData.payment_method,
+      notes: formData.notes,
+      status: 'pending',
+      payment_status: 'pending'
+    };
 
-      // Create orders for each restaurant
-      const orderPromises = Object.values(itemsByRestaurant).map(orderData => {
-        const orderSubtotal = orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        return base44.entities.Order.create({
-          restaurant_id: orderData.restaurant_id,
-          restaurant_name: orderData.restaurant_name,
-          customer_email: formData.email || user?.email,
-          customer_name: formData.name,
-          customer_phone: formData.phone,
-          delivery_address: formData.address,
-          items: orderData.items,
-          subtotal: orderSubtotal,
-          delivery_fee: deliveryFee,
-          total: orderSubtotal + deliveryFee,
-          status: 'pending',
-          payment_method: formData.payment_method,
-          payment_status: formData.payment_method === 'cash' ? 'pending' : 'paid',
-          notes: formData.notes
-        });
-      });
-
-      await Promise.all(orderPromises);
-
-      // Clear cart
-      localStorage.setItem('foodanaija_cart', JSON.stringify([]));
-      window.dispatchEvent(new Event('cartUpdated'));
-
-      toast.success('Order placed successfully!');
-      navigate(createPageUrl('Orders'));
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to place order. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    placeOrderMutation.mutate(orderData);
   };
+
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const deliveryFee = cart.length > 0 ? 500 : 0;
+  const total = subtotal + deliveryFee;
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-        <Button onClick={() => navigate(createPageUrl('Home'))} className="bg-emerald-600 hover:bg-emerald-700">
-          Browse Restaurants
-        </Button>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 flex items-center justify-center">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+            <Link to={createPageUrl('CustomerHome')}>
+              <Button className="bg-gradient-to-r from-emerald-500 to-emerald-600">
+                Browse Restaurants
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 pb-32">
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
-        <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Link to={createPageUrl('Cart')}>
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
+          {/* Delivery Details */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border-emerald-100">
+              <CardHeader>
+                <CardTitle>Delivery Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Full Name *
+                  </label>
+                  <Input
+                    required
+                    value={formData.customer_name}
+                    onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email *
+                  </label>
+                  <Input
+                    required
+                    type="email"
+                    value={formData.customer_email}
+                    onChange={(e) => setFormData({...formData, customer_email: e.target.value})}
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    Phone Number *
+                  </label>
+                  <Input
+                    required
+                    value={formData.customer_phone}
+                    onChange={(e) => setFormData({...formData, customer_phone: e.target.value})}
+                    placeholder="e.g. 0801234567"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Delivery Address *
+                  </label>
+                  <Textarea
+                    required
+                    value={formData.delivery_address}
+                    onChange={(e) => setFormData({...formData, delivery_address: e.target.value})}
+                    placeholder="Enter your delivery address"
+                    className="min-h-[80px]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2">Payment Method</label>
+                  <Select 
+                    value={formData.payment_method} 
+                    onValueChange={(value) => setFormData({...formData, payment_method: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="card">Card Payment</SelectItem>
+                      <SelectItem value="transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="ussd">USSD</SelectItem>
+                      <SelectItem value="cash">Cash on Delivery</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2">Special Instructions (Optional)</label>
+                  <Textarea
+                    value={formData.notes}
+                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    placeholder="Any special requests..."
+                    className="min-h-[80px]"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <Card className="border-emerald-100 sticky top-24">
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {cart.map((item) => (
+                  <div key={item.item_id} className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      {item.name} x{item.quantity}
+                    </span>
+                    <span className="font-medium">
+                      ₦{(item.price * item.quantity).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₦{subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Delivery Fee</span>
+                    <span>₦{deliveryFee.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between text-xl font-bold text-gray-900">
+                      <span>Total</span>
+                      <span>₦{total.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 h-12"
+                  disabled={placeOrderMutation.isPending}
+                >
+                  {placeOrderMutation.isPending ? 'Placing Order...' : 'Place Order'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Delivery Details */}
-        <div className="bg-white rounded-2xl border border-emerald-50 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Delivery Details</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Full Name *</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter your full name"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="08012345678"
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="your@email.com"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="address">Delivery Address *</Label>
-              <Textarea
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter your full delivery address"
-                required
-                className="mt-1"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="notes">Special Instructions (Optional)</Label>
-              <Textarea
-                id="notes"
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                placeholder="Any special requests or delivery instructions"
-                className="mt-1"
-                rows={2}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Method */}
-        <div className="bg-white rounded-2xl border border-emerald-50 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Payment Method</h2>
-          
-          <RadioGroup value={formData.payment_method} onValueChange={(value) => setFormData({...formData, payment_method: value})}>
-            <div className="space-y-3">
-              <PaymentOption value="card" icon={CreditCard} label="Card Payment" desc="Pay with your debit/credit card" />
-              <PaymentOption value="transfer" icon={Building2} label="Bank Transfer" desc="Transfer to our account" />
-              <PaymentOption value="ussd" icon={PhoneIcon} label="USSD" desc="Pay using USSD code" />
-              <PaymentOption value="cash" icon={Banknote} label="Cash on Delivery" desc="Pay when you receive" />
-            </div>
-          </RadioGroup>
-        </div>
-
-        {/* Order Summary */}
-        <div className="bg-white rounded-2xl border border-emerald-50 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h2>
-          
-          <div className="space-y-3 mb-4">
-            {cart.map(item => (
-              <div key={item.id} className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  {item.name} x {item.quantity}
-                </span>
-                <span className="font-semibold text-gray-900">
-                  ₦{(item.price * item.quantity).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-gray-200 pt-3 space-y-2">
-            <div className="flex justify-between text-gray-600">
-              <span>Subtotal</span>
-              <span className="font-semibold">₦{subtotal.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-gray-600">
-              <span>Delivery Fee</span>
-              <span className="font-semibold">₦{deliveryFee.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
-              <span>Total</span>
-              <span className="text-emerald-600">₦{total.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <Button 
-          type="submit"
-          disabled={isProcessing}
-          className="w-full h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-emerald-500/20"
-        >
-          {isProcessing ? 'Processing...' : `Place Order - ₦${total.toLocaleString()}`}
-        </Button>
-      </form>
-    </div>
-  );
-}
-
-function PaymentOption({ value, icon: Icon, label, desc }) {
-  return (
-    <div className="flex items-center space-x-3 p-4 border border-gray-200 rounded-xl hover:border-emerald-300 cursor-pointer transition-colors">
-      <RadioGroupItem value={value} id={value} />
-      <Label htmlFor={value} className="flex items-center gap-3 flex-1 cursor-pointer">
-        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-5 h-5 text-emerald-600" />
-        </div>
-        <div>
-          <p className="font-semibold text-gray-900">{label}</p>
-          <p className="text-xs text-gray-500">{desc}</p>
-        </div>
-      </Label>
     </div>
   );
 }

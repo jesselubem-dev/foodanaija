@@ -10,6 +10,11 @@ import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminUsers from './pages/SuperAdminUsers';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminMessages from './pages/SuperAdminMessages';
+import CustomerHome from './pages/CustomerHome';
+import RestaurantDetail from './pages/RestaurantDetail';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +31,11 @@ export const PAGES = {
     "SuperAdminUsers": SuperAdminUsers,
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminMessages": SuperAdminMessages,
+    "CustomerHome": CustomerHome,
+    "RestaurantDetail": RestaurantDetail,
+    "Cart": Cart,
+    "Checkout": Checkout,
+    "OrderConfirmation": OrderConfirmation,
 }
 
 export const pagesConfig = {
