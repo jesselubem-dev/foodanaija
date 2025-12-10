@@ -92,7 +92,7 @@ export default function ReviewSection({ restaurant, reviews }) {
 
   return (
     <div className="space-y-6">
-      <Card className="border-emerald-100">
+      <Card className="border-orange-100">
         <CardContent className="p-6">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Customer Reviews</h3>
           
@@ -139,7 +139,7 @@ export default function ReviewSection({ restaurant, reviews }) {
           {!showForm ? (
             <Button
               onClick={() => setShowForm(true)}
-              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600"
+              className="w-full bg-gradient-to-r from-orange-500 to-orange-600"
             >
               Write a Review
             </Button>
@@ -183,7 +183,7 @@ export default function ReviewSection({ restaurant, reviews }) {
                 <Button
                   type="submit"
                   disabled={submitReviewMutation.isPending}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
                 >
                   {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
                 </Button>
@@ -211,8 +211,8 @@ export default function ReviewSection({ restaurant, reviews }) {
             <Card key={review.id} className="border-gray-200">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <User className="w-5 h-5 text-emerald-600" />
+                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                    <User className="w-5 h-5 text-orange-600" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">

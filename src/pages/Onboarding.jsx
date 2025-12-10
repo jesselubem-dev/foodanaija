@@ -11,19 +11,19 @@ export default function Onboarding() {
       icon: ChefHat,
       title: 'Discover Restaurants',
       description: 'Browse hundreds of restaurants and cuisines in your city',
-      color: 'emerald'
+      color: 'orange'
     },
     {
       icon: ShoppingBag,
       title: 'Order Your Favorites',
       description: 'Add items to cart and customize your order',
-      color: 'orange'
+      color: 'yellow'
     },
     {
       icon: Zap,
       title: 'Fast Delivery',
       description: 'Get your food delivered hot and fresh to your doorstep',
-      color: 'blue'
+      color: 'amber'
     }
   ];
 
@@ -42,7 +42,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="max-w-md w-full">
           <div className="text-center">
@@ -71,7 +71,7 @@ export default function Onboarding() {
                 key={index}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? 'w-8 bg-emerald-600'
+                    ? 'w-8 bg-orange-600'
                     : 'w-2 bg-gray-300'
                 }`}
               />
@@ -81,7 +81,7 @@ export default function Onboarding() {
           <div className="space-y-3">
             <Button
               onClick={handleNext}
-              className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 text-lg"
+              className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 text-lg"
             >
               {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
             </Button>

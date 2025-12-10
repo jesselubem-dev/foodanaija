@@ -62,13 +62,13 @@ export default function CustomerHome() {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                 <ChefHat className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -78,11 +78,11 @@ export default function CustomerHome() {
             </div>
             
             <Link to={createPageUrl('Cart')}>
-              <Button className="relative bg-gradient-to-r from-emerald-500 to-emerald-600">
+              <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
                 <ShoppingBag className="w-5 h-5 mr-2" />
                 Cart
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center">
                     {cartItemCount}
                   </span>
                 )}
@@ -130,12 +130,12 @@ export default function CustomerHome() {
         {/* Restaurants Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
           </div>
         ) : filteredRestaurants.length === 0 ? (
-          <Card>
+          <Card className="border-orange-100">
             <CardContent className="p-12 text-center">
-              <ChefHat className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <ChefHat className="w-12 h-12 text-orange-300 mx-auto mb-4" />
               <p className="text-gray-500">No restaurants found</p>
             </CardContent>
           </Card>
@@ -151,8 +151,8 @@ export default function CustomerHome() {
                       className="w-full h-48 object-cover rounded-t-xl"
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gradient-to-br from-emerald-100 to-amber-100 rounded-t-xl flex items-center justify-center">
-                      <ChefHat className="w-16 h-16 text-emerald-600" />
+                    <div className="w-full h-48 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-t-xl flex items-center justify-center">
+                      <ChefHat className="w-16 h-16 text-orange-600" />
                     </div>
                   )}
                   
@@ -181,15 +181,15 @@ export default function CustomerHome() {
 
                     <div className="space-y-2 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-emerald-600" />
+                        <MapPin className="w-4 h-4 text-orange-600" />
                         <span>{restaurant.city}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-emerald-600" />
+                        <Clock className="w-4 h-4 text-orange-600" />
                         <span>{restaurant.delivery_time}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Bike className="w-4 h-4 text-emerald-600" />
+                        <Bike className="w-4 h-4 text-orange-600" />
                         <span>₦{restaurant.delivery_fee?.toLocaleString()} delivery</span>
                       </div>
                       {restaurant.rating > 0 && (

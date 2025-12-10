@@ -114,7 +114,7 @@ export default function RestaurantDetail() {
   if (loadingRestaurant) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -128,9 +128,9 @@ export default function RestaurantDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to={createPageUrl('CustomerHome')}>
@@ -140,7 +140,7 @@ export default function RestaurantDetail() {
             </Link>
             
             <Link to={createPageUrl('Cart')}>
-              <Button className="relative bg-gradient-to-r from-emerald-500 to-emerald-600">
+              <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
                 <ShoppingBag className="w-5 h-5 mr-2" />
                 Cart
                 {cartItemCount > 0 && (
@@ -163,13 +163,13 @@ export default function RestaurantDetail() {
             className="w-full h-64 object-cover"
           />
         ) : (
-          <div className="w-full h-64 bg-gradient-to-br from-emerald-100 to-amber-100 flex items-center justify-center">
-            <ChefHat className="w-24 h-24 text-emerald-600" />
+          <div className="w-full h-64 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center">
+            <ChefHat className="w-24 h-24 text-orange-600" />
           </div>
         )}
         
         <div className="max-w-7xl mx-auto px-4">
-          <Card className="relative -mt-16 border-emerald-100">
+          <Card className="relative -mt-16 border-orange-100">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 {restaurant.logo_url && (
@@ -185,15 +185,15 @@ export default function RestaurantDetail() {
                   
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-emerald-600" />
+                      <MapPin className="w-4 h-4 text-orange-600" />
                       {restaurant.city}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-emerald-600" />
+                      <Clock className="w-4 h-4 text-orange-600" />
                       {restaurant.delivery_time}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Bike className="w-4 h-4 text-emerald-600" />
+                      <Bike className="w-4 h-4 text-orange-600" />
                       ₦{restaurant.delivery_fee?.toLocaleString()} delivery
                     </div>
                     {restaurant.rating > 0 && (
@@ -226,7 +226,7 @@ export default function RestaurantDetail() {
             <Button
               variant={selectedCategory === 'all' ? 'default' : 'outline'}
               onClick={() => setSelectedCategory('all')}
-              className={selectedCategory === 'all' ? 'bg-emerald-600' : ''}
+              className={selectedCategory === 'all' ? 'bg-orange-600' : ''}
             >
               All Items
             </Button>
@@ -235,7 +235,7 @@ export default function RestaurantDetail() {
                 key={category.id}
                 variant={selectedCategory === category.id ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(category.id)}
-                className={selectedCategory === category.id ? 'bg-emerald-600' : ''}
+                className={selectedCategory === category.id ? 'bg-orange-600' : ''}
               >
                 {category.name}
               </Button>
@@ -256,7 +256,7 @@ export default function RestaurantDetail() {
             {filteredItems.map((item) => {
               const quantity = getItemQuantity(item.id);
               return (
-                <Card key={item.id} className="border-emerald-100 hover:shadow-lg transition-shadow">
+                <Card key={item.id} className="border-orange-100 hover:shadow-lg transition-shadow">
                   <CardContent className="p-4">
                     {item.images?.[0] && (
                       <img 
@@ -270,14 +270,14 @@ export default function RestaurantDetail() {
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                     
                     <div className="flex items-center justify-between">
-                      <p className="text-xl font-bold text-emerald-600">
+                      <p className="text-xl font-bold text-orange-600">
                         ₦{item.price?.toLocaleString()}
                       </p>
                       
                       {quantity === 0 ? (
                         <Button
                           onClick={() => addToCart(item)}
-                          className="bg-gradient-to-r from-emerald-500 to-emerald-600"
+                          className="bg-gradient-to-r from-orange-500 to-orange-600"
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           Add
@@ -294,7 +294,7 @@ export default function RestaurantDetail() {
                           <span className="font-bold w-8 text-center">{quantity}</span>
                           <Button
                             size="icon"
-                            className="bg-emerald-600"
+                            className="bg-orange-600"
                             onClick={() => updateQuantity(item.id, 1)}
                           >
                             <Plus className="w-4 h-4" />
