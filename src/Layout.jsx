@@ -33,7 +33,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Pages that don't need layout
-  const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation'];
+  const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
