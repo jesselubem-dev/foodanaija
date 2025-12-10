@@ -11,22 +11,19 @@ export default function Onboarding() {
       icon: ChefHat,
       title: 'Discover Restaurants',
       description: 'Browse hundreds of restaurants and cuisines in your city',
-      color: 'orange',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=600&fit=crop'
+      color: 'orange'
     },
     {
       icon: ShoppingBag,
       title: 'Order Your Favorites',
       description: 'Add items to cart and customize your order',
-      color: 'yellow',
-      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=600&fit=crop'
+      color: 'yellow'
     },
     {
       icon: Zap,
       title: 'Fast Delivery',
       description: 'Get your food delivered hot and fresh to your doorstep',
-      color: 'amber',
-      image: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=600&h=600&fit=crop'
+      color: 'amber'
     }
   ];
 
@@ -58,12 +55,8 @@ export default function Onboarding() {
                     index === currentSlide ? 'block' : 'hidden'
                   }`}
                 >
-                  <div className="mb-8">
-                    <img 
-                      src={slide.image} 
-                      alt={slide.title}
-                      className="w-80 h-80 object-cover rounded-3xl mx-auto shadow-2xl"
-                    />
+                  <div className={`w-32 h-32 rounded-full bg-gradient-to-br from-${slide.color}-500 to-${slide.color}-600 flex items-center justify-center mx-auto mb-8 shadow-xl`}>
+                    <Icon className="w-16 h-16 text-white" />
                   </div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">{slide.title}</h1>
                   <p className="text-lg text-gray-600 mb-8">{slide.description}</p>
