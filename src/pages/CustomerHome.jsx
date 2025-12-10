@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,17 +77,25 @@ export default function CustomerHome() {
               </div>
             </div>
             
-            <Link to={createPageUrl('Cart')}>
-              <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
-                <ShoppingBag className="w-5 h-5 mr-2" />
-                Cart
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to={createPageUrl('OrderHistory')}>
+                <Button variant="outline">
+                  <History className="w-5 h-5 mr-2" />
+                  Orders
+                </Button>
+              </Link>
+              <Link to={createPageUrl('Cart')}>
+                <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
+                  <ShoppingBag className="w-5 h-5 mr-2" />
+                  Cart
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
