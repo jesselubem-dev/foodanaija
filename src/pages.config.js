@@ -15,6 +15,7 @@ import RestaurantDetail from './pages/RestaurantDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
+import Onboarding from './pages/Onboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +37,7 @@ export const PAGES = {
     "Cart": Cart,
     "Checkout": Checkout,
     "OrderConfirmation": OrderConfirmation,
+    "Onboarding": Onboarding,
 }
 
 export const pagesConfig = {

@@ -32,9 +32,9 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Super Admin pages don't need restaurant check
-  const superAdminPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'Home'];
-  if (superAdminPages.includes(currentPageName)) {
+  // Pages that don't need layout
+  const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation'];
+  if (noLayoutPages.includes(currentPageName)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
         {children}

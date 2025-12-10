@@ -24,6 +24,13 @@ export default function CustomerHome() {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
+    // Check if onboarding is completed
+    const onboardingCompleted = localStorage.getItem('onboarding_completed');
+    if (!onboardingCompleted) {
+      window.location.href = createPageUrl('Onboarding');
+      return;
+    }
+
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
