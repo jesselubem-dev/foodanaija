@@ -12,21 +12,21 @@ export default function Onboarding() {
       title: 'Discover Restaurants',
       description: 'Browse hundreds of restaurants and cuisines in your city',
       color: 'orange',
-      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=600&fit=crop'
+      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=600&fit=crop'
     },
     {
       icon: ShoppingBag,
       title: 'Order Your Favorites',
       description: 'Add items to cart and customize your order',
       color: 'yellow',
-      image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=600&h=600&fit=crop'
+      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=600&fit=crop'
     },
     {
       icon: Zap,
       title: 'Fast Delivery',
       description: 'Get your food delivered hot and fresh to your doorstep',
       color: 'amber',
-      image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=600&fit=crop'
+      image: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=600&h=600&fit=crop'
     }
   ];
 
