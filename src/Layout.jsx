@@ -81,7 +81,7 @@ export default function Layout({ children, currentPageName }) {
         <nav className="px-4 space-y-1">
           <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} />
           <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} />
-          <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} />
+          <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} restaurant={restaurant} />
           <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} />
           <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} />
         </nav>
@@ -120,12 +120,12 @@ export default function Layout({ children, currentPageName }) {
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
           <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1" onClick={e => e.stopPropagation()}>
-            <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-            <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-            <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-            <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-            <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-          </div>
+              <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+              <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+              <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} onClick={() => setMobileMenuOpen(false)} restaurant={restaurant} />
+              <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+              <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+            </div>
         </div>
       )}
 
@@ -136,13 +136,32 @@ export default function Layout({ children, currentPageName }) {
   );
 }
 
-function DashboardNavLink({ to, icon: Icon, label, current, onClick }) {
+function DashboardNavLink({ to, icon: Icon, label, current, onClick, restaurant }) {
   const isActive = current === to;
+  const [pendingCount, setPendingCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (to === 'DashboardOrders' && restaurant?.id) {
+      const fetchOrders = async () => {
+        try {
+          const orders = await base44.entities.Order.filter({ restaurant_id: restaurant.id });
+          const pending = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
+          setPendingCount(pending.length);
+        } catch (e) {
+          console.error('Failed to fetch orders:', e);
+        }
+      };
+      fetchOrders();
+      const interval = setInterval(fetchOrders, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [restaurant?.id, to]);
+
   return (
     <Link 
       to={createPageUrl(to)} 
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative ${
         isActive 
           ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20' 
           : 'text-gray-600 hover:bg-orange-50'
@@ -150,6 +169,11 @@ function DashboardNavLink({ to, icon: Icon, label, current, onClick }) {
     >
       <Icon className="w-5 h-5" />
       <span className="font-medium">{label}</span>
+      {to === 'DashboardOrders' && pendingCount > 0 && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+          {pendingCount}
+        </span>
+      )}
     </Link>
   );
 }
