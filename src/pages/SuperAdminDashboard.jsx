@@ -36,24 +36,28 @@ export default function SuperAdminDashboard() {
     queryKey: ['all-restaurants'],
     queryFn: () => base44.entities.Restaurant.list(),
     enabled: !!user,
+    refetchInterval: 10000,
   });
 
   const { data: orders = [] } = useQuery({
     queryKey: ['all-orders'],
     queryFn: () => base44.entities.Order.list(),
     enabled: !!user,
+    refetchInterval: 10000,
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
     enabled: !!user,
+    refetchInterval: 10000,
   });
 
   const { data: menuItems = [] } = useQuery({
     queryKey: ['all-menu-items'],
     queryFn: () => base44.entities.MenuItem.list(),
     enabled: !!user,
+    refetchInterval: 10000,
   });
 
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);

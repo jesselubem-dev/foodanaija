@@ -64,7 +64,7 @@ export default function DashboardOrders() {
     queryKey: ['restaurant-orders', restaurant?.id],
     queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date'),
     enabled: !!restaurant?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 10000,
   });
 
   const updateStatusMutation = useMutation({
