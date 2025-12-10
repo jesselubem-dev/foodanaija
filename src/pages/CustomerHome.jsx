@@ -200,9 +200,12 @@ export default function CustomerHome() {
                       )}
                     </div>
 
-                    {!restaurant.is_open && (
-                      <Badge className="mt-3 bg-red-100 text-red-700">Currently Closed</Badge>
-                    )}
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${restaurant.is_open ? 'bg-green-500 animate-pulse' : 'bg-red-500 animate-pulse'}`} />
+                      <span className={`text-sm font-medium ${restaurant.is_open ? 'text-green-700' : 'text-red-700'}`}>
+                        {restaurant.is_open ? 'Open Now' : 'Closed'}
+                      </span>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
