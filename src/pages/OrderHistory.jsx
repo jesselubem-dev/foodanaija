@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -15,7 +15,7 @@ import moment from 'moment';
 export default function OrderHistory() {
   const [user, setUser] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadUser();
   }, []);
 
