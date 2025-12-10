@@ -30,15 +30,10 @@ export default function Checkout() {
   });
 
   useEffect(() => {
-    loadData();
+    checkAuth();
   }, []);
 
-  const loadData = async () => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-
+  const checkAuth = async () => {
     try {
       const userData = await base44.auth.me();
       setUser(userData);
@@ -47,8 +42,13 @@ export default function Checkout() {
         customer_name: userData.full_name || '',
         customer_email: userData.email || ''
       }));
+      
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
     } catch (e) {
-      // Not logged in
+      base44.auth.redirectToLogin(window.location.href);
     }
   };
 
