@@ -22,7 +22,6 @@ Deno.serve(async (req) => {
         email: email,
         amount: amount * 100, // Paystack expects amount in kobo
         currency: 'NGN',
-        callback_url: `${new URL(req.url).origin}/pages/OrderConfirmation`,
         metadata: {
           order_data: JSON.stringify(orderData),
           custom_fields: [
