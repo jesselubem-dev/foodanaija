@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import moment from 'moment';
+import FloatingMenu from '../components/customer/FloatingMenu';
 
 export default function OrderHistory() {
   const [user, setUser] = useState(null);
@@ -174,8 +175,11 @@ export default function OrderHistory() {
               );
             })}
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
+          )}
+          </div>
+
+          {/* Floating Menu */}
+          <FloatingMenu cartCount={0} />
+          </div>
+          );
+          }

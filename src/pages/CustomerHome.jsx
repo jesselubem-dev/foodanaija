@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import FloatingMenu from '../components/customer/FloatingMenu';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
