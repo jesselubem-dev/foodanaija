@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,6 +107,14 @@ export default function CustomerHome() {
                   )}
                 </Button>
               </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => base44.auth.logout()}
+                className="text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="w-5 h-5 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
