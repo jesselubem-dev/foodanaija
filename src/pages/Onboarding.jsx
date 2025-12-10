@@ -38,15 +38,52 @@ export default function Onboarding() {
     }
   };
 
+  const handlePrevious = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
   const handleSkip = () => {
     localStorage.setItem('onboarding_completed', 'true');
     window.location.href = createPageUrl('CustomerHome');
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50;
+
+    if (distance > minSwipeDistance) {
+      handleNext();
+    }
+
+    if (distance < -minSwipeDistance) {
+      handlePrevious();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-md w-full">
+        <div 
+          className="max-w-md w-full"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="text-center">
             {slides.map((slide, index) => {
               const Icon = slide.icon;
