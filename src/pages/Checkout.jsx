@@ -25,7 +25,6 @@ export default function Checkout() {
     customer_email: '',
     customer_phone: '',
     delivery_address: '',
-    payment_method: 'card',
     notes: ''
   });
 
@@ -59,6 +58,10 @@ export default function Checkout() {
     },
     onSuccess: (data) => {
       window.location.href = data.authorization_url;
+    },
+    onError: (error) => {
+      console.error('Payment initialization error:', error);
+      toast.error('Failed to initialize payment. Please try again.');
     },
   });
 
