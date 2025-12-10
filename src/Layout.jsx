@@ -7,6 +7,7 @@ import {
   BarChart3, Settings, Menu, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import NoInternet from './components/NoInternet';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -62,6 +63,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+      <NoInternet />
       {/* Dashboard Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">
         <div className="p-6">
