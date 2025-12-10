@@ -242,6 +242,9 @@ export default function CustomerHome() {
           </div>
         )}
       </div>
+
+      {/* Floating Menu */}
+      <FloatingMenu cartCount={cartItemCount} />
     </div>
   );
 }
