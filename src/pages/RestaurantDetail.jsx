@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import ReviewSection from '../components/restaurant/ReviewSection';
+import NotificationBell from '../components/customer/NotificationBell';
 
 export default function RestaurantDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -155,7 +156,8 @@ export default function RestaurantDetail() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            
+
+            <NotificationBell userEmail={user?.email} />
             <Link to={createPageUrl('Cart')}>
               <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
                 <ShoppingBag className="w-5 h-5 mr-2" />

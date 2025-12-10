@@ -145,7 +145,7 @@ function DashboardNavLink({ to, icon: Icon, label, current, onClick, restaurant 
       const fetchOrders = async () => {
         try {
           const orders = await base44.entities.Order.filter({ restaurant_id: restaurant.id });
-          const pending = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
+          const pending = orders.filter(o => ['pending', 'accepted'].includes(o.status));
           setPendingCount(pending.length);
         } catch (e) {
           console.error('Failed to fetch orders:', e);

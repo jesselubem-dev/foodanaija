@@ -23,12 +23,10 @@ import { toast } from "sonner";
 import { createPageUrl } from '../utils';
 
 const statusConfig = {
-  pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock, next: 'accepted' },
-  accepted: { label: 'Accepted', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: CheckCircle, next: 'preparing' },
-  preparing: { label: 'Preparing', color: 'bg-purple-100 text-purple-700 border-purple-200', icon: Package, next: 'ready' },
-  ready: { label: 'Ready', color: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: Truck, next: 'delivered' },
-  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle, next: null },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle, next: null },
+  pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock },
+  accepted: { label: 'Accepted', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle, next: 'delivered' },
+  declined: { label: 'Declined', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
+  delivered: { label: 'Delivered', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Truck },
 };
 
 export default function DashboardOrders() {
@@ -68,15 +66,44 @@ export default function DashboardOrders() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Order.update(id, { status }),
+    mutationFn: async ({ id, status, customerEmail }) => {
+      await base44.entities.Order.update(id, { status });
+      
+      // Create notification for customer
+      if (status === 'accepted') {
+        await base44.entities.Notification.create({
+          user_email: customerEmail,
+          title: 'Order Accepted! 🎉',
+          message: 'Good news! Your order has been accepted by the restaurant and will be prepared shortly.',
+          type: 'order_accepted',
+          order_id: id,
+        });
+      } else if (status === 'declined') {
+        await base44.entities.Notification.create({
+          user_email: customerEmail,
+          title: 'Order Declined',
+          message: 'Sorry, the restaurant is unable to fulfill your order at this time. Your payment will be refunded.',
+          type: 'order_declined',
+          order_id: id,
+        });
+      } else if (status === 'delivered') {
+        await base44.entities.Notification.create({
+          user_email: customerEmail,
+          title: 'Order Delivered! 🎉',
+          message: 'Your order has been delivered. Enjoy your meal!',
+          type: 'order_delivered',
+          order_id: id,
+        });
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['restaurant-orders']);
       toast.success('Order status updated');
     },
   });
 
-  const activeOrders = orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status));
-  const completedOrders = orders.filter(o => ['delivered', 'cancelled'].includes(o.status));
+  const activeOrders = orders.filter(o => ['pending', 'accepted'].includes(o.status));
+  const completedOrders = orders.filter(o => ['delivered', 'declined'].includes(o.status));
 
   const filteredOrders = (activeTab === 'active' ? activeOrders : completedOrders).filter(order =>
     !searchQuery || 
@@ -124,22 +151,19 @@ export default function DashboardOrders() {
           color="amber"
         />
         <StatCard 
-          label="Preparing" 
-          count={orders.filter(o => o.status === 'preparing').length}
-          color="purple"
-        />
-        <StatCard 
-          label="Ready" 
-          count={orders.filter(o => o.status === 'ready').length}
-          color="emerald"
-        />
-        <StatCard 
-          label="Delivered Today" 
-          count={orders.filter(o => {
-            const today = new Date().toDateString();
-            return o.status === 'delivered' && new Date(o.updated_date).toDateString() === today;
-          }).length}
+          label="Accepted" 
+          count={orders.filter(o => o.status === 'accepted').length}
           color="green"
+        />
+        <StatCard 
+          label="Delivered" 
+          count={orders.filter(o => o.status === 'delivered').length}
+          color="blue"
+        />
+        <StatCard 
+          label="Declined" 
+          count={orders.filter(o => o.status === 'declined').length}
+          color="red"
         />
       </div>
 
@@ -280,31 +304,51 @@ export default function DashboardOrders() {
               </div>
 
               {/* Action Buttons */}
-              {statusConfig[selectedOrder.status]?.next && (
+              {selectedOrder.status === 'pending' && (
                 <div className="flex gap-2">
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      updateStatusMutation.mutate({ id: selectedOrder.id, status: 'cancelled' });
+                      updateStatusMutation.mutate({ 
+                        id: selectedOrder.id, 
+                        status: 'declined',
+                        customerEmail: selectedOrder.customer_email 
+                      });
                       setSelectedOrder(null);
                     }}
                     className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
                   >
-                    Cancel Order
+                    Decline Order
                   </Button>
                   <Button 
                     onClick={() => {
                       updateStatusMutation.mutate({ 
                         id: selectedOrder.id, 
-                        status: statusConfig[selectedOrder.status].next 
+                        status: 'accepted',
+                        customerEmail: selectedOrder.customer_email
                       });
                       setSelectedOrder(null);
                     }}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+                    className="flex-1 bg-green-500 hover:bg-green-600"
                   >
-                    Mark as {statusConfig[statusConfig[selectedOrder.status].next]?.label}
+                    Accept Order
                   </Button>
                 </div>
+              )}
+              {selectedOrder.status === 'accepted' && (
+                <Button 
+                  onClick={() => {
+                    updateStatusMutation.mutate({ 
+                      id: selectedOrder.id, 
+                      status: 'delivered',
+                      customerEmail: selectedOrder.customer_email
+                    });
+                    setSelectedOrder(null);
+                  }}
+                  className="w-full bg-blue-500 hover:bg-blue-600"
+                >
+                  Mark as Delivered
+                </Button>
               )}
             </div>
           )}
@@ -317,9 +361,9 @@ export default function DashboardOrders() {
 function StatCard({ label, count, color }) {
   const colors = {
     amber: 'bg-amber-100 text-amber-700',
-    purple: 'bg-purple-100 text-purple-700',
-    emerald: 'bg-emerald-100 text-emerald-700',
     green: 'bg-green-100 text-green-700',
+    blue: 'bg-blue-100 text-blue-700',
+    red: 'bg-red-100 text-red-700',
   };
 
   return (
@@ -333,6 +377,10 @@ function StatCard({ label, count, color }) {
 function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
   const status = statusConfig[order.status];
   const StatusIcon = status?.icon || Clock;
+
+  const handleStatusUpdate = (newStatus) => {
+    onUpdateStatus(newStatus, order.customer_email);
+  };
 
   return (
     <Card className="border-emerald-50 hover:shadow-lg transition-shadow">
@@ -377,25 +425,36 @@ function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
             <Button variant="outline" size="sm" onClick={onViewDetails}>
               View Details
             </Button>
-            {status?.next && (
-              <Select 
-                onValueChange={(value) => onUpdateStatus(value)}
+            {order.status === 'pending' && (
+              <>
+                <Button 
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleStatusUpdate('declined')}
+                  disabled={isUpdating}
+                  className="border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  Decline
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={() => handleStatusUpdate('accepted')}
+                  disabled={isUpdating}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  Accept
+                </Button>
+              </>
+            )}
+            {order.status === 'accepted' && (
+              <Button 
+                size="sm"
+                onClick={() => handleStatusUpdate('delivered')}
                 disabled={isUpdating}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
               >
-                <SelectTrigger className="w-[140px] bg-emerald-500 text-white border-0 hover:bg-emerald-600">
-                  <SelectValue placeholder="Update Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {status.next && (
-                    <SelectItem value={status.next}>
-                      Mark as {statusConfig[status.next]?.label}
-                    </SelectItem>
-                  )}
-                  <SelectItem value="cancelled" className="text-red-600">
-                    Cancel Order
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                Mark Delivered
+              </Button>
             )}
           </div>
         </div>

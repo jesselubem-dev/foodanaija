@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import FloatingMenu from '../components/customer/FloatingMenu';
+import NotificationBell from '../components/customer/NotificationBell';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,6 +91,7 @@ export default function CustomerHome() {
               </div>
             </div>
             
+            <NotificationBell userEmail={user?.email} />
             <Link to={createPageUrl('Cart')}>
               <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
                 <ShoppingBag className="w-5 h-5 mr-2" />
