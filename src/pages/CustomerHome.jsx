@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, Package, ArrowRight
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,15 +55,6 @@ export default function CustomerHome() {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
       return results;
     },
-  });
-
-  const { data: recentOrders = [] } = useQuery({
-    queryKey: ['recent-orders', user?.email],
-    queryFn: async () => {
-      const results = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date', 3);
-      return results;
-    },
-    enabled: !!user,
   });
 
   if (error) {
@@ -122,54 +113,6 @@ export default function CustomerHome() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Recent Orders Section */}
-        {recentOrders.length > 0 && (
-          <Card className="border-orange-100 mb-8">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-orange-600" />
-                  <h3 className="text-lg font-bold text-gray-900">Recent Orders</h3>
-                </div>
-                <Link to={createPageUrl('OrderHistory')}>
-                  <Button variant="ghost" className="gap-2">
-                    View All
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
-              <div className="grid md:grid-cols-3 gap-4">
-                {recentOrders.map((order) => {
-                  const statusConfig = {
-                    pending: { color: 'bg-yellow-100 text-yellow-700', label: 'Pending' },
-                    accepted: { color: 'bg-blue-100 text-blue-700', label: 'Accepted' },
-                    preparing: { color: 'bg-purple-100 text-purple-700', label: 'Preparing' },
-                    ready: { color: 'bg-green-100 text-green-700', label: 'Ready for Delivery' },
-                    delivered: { color: 'bg-green-100 text-green-700', label: 'Delivered' },
-                    cancelled: { color: 'bg-red-100 text-red-700', label: 'Cancelled' }
-                  };
-                  const status = statusConfig[order.status] || statusConfig.pending;
-
-                  return (
-                    <div key={order.id} className="border border-orange-100 rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900">{order.restaurant_name}</h4>
-                        <Badge className={status.color}>{status.label}</Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {order.items.length} item{order.items.length > 1 ? 's' : ''}
-                      </p>
-                      <p className="text-lg font-bold text-orange-600">
-                        ₦{order.total?.toLocaleString()}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
