@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 
 export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   const slides = [
     {
