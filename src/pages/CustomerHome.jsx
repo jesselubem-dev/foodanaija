@@ -19,12 +19,14 @@ import {
 } from "@/components/ui/select";
 import FloatingMenu from '../components/customer/FloatingMenu';
 import NotificationBell from '../components/customer/NotificationBell';
+import LocationCheck from '../components/customer/LocationCheck';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [locationVerified, setLocationVerified] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -74,6 +76,10 @@ export default function CustomerHome() {
   });
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (!locationVerified) {
+    return <LocationCheck onLocationVerified={() => setLocationVerified(true)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50">
