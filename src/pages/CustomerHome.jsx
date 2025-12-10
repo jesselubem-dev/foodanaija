@@ -166,10 +166,10 @@ export default function CustomerHome() {
                     <img 
                       src={restaurant.cover_image_url} 
                       alt="" 
-                      className="w-full h-48 object-cover rounded-t-xl"
+                      className={`w-full h-48 object-cover rounded-t-xl ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-t-xl flex items-center justify-center">
+                    <div className={`w-full h-48 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-t-xl flex items-center justify-center ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
                       <ChefHat className="w-16 h-16 text-orange-600" />
                     </div>
                   )}

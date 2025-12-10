@@ -77,6 +77,11 @@ export default function RestaurantDetail() {
     : menuItems.filter(item => item.category_id === selectedCategory);
 
   const addToCart = (item) => {
+    if (!restaurant.is_open) {
+      toast.error('This restaurant is currently closed');
+      return;
+    }
+
     const existingItem = cart.find(i => i.item_id === item.id);
     let newCart;
     
@@ -172,10 +177,10 @@ export default function RestaurantDetail() {
           <img 
             src={restaurant.cover_image_url} 
             alt="" 
-            className="w-full h-64 object-cover"
+            className={`w-full h-64 object-cover ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}
           />
         ) : (
-          <div className="w-full h-64 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center">
+          <div className={`w-full h-64 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
             <ChefHat className="w-24 h-24 text-orange-600" />
           </div>
         )}
@@ -221,6 +226,12 @@ export default function RestaurantDetail() {
                       {restaurant.cuisine_types.map((cuisine, idx) => (
                         <Badge key={idx} variant="outline">{cuisine}</Badge>
                       ))}
+                    </div>
+                  )}
+
+                  {!restaurant.is_open && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-700 font-medium">This restaurant is currently closed and not accepting orders</p>
                     </div>
                   )}
                 </div>
@@ -289,10 +300,11 @@ export default function RestaurantDetail() {
                       {quantity === 0 ? (
                         <Button
                           onClick={() => addToCart(item)}
-                          className="bg-gradient-to-r from-orange-500 to-orange-600"
+                          disabled={!restaurant.is_open}
+                          className="bg-gradient-to-r from-orange-500 to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Plus className="w-4 h-4 mr-1" />
-                          Add
+                          {restaurant.is_open ? 'Add' : 'Closed'}
                         </Button>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -308,6 +320,7 @@ export default function RestaurantDetail() {
                             size="icon"
                             className="bg-orange-600"
                             onClick={() => updateQuantity(item.id, 1)}
+                            disabled={!restaurant.is_open}
                           >
                             <Plus className="w-4 h-4" />
                           </Button>
