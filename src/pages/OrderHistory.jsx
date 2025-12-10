@@ -31,11 +31,11 @@ export default function OrderHistory() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['my-orders', user?.email],
     queryFn: async () => {
-      const results = await base44.entities.Order.list();
-      const myOrders = results.filter(order => order.customer_email === user.email);
-      return myOrders.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      const results = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date');
+      return results;
     },
     enabled: !!user,
+    refetchInterval: 5000,
   });
 
   const handleReorder = (order) => {
