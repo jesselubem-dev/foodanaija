@@ -53,7 +53,7 @@ export default function DashboardHome() {
     queryKey: ['dashboard-orders', restaurant?.id],
     queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date'),
     enabled: !!restaurant?.id,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   // Play alert sound when new order comes in
@@ -71,13 +71,35 @@ export default function DashboardHome() {
     queryKey: ['dashboard-menu', restaurant?.id],
     queryFn: () => base44.entities.MenuItem.filter({ restaurant_id: restaurant.id }),
     enabled: !!restaurant?.id,
+    refetchInterval: 10000,
   });
 
   const { data: messages = [] } = useQuery({
     queryKey: ['messages', restaurant?.id],
     queryFn: () => base44.entities.Message.filter({ restaurant_id: restaurant.id }, '-created_date'),
     enabled: !!restaurant?.id,
+    refetchInterval: 10000,
   });
+
+  // Auto-update is_open based on opening/closing time
+  useEffect(() => {
+    if (!restaurant?.opening_time || !restaurant?.closing_time) return;
+
+    const checkOpenStatus = async () => {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const shouldBeOpen = currentTime >= restaurant.opening_time && currentTime <= restaurant.closing_time;
+
+      if (shouldBeOpen !== restaurant.is_open) {
+        await base44.entities.Restaurant.update(restaurant.id, { is_open: shouldBeOpen });
+        loadData();
+      }
+    };
+
+    checkOpenStatus();
+    const interval = setInterval(checkOpenStatus, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [restaurant]);
 
   const markAsReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Message.update(id, { is_read: true }),
