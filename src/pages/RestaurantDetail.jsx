@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
+import ReviewSection from '../components/restaurant/ReviewSection';
 
 export default function RestaurantDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,6 +48,14 @@ export default function RestaurantDetail() {
     queryFn: () => base44.entities.MenuCategory.filter({ 
       restaurant_id: restaurantId,
       is_active: true 
+    }),
+    enabled: !!restaurantId,
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['restaurant-reviews', restaurantId],
+    queryFn: () => base44.entities.Review.filter({ 
+      restaurant_id: restaurantId 
     }),
     enabled: !!restaurantId,
   });
@@ -299,6 +308,11 @@ export default function RestaurantDetail() {
             })}
           </div>
         )}
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <ReviewSection restaurant={restaurant} reviews={reviews} />
+        </div>
       </div>
     </div>
   );
