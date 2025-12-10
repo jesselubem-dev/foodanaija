@@ -30,10 +30,17 @@ export default function CustomerHome() {
     }
   }, []);
 
-  const { data: restaurants = [], isLoading } = useQuery({
+  const { data: restaurants = [], isLoading, error } = useQuery({
     queryKey: ['approved-restaurants'],
-    queryFn: () => base44.entities.Restaurant.filter({ is_approved: true }),
+    queryFn: async () => {
+      const results = await base44.entities.Restaurant.filter({ is_approved: true });
+      return results;
+    },
   });
+
+  if (error) {
+    console.error('Error loading restaurants:', error);
+  }
 
   const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu'];
 
