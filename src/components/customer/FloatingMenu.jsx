@@ -13,15 +13,6 @@ export default function FloatingMenu({ cartCount = 0 }) {
       {/* Menu Items */}
       {isOpen && (
         <div className="absolute bottom-16 right-0 space-y-3 mb-2">
-          <Link to={createPageUrl('CustomerHome')}>
-            <Button
-              className="w-14 h-14 rounded-full bg-white hover:bg-gray-50 text-gray-700 shadow-lg flex items-center justify-center"
-              onClick={() => setIsOpen(false)}
-            >
-              <Home className="w-6 h-6" />
-            </Button>
-          </Link>
-          
           <Link to={createPageUrl('Cart')}>
             <Button
               className="w-14 h-14 rounded-full bg-white hover:bg-gray-50 text-gray-700 shadow-lg flex items-center justify-center relative"
