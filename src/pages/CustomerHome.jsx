@@ -164,6 +164,56 @@ export default function CustomerHome() {
           ))}
         </div>
 
+        {/* Best Orders Carousel */}
+        {!isLoading && restaurants.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Best Orders</h3>
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {restaurants.filter(r => r.is_open).slice(0, 6).map((restaurant) => (
+                <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)}>
+                  <div className="flex-shrink-0 w-72 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-4 border border-orange-100 hover:shadow-xl transition-all duration-300">
+                    <div className="flex gap-3">
+                      {restaurant.logo_url ? (
+                        <img 
+                          src={restaurant.logo_url} 
+                          alt="" 
+                          className="w-20 h-20 rounded-xl object-cover border-2 border-white shadow-md"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                          <ChefHat className="w-10 h-10 text-white" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-900 mb-1 truncate">{restaurant.name}</h4>
+                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{restaurant.delivery_time}</span>
+                        </div>
+                        {restaurant.rating > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                            <span className="text-sm font-semibold text-gray-900">{restaurant.rating}</span>
+                            <span className="text-xs text-gray-500">({restaurant.total_reviews})</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-sm text-gray-600">
+                        ₦{restaurant.delivery_fee?.toLocaleString()} delivery
+                      </span>
+                      <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full font-semibold">
+                        Open
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Restaurants Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
