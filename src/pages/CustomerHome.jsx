@@ -61,6 +61,21 @@ export default function CustomerHome() {
     },
   });
 
+  const { data: promoItems = [] } = useQuery({
+    queryKey: ['promo-items'],
+    queryFn: async () => {
+      const items = await base44.entities.MenuItem.filter({ is_promo: true, is_available: true });
+      const itemsWithRestaurants = await Promise.all(
+        items.map(async (item) => {
+          const restaurant = restaurants.find(r => r.id === item.restaurant_id);
+          return { ...item, restaurant };
+        })
+      );
+      return itemsWithRestaurants.filter(item => item.restaurant?.is_approved && item.restaurant?.is_open);
+    },
+    enabled: restaurants.length > 0,
+  });
+
   if (error) {
     console.error('Error loading restaurants:', error);
   }
@@ -165,47 +180,51 @@ export default function CustomerHome() {
         </div>
 
         {/* Best Orders Carousel */}
-        {!isLoading && restaurants.length > 0 && (
+        {promoItems.length > 0 && (
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Best Orders</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Best Orders</h3>
+              <Badge className="bg-orange-500 text-white">Promo</Badge>
+            </div>
             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-              {restaurants.filter(r => r.is_open).slice(0, 6).map((restaurant) => (
-                <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)}>
-                  <div className="flex-shrink-0 w-72 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-4 border border-orange-100 hover:shadow-xl transition-all duration-300">
-                    <div className="flex gap-3">
-                      {restaurant.logo_url ? (
-                        <img 
-                          src={restaurant.logo_url} 
-                          alt="" 
-                          className="w-20 h-20 rounded-xl object-cover border-2 border-white shadow-md"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-                          <ChefHat className="w-10 h-10 text-white" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-gray-900 mb-1 truncate">{restaurant.name}</h4>
-                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{restaurant.delivery_time}</span>
-                        </div>
-                        {restaurant.rating > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                            <span className="text-sm font-semibold text-gray-900">{restaurant.rating}</span>
-                            <span className="text-xs text-gray-500">({restaurant.total_reviews})</span>
+              {promoItems.map((item) => (
+                <Link key={item.id} to={createPageUrl(`RestaurantDetail?id=${item.restaurant_id}`)}>
+                  <div className="flex-shrink-0 w-64 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl overflow-hidden border border-orange-200 hover:shadow-xl transition-all duration-300">
+                    {item.images?.[0] ? (
+                      <img 
+                        src={item.images[0]} 
+                        alt={item.name} 
+                        className="w-full h-36 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-36 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center">
+                        <ChefHat className="w-12 h-12 text-orange-600" />
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-gray-900 line-clamp-1">{item.name}</h4>
+                        <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full font-bold whitespace-nowrap">
+                          ₦{item.price?.toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.description}</p>
+                      <div className="flex items-center gap-2">
+                        {item.restaurant?.logo_url ? (
+                          <img 
+                            src={item.restaurant.logo_url} 
+                            alt="" 
+                            className="w-6 h-6 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center">
+                            <ChefHat className="w-3 h-3 text-orange-600" />
                           </div>
                         )}
+                        <span className="text-sm text-gray-700 font-medium truncate">
+                          {item.restaurant?.name}
+                        </span>
                       </div>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        ₦{restaurant.delivery_fee?.toLocaleString()} delivery
-                      </span>
-                      <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full font-semibold">
-                        Open
-                      </span>
                     </div>
                   </div>
                 </Link>
