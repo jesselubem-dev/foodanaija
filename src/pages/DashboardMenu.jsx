@@ -61,6 +61,7 @@ export default function DashboardMenu() {
     category_id: '',
     is_available: true,
     is_popular: false,
+    is_promo: false,
     preparation_time: '15-20 mins'
   });
 
@@ -183,6 +184,7 @@ export default function DashboardMenu() {
       category_id: categories[0]?.id || '',
       is_available: true,
       is_popular: false,
+      is_promo: false,
       preparation_time: '15-20 mins'
     });
   };
@@ -275,6 +277,7 @@ export default function DashboardMenu() {
                 category_id: categories[0]?.id || '',
                 is_available: true,
                 is_popular: false,
+                is_promo: false,
                 preparation_time: '15-20 mins'
               });
               setShowItemDialog(true);
@@ -384,6 +387,11 @@ export default function DashboardMenu() {
                     <Flame className="w-3 h-3 mr-1" /> Popular
                   </Badge>
                 )}
+                {item.is_promo && (
+                  <Badge className="absolute top-2 right-2 bg-orange-500">
+                    🔥 Promo
+                  </Badge>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -405,6 +413,7 @@ export default function DashboardMenu() {
                         category_id: item.category_id,
                         is_available: item.is_available,
                         is_popular: item.is_popular || false,
+                        is_promo: item.is_promo || false,
                         preparation_time: item.preparation_time || '15-20 mins'
                       });
                       setShowItemDialog(true);
@@ -621,6 +630,17 @@ export default function DashboardMenu() {
               <Switch 
                 checked={itemForm.is_popular}
                 onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_popular: checked }))}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+              <div>
+                <p className="font-medium text-gray-900">Mark as Promo</p>
+                <p className="text-sm text-gray-500">Show in Best Orders carousel</p>
+              </div>
+              <Switch 
+                checked={itemForm.is_promo}
+                onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_promo: checked }))}
               />
             </div>
 
