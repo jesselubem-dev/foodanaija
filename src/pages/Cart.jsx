@@ -60,9 +60,9 @@ export default function Cart() {
   const total = subtotal + delivery;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('CustomerHome')}>
@@ -86,7 +86,7 @@ export default function Cart() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
               <p className="text-gray-500 mb-6">Add some delicious food to get started</p>
               <Link to={createPageUrl('CustomerHome')}>
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600">
+                <Button className="bg-gradient-to-r from-emerald-500 to-emerald-600">
                   Browse Restaurants
                 </Button>
               </Link>
@@ -105,7 +105,7 @@ export default function Cart() {
               </div>
 
               {cart.map((item) => (
-                <Card key={item.item_id} className="border-gray-100">
+                <Card key={item.item_id} className="border-emerald-100">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       {item.image_url ? (
@@ -115,15 +115,15 @@ export default function Cart() {
                           className="w-20 h-20 rounded-lg object-cover"
                         />
                       ) : (
-                        <div className="w-20 h-20 rounded-lg bg-orange-100 flex items-center justify-center">
-                          <ChefHat className="w-8 h-8 text-orange-600" />
+                        <div className="w-20 h-20 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <ChefHat className="w-8 h-8 text-emerald-600" />
                         </div>
                       )}
                       
                       <div className="flex-1">
                         <h3 className="font-bold text-gray-900">{item.name}</h3>
                         <p className="text-sm text-gray-500">{item.restaurant_name}</p>
-                        <p className="text-orange-600 font-bold mt-2">
+                        <p className="text-emerald-600 font-bold mt-2">
                           ₦{item.price?.toLocaleString()}
                         </p>
                       </div>
@@ -149,7 +149,7 @@ export default function Cart() {
                           <span className="font-bold w-8 text-center">{item.quantity}</span>
                           <Button
                             size="icon"
-                            className="bg-orange-600 hover:bg-orange-700"
+                            className="bg-emerald-600"
                             onClick={() => updateQuantity(item.item_id, 1)}
                           >
                             <Plus className="w-4 h-4" />
@@ -168,7 +168,7 @@ export default function Cart() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="border-gray-100 sticky top-24">
+              <Card className="border-emerald-100 sticky top-24">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h3>
                   
@@ -190,7 +190,7 @@ export default function Cart() {
                   </div>
 
                   <Link to={createPageUrl('Checkout')}>
-                    <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 h-12">
+                    <Button className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 h-12">
                       Proceed to Checkout
                     </Button>
                   </Link>
