@@ -24,9 +24,8 @@ import { createPageUrl } from '../utils';
 
 const statusConfig = {
   pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock },
-  accepted: { label: 'Accepted', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle, next: 'delivered' },
+  accepted: { label: 'Accepted', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle },
   declined: { label: 'Declined', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
-  delivered: { label: 'Delivered', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Truck },
 };
 
 export default function DashboardOrders() {
@@ -82,16 +81,8 @@ export default function DashboardOrders() {
         await base44.entities.Notification.create({
           user_email: customerEmail,
           title: 'Order Declined',
-          message: 'Sorry, the restaurant is unable to fulfill your order at this time. Your payment will be refunded.',
+          message: 'Sorry, the restaurant is unable to fulfill your order at this time.',
           type: 'order_declined',
-          order_id: id,
-        });
-      } else if (status === 'delivered') {
-        await base44.entities.Notification.create({
-          user_email: customerEmail,
-          title: 'Order Delivered! 🎉',
-          message: 'Your order has been delivered. Enjoy your meal!',
-          type: 'order_delivered',
           order_id: id,
         });
       }
@@ -102,8 +93,8 @@ export default function DashboardOrders() {
     },
   });
 
-  const activeOrders = orders.filter(o => ['pending', 'accepted'].includes(o.status));
-  const completedOrders = orders.filter(o => ['delivered', 'declined'].includes(o.status));
+  const activeOrders = orders.filter(o => o.status === 'pending');
+  const completedOrders = orders.filter(o => ['accepted', 'declined'].includes(o.status));
 
   const filteredOrders = (activeTab === 'active' ? activeOrders : completedOrders).filter(order =>
     !searchQuery || 
@@ -144,7 +135,7 @@ export default function DashboardOrders() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <StatCard 
           label="Pending" 
           count={orders.filter(o => o.status === 'pending').length}
@@ -154,11 +145,6 @@ export default function DashboardOrders() {
           label="Accepted" 
           count={orders.filter(o => o.status === 'accepted').length}
           color="green"
-        />
-        <StatCard 
-          label="Delivered" 
-          count={orders.filter(o => o.status === 'delivered').length}
-          color="blue"
         />
         <StatCard 
           label="Declined" 
@@ -335,21 +321,6 @@ export default function DashboardOrders() {
                   </Button>
                 </div>
               )}
-              {selectedOrder.status === 'accepted' && (
-                <Button 
-                  onClick={() => {
-                    updateStatusMutation.mutate({ 
-                      id: selectedOrder.id, 
-                      status: 'delivered',
-                      customerEmail: selectedOrder.customer_email
-                    });
-                    setSelectedOrder(null);
-                  }}
-                  className="w-full bg-blue-500 hover:bg-blue-600"
-                >
-                  Mark as Delivered
-                </Button>
-              )}
             </div>
           )}
         </DialogContent>
@@ -445,16 +416,6 @@ function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
                   Accept
                 </Button>
               </>
-            )}
-            {order.status === 'accepted' && (
-              <Button 
-                size="sm"
-                onClick={() => handleStatusUpdate('delivered')}
-                disabled={isUpdating}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                Mark Delivered
-              </Button>
             )}
           </div>
         </div>

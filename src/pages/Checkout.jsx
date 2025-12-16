@@ -51,17 +51,19 @@ export default function Checkout() {
     }
   };
 
-  const initializePaymentMutation = useMutation({
-    mutationFn: async (paymentData) => {
-      const response = await base44.functions.invoke('initializePayment', paymentData);
-      return response.data;
+  const createOrderMutation = useMutation({
+    mutationFn: async (orderData) => {
+      const order = await base44.entities.Order.create(orderData);
+      return order;
     },
-    onSuccess: (data) => {
-      window.location.href = data.authorization_url;
+    onSuccess: () => {
+      localStorage.removeItem('cart');
+      toast.success('Order placed successfully!');
+      window.location.href = createPageUrl('OrderHistory');
     },
     onError: (error) => {
-      console.error('Payment initialization error:', error);
-      toast.error('Failed to initialize payment. Please try again.');
+      console.error('Order creation error:', error);
+      toast.error('Failed to place order. Please try again.');
     },
   });
 
@@ -95,14 +97,12 @@ export default function Checkout() {
       delivery_fee: deliveryFee,
       total,
       notes: formData.notes,
-      status: 'pending'
+      status: 'pending',
+      payment_status: 'pending',
+      payment_method: 'cash'
     };
 
-    initializePaymentMutation.mutate({
-      email: formData.customer_email,
-      amount: total,
-      orderData: orderData
-    });
+    createOrderMutation.mutate(orderData);
   };
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -207,10 +207,10 @@ export default function Checkout() {
 
                 <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
                   <p className="text-sm text-emerald-800 font-medium">
-                    💳 Secure Payment via Paystack
+                    💵 Cash on Delivery
                   </p>
                   <p className="text-xs text-emerald-700 mt-1">
-                    You will be redirected to complete your payment securely
+                    Pay with cash when your order arrives
                   </p>
                 </div>
 
@@ -265,9 +265,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 h-12"
-                  disabled={initializePaymentMutation.isPending}
+                  disabled={createOrderMutation.isPending}
                 >
-                  {initializePaymentMutation.isPending ? 'Processing...' : 'Proceed to Payment'}
+                  {createOrderMutation.isPending ? 'Placing Order...' : 'Place Order'}
                 </Button>
               </CardContent>
             </Card>
