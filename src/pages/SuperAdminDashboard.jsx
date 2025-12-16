@@ -62,7 +62,7 @@ export default function SuperAdminDashboard() {
 
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
-  const totalRevenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
   const todayOrders = orders.filter(o => {
     const orderDate = new Date(o.created_date);
     const today = new Date();
@@ -72,7 +72,7 @@ export default function SuperAdminDashboard() {
   // Calculate revenue per restaurant
   const restaurantRevenue = restaurants.map(restaurant => {
     const restaurantOrders = orders.filter(o => 
-      o.restaurant_id === restaurant.id && o.status === 'delivered'
+      o.restaurant_id === restaurant.id && o.status === 'accepted'
     );
     const revenue = restaurantOrders.reduce((sum, o) => sum + (o.total || 0), 0);
     return {
