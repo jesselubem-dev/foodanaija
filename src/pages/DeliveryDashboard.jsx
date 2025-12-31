@@ -28,23 +28,27 @@ export default function DeliveryDashboard() {
   const checkAuth = async () => {
     try {
       const userData = await base44.auth.me();
-      if (userData.role !== 'delivery') {
-        alert('Access denied. Delivery riders only.');
-        window.location.href = '/';
-        return;
-      }
       setUser(userData);
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
     }
   };
 
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: allOrders = [], isLoading } = useQuery({
     queryKey: ['delivery-orders'],
-    queryFn: () => base44.entities.Order.filter({ status: 'accepted' }, '-created_date'),
+    queryFn: async () => {
+      const orders = await base44.entities.Order.list('-created_date');
+      return orders.filter(order => 
+        order.delivery_address && 
+        order.status !== 'declined' && 
+        order.status !== 'cancelled'
+      );
+    },
     enabled: !!user,
     refetchInterval: 5000,
   });
+
+  const orders = allOrders.filter(o => o.status === 'accepted');
 
   const { data: restaurants = [] } = useQuery({
     queryKey: ['delivery-restaurants'],
@@ -85,7 +89,7 @@ export default function DeliveryDashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Delivery Dashboard</h1>
-                <p className="text-sm text-gray-500">Welcome, {user.full_name}</p>
+                <p className="text-sm text-gray-500">Welcome, {user?.full_name || 'Delivery Rider'}</p>
               </div>
             </div>
             <Button variant="outline" onClick={() => base44.auth.logout()}>
