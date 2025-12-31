@@ -1,3 +1,4 @@
+import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CustomerHome from './pages/CustomerHome';
 import DashboardAnalytics from './pages/DashboardAnalytics';
@@ -16,11 +17,12 @@ import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import Cart from './pages/Cart';
+import DeliveryDashboard from './pages/DeliveryDashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "Cart": Cart,
     "Checkout": Checkout,
     "CustomerHome": CustomerHome,
     "DashboardAnalytics": DashboardAnalytics,
@@ -39,7 +41,7 @@ export const PAGES = {
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminUsers": SuperAdminUsers,
-    "Cart": Cart,
+    "DeliveryDashboard": DeliveryDashboard,
 }
 
 export const pagesConfig = {
