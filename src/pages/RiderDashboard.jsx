@@ -21,6 +21,26 @@ export default function RiderDashboard() {
   }, []);
 
   const checkRider = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDemo = urlParams.get('demo') === 'true';
+
+    if (isDemo) {
+      // Demo mode - show sample rider data
+      setRider({
+        id: 'demo-123',
+        full_name: 'Chioma Adeyemi',
+        email: 'chioma@example.com',
+        phone: '08012345678',
+        vehicle_type: 'motorcycle',
+        vehicle_number: 'KJA-456-AA',
+        is_active: true,
+        is_available: true,
+        total_deliveries: 24,
+        rating: 4.8
+      });
+      return;
+    }
+
     try {
       const isAuth = await base44.auth.isAuthenticated();
       
@@ -32,7 +52,6 @@ export default function RiderDashboard() {
       const userData = await base44.auth.me();
       setUser(userData);
       
-      // Check if user is a registered rider
       const riders = await base44.entities.Rider.filter({ email: userData.email });
       
       if (riders.length === 0) {
