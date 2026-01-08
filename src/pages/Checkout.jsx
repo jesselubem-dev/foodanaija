@@ -16,10 +16,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import confetti from 'canvas-confetti';
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { CheckCircle2 } from 'lucide-react';
 
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -57,9 +64,39 @@ export default function Checkout() {
       return order;
     },
     onSuccess: () => {
+      // Trigger confetti celebration
+      const duration = 3000;
+      const end = Date.now() + duration;
+      
+      const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+      
+      (function frame() {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+
       localStorage.removeItem('cart');
-      toast.success('Order placed successfully!');
-      window.location.href = createPageUrl('OrderHistory');
+      setShowSuccess(true);
+      
+      setTimeout(() => {
+        window.location.href = createPageUrl('OrderHistory');
+      }, 3500);
     },
     onError: (error) => {
       console.error('Order creation error:', error);
@@ -280,6 +317,34 @@ export default function Checkout() {
           </div>
         </form>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="max-w-sm">
+          <div className="text-center py-6">
+            <div className="mb-4 flex justify-center">
+              <div className="relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center animate-bounce">
+                  <CheckCircle2 className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute inset-0 w-20 h-20 bg-green-500 rounded-full animate-ping opacity-75"></div>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
+            <p className="text-gray-600 mb-4">
+              Your order has been successfully sent to the restaurant
+            </p>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <p className="text-sm text-emerald-800 font-medium">
+                ✓ Restaurant will review your order shortly
+              </p>
+              <p className="text-xs text-emerald-700 mt-1">
+                You'll receive notifications about your order status
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
