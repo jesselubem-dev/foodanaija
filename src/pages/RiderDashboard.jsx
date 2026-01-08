@@ -52,20 +52,27 @@ export default function RiderDashboard() {
       const userData = await base44.auth.me();
       setUser(userData);
       
-      const riders = await base44.entities.Rider.filter({ email: userData.email });
+      let riders = await base44.entities.Rider.filter({ email: userData.email });
       
+      // Auto-create rider profile if doesn't exist
       if (riders.length === 0) {
-        window.location.href = createPageUrl('RiderHome');
+        const newRider = await base44.entities.Rider.create({
+          full_name: userData.full_name || 'Rider',
+          email: userData.email,
+          phone: userData.phone || '',
+          vehicle_type: 'motorcycle',
+          is_active: true,
+          is_available: true,
+          total_deliveries: 0,
+          rating: 5
+        });
+        setRider(newRider);
         return;
       }
       
       setRider(riders[0]);
     } catch (e) {
       console.error('Rider check failed:', e);
-      const isAuth = await base44.auth.isAuthenticated();
-      if (!isAuth) {
-        base44.auth.redirectToLogin(window.location.href);
-      }
     }
   };
 
