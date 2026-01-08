@@ -60,11 +60,12 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000,
   });
 
-  const { data: riders = [] } = useQuery({
+  const { data: riders = [], isLoading: ridersLoading } = useQuery({
     queryKey: ['all-riders'],
     queryFn: () => base44.asServiceRole.entities.Rider.list(),
     enabled: !!user,
     refetchInterval: 10000,
+    retry: 1,
   });
 
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
@@ -137,10 +138,10 @@ export default function SuperAdminDashboard() {
           />
           <StatCard
             title="Delivery Riders"
-            value={riders.length}
+            value={ridersLoading ? '...' : riders.length}
             icon={Bike}
             color="orange"
-            subtitle={`${riders.filter(r => r.is_online).length} online`}
+            subtitle={ridersLoading ? 'Loading...' : `${riders.filter(r => r.is_online).length} online`}
           />
         </div>
 
@@ -219,9 +220,9 @@ export default function SuperAdminDashboard() {
                 <Bike className="w-4 h-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{riders.length}</div>
+                <div className="text-2xl font-bold">{ridersLoading ? '...' : riders.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  {riders.filter(r => r.is_online).length} online now
+                  {ridersLoading ? 'Loading...' : `${riders.filter(r => r.is_online).length} online now`}
                 </p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-orange-600">
                   Manage <ChevronRight className="w-4 h-4 ml-1" />
