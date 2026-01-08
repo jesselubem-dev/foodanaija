@@ -216,6 +216,29 @@ export default function Onboarding() {
             })}
           </AnimatePresence>
 
+          {/* Swipe indicator */}
+          <motion.div 
+            className="flex justify-center items-center gap-2 mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: currentSlide < slides.length - 1 ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              animate={{ x: [-10, 10, -10] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="text-gray-400 text-sm font-medium"
+            >
+              Swipe to continue
+            </motion.div>
+            <motion.div
+              animate={{ x: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="text-orange-500"
+            >
+              →
+            </motion.div>
+          </motion.div>
+
           {/* Progress dots */}
           <div className="flex justify-center gap-2 mb-8">
             {slides.map((_, index) => (
@@ -243,7 +266,7 @@ export default function Onboarding() {
               onClick={handleNext}
               className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-lg font-semibold rounded-2xl shadow-lg shadow-orange-500/30 transition-all hover:shadow-xl hover:scale-[1.02]"
             >
-              {currentSlide === slides.length - 1 ? '🚀 Get Started' : 'Next →'}
+              {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
             </Button>
             {currentSlide < slides.length - 1 && (
               <Button
