@@ -23,13 +23,19 @@ export default function RiderHome() {
     try {
       const userData = await base44.auth.me();
       
-      // Check if user is a registered rider
-      const riders = await base44.entities.Rider.filter({ email: userData.email });
-      if (riders.length > 0) {
-        window.location.href = createPageUrl('RiderDashboard');
+      if (userData) {
+        // Check if user is a registered rider
+        const riders = await base44.entities.Rider.filter({ email: userData.email });
+        if (riders.length > 0) {
+          // Found rider record - redirect to dashboard
+          setTimeout(() => {
+            window.location.href = createPageUrl('RiderDashboard');
+          }, 100);
+          return;
+        }
       }
     } catch (e) {
-      // Not logged in or error - show login form
+      console.error('Auth check failed:', e);
     } finally {
       setLoading(false);
     }

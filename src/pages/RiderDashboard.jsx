@@ -23,15 +23,25 @@ export default function RiderDashboard() {
   const checkRider = async () => {
     try {
       const userData = await base44.auth.me();
+      
+      if (!userData) {
+        base44.auth.redirectToLogin(window.location.href);
+        return;
+      }
+      
       setUser(userData);
       
+      // Check if user is a registered rider
       const riders = await base44.entities.Rider.filter({ email: userData.email });
       if (riders.length === 0) {
+        // Not a registered rider - redirect to rider home
         window.location.href = createPageUrl('RiderHome');
         return;
       }
+      
       setRider(riders[0]);
     } catch (e) {
+      console.error('Rider check failed:', e);
       base44.auth.redirectToLogin(window.location.href);
     }
   };
