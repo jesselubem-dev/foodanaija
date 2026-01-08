@@ -42,7 +42,6 @@ export default function RestaurantSetup() {
     email: '',
     opening_time: '08:00',
     closing_time: '22:00',
-    delivery_fee: 500,
     min_order: 1000,
     delivery_time: '30-45 mins',
     cuisine_types: []
@@ -382,25 +381,14 @@ export default function RestaurantSetup() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Delivery Fee (₦)</Label>
-                <Input
-                  type="number"
-                  value={formData.delivery_fee}
-                  onChange={(e) => setFormData(prev => ({ ...prev, delivery_fee: parseInt(e.target.value) || 0 }))}
-                  className="h-12 rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Min. Order (₦)</Label>
-                <Input
-                  type="number"
-                  value={formData.min_order}
-                  onChange={(e) => setFormData(prev => ({ ...prev, min_order: parseInt(e.target.value) || 0 }))}
-                  className="h-12 rounded-xl"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Min. Order (₦)</Label>
+              <Input
+                type="number"
+                value={formData.min_order}
+                onChange={(e) => setFormData(prev => ({ ...prev, min_order: parseInt(e.target.value) || 0 }))}
+                className="h-12 rounded-xl"
+              />
             </div>
           </div>
         )}
