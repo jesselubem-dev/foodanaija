@@ -78,7 +78,7 @@ export default function CustomerHome() {
     console.error('Error loading restaurants:', error);
   }
 
-  const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu'];
+  const cities = ['Sokoto'];
 
   const filteredRestaurants = restaurants.filter(r => {
     const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
