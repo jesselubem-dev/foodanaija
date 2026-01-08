@@ -49,10 +49,10 @@ export default function RiderDashboard() {
     setRider({ ...rider, is_available: !rider.is_available });
   };
 
-  const myActiveOrders = orders.filter(o => o.rider_id === rider.id && ['picked_up', 'on_the_way'].includes(o.delivery_status));
-  const myCompletedOrders = orders.filter(o => o.rider_id === rider.id && o.delivery_status === 'delivered');
+  const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
+  const myCompletedOrders = rider ? orders.filter(o => o.rider_id === rider.id && o.delivery_status === 'delivered') : [];
   const unassignedOrders = orders.filter(o => o.delivery_status === 'unassigned');
-  const assignedToOthers = orders.filter(o => o.delivery_status === 'assigned' && o.rider_id && o.rider_id !== rider.id);
+  const assignedToOthers = rider ? orders.filter(o => o.delivery_status === 'assigned' && o.rider_id && o.rider_id !== rider.id) : [];
   const todayEarnings = myCompletedOrders
     .filter(o => {
       const orderDate = new Date(o.created_date);
