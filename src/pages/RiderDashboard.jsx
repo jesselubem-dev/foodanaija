@@ -25,25 +25,34 @@ export default function RiderDashboard() {
       const isAuth = await base44.auth.isAuthenticated();
       
       if (!isAuth) {
+        console.log('Not authenticated, redirecting to login');
         base44.auth.redirectToLogin(window.location.href);
         return;
       }
 
       const userData = await base44.auth.me();
+      console.log('User data:', userData);
       setUser(userData);
       
       // Check if user is a registered rider
       const riders = await base44.entities.Rider.filter({ email: userData.email });
+      console.log('Found riders:', riders);
+      
       if (riders.length === 0) {
-        // Not a registered rider - redirect to rider home
+        console.log('Not a registered rider, redirecting to RiderHome');
         window.location.href = createPageUrl('RiderHome');
         return;
       }
       
+      console.log('Rider found:', riders[0]);
       setRider(riders[0]);
     } catch (e) {
       console.error('Rider check failed:', e);
-      base44.auth.redirectToLogin(window.location.href);
+      // Only redirect to login if it's an auth error, not other errors
+      const isAuth = await base44.auth.isAuthenticated();
+      if (!isAuth) {
+        base44.auth.redirectToLogin(window.location.href);
+      }
     }
   };
 
