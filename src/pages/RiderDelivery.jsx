@@ -99,20 +99,20 @@ export default function RiderDelivery() {
   const currentStatus = statusConfig[order.delivery_status] || statusConfig.assigned;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
+      <header className="bg-white/90 backdrop-blur-lg border-b border-blue-100 shadow-lg sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
-              onClick={() => window.history.back()}
-              className="rounded-xl"
+              onClick={() => window.location.href = createPageUrl('RiderDashboard')}
+              className="rounded-xl hover:bg-blue-50"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Back
+              Dashboard
             </Button>
-            <Badge className={`${currentStatus.color} text-white`}>
+            <Badge className={`${currentStatus.color} text-white px-4 py-2 text-sm font-semibold`}>
               {currentStatus.label}
             </Badge>
           </div>
@@ -210,32 +210,46 @@ export default function RiderDelivery() {
 
         {/* Action Button */}
         {currentStatus.next && (
-          <Button
-            onClick={() => handleStatusUpdate(currentStatus.next)}
-            disabled={updateStatusMutation.isPending}
-            className="w-full h-14 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-lg rounded-2xl shadow-lg"
-          >
-            {updateStatusMutation.isPending ? (
-              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5 mr-2" />
-                {currentStatus.nextLabel}
-              </>
-            )}
-          </Button>
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent">
+            <div className="max-w-3xl mx-auto">
+              <Button
+                onClick={() => handleStatusUpdate(currentStatus.next)}
+                disabled={updateStatusMutation.isPending}
+                className="w-full h-16 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-lg font-bold rounded-2xl shadow-2xl"
+              >
+                {updateStatusMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                    <span>Updating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <CheckCircle className="w-6 h-6 mr-2" />
+                    {currentStatus.nextLabel}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         )}
+        
+        {/* Bottom padding for fixed button */}
+        {currentStatus.next && <div className="h-24" />}
       </div>
 
       {/* Success Dialog */}
       <Dialog open={showSuccess}>
         <DialogContent className="max-w-sm">
-          <div className="text-center py-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-12 h-12 text-white" />
+          <div className="text-center py-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+              <CheckCircle className="w-14 h-14 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Delivery Complete!</h2>
-            <p className="text-gray-600">Great job! Moving to next delivery...</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Delivery Complete! 🎉</h2>
+            <p className="text-gray-600 text-lg">Excellent work! Returning to dashboard...</p>
+            <div className="mt-4 inline-flex items-center gap-2 text-green-600 font-semibold">
+              <span className="text-2xl">+₦{order.delivery_fee || 500}</span>
+              <span className="text-sm">earned</span>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

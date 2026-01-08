@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { Bike, Package, Clock, MapPin, Mail, Lock } from 'lucide-react';
+import { Bike, Package, Clock, MapPin, Mail, Lock, TrendingUp, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -70,75 +70,105 @@ export default function RiderHome() {
 
   // Show login form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Hero Section */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Bike className="w-10 h-10 text-white" />
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-pulse">
+            <Bike className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Rider Login</h1>
-          <p className="text-gray-600">Enter your credentials to start delivering</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+            Foodanaija Rider
+          </h1>
+          <p className="text-gray-600 text-lg">Deliver. Earn. Grow.</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Email
-            </label>
-            <Input
-              type="email"
-              placeholder="rider@example.com"
-              value={credentials.email}
-              onChange={(e) => setCredentials({...credentials, email: e.target.value})}
-              className="h-12"
-              required
-            />
-          </div>
+        {/* Login Card */}
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-blue-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Welcome Back</h2>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              Password
-            </label>
-            <Input
-              type="password"
-              placeholder="Enter your password"
-              value={credentials.password}
-              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-              className="h-12"
-              required
-            />
-          </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-blue-600" />
+                Email Address
+              </label>
+              <Input
+                type="email"
+                placeholder="your.email@example.com"
+                value={credentials.email}
+                onChange={(e) => setCredentials({...credentials, email: e.target.value})}
+                className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
+                required
+              />
+            </div>
 
-          <Button
-            type="submit"
-            disabled={loggingIn}
-            className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-lg rounded-xl"
-          >
-            {loggingIn ? (
-              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              'Login'
-            )}
-          </Button>
-        </form>
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-blue-600" />
+                Password
+              </label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                value={credentials.password}
+                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
+                required
+              />
+            </div>
 
-        <div className="mt-8 space-y-3">
-          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-            <Package className="w-4 h-4 text-blue-600" />
-            <span className="text-xs text-gray-700">Manage your deliveries</span>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-            <Clock className="w-4 h-4 text-blue-600" />
-            <span className="text-xs text-gray-700">Track your earnings</span>
-          </div>
+            <Button
+              type="submit"
+              disabled={loggingIn}
+              className="w-full h-14 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 hover:from-blue-600 hover:via-cyan-600 hover:to-blue-700 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              {loggingIn ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                  <span>Logging in...</span>
+                </div>
+              ) : (
+                <>
+                  <Navigation className="w-5 h-5 mr-2" />
+                  Start Delivering
+                </>
+              )}
+            </Button>
+          </form>
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-500">
-          <p>Don't have credentials? Contact admin</p>
+        {/* Features Grid */}
+        <div className="grid grid-cols-3 gap-3 mt-6">
+          <FeatureCard icon={Package} label="Orders" color="blue" />
+          <FeatureCard icon={TrendingUp} label="Earnings" color="green" />
+          <FeatureCard icon={MapPin} label="Track" color="orange" />
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm rounded-xl py-3 px-4">
+            🔒 Secure rider portal • Need access? Contact admin
+          </p>
         </div>
       </div>
     </div>
+  );
+  }
+  }
+
+  function FeatureCard({ icon: Icon, label, color }) {
+  const colors = {
+  blue: 'from-blue-500 to-blue-600',
+  green: 'from-green-500 to-green-600',
+  orange: 'from-orange-500 to-orange-600',
+  };
+
+  return (
+  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 text-center border border-gray-100 hover:shadow-lg transition-all">
+    <div className={`w-12 h-12 bg-gradient-to-br ${colors[color]} rounded-xl flex items-center justify-center mx-auto mb-2`}>
+      <Icon className="w-6 h-6 text-white" />
+    </div>
+    <p className="text-xs font-semibold text-gray-700">{label}</p>
+  </div>
   );
 }
