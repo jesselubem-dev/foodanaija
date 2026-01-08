@@ -33,8 +33,10 @@ export default function SuperAdminRiders() {
     email: '',
     phone: '',
     vehicle_type: 'motorcycle',
-    vehicle_number: ''
+    vehicle_number: '',
+    password: ''
   });
+  const [createdCredentials, setCreatedCredentials] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -61,16 +63,29 @@ export default function SuperAdminRiders() {
   });
 
   const createRiderMutation = useMutation({
-    mutationFn: (data) => base44.entities.Rider.create(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      // Create rider entity
+      const rider = await base44.entities.Rider.create(data);
+      
+      // Invite user to the app
+      await base44.users.inviteUser(data.email, 'user');
+      
+      return rider;
+    },
+    onSuccess: (rider) => {
       queryClient.invalidateQueries(['riders']);
+      setCreatedCredentials({
+        email: newRider.email,
+        password: newRider.password
+      });
       setShowAddDialog(false);
       setNewRider({
         full_name: '',
         email: '',
         phone: '',
         vehicle_type: 'motorcycle',
-        vehicle_number: ''
+        vehicle_number: '',
+        password: ''
       });
     },
   });
@@ -231,6 +246,41 @@ export default function SuperAdminRiders() {
         </Card>
       </div>
 
+      {/* Credentials Dialog */}
+      <Dialog open={!!createdCredentials} onOpenChange={() => setCreatedCredentials(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rider Created Successfully!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm font-medium text-green-900 mb-3">Share these credentials with the rider:</p>
+              <div className="space-y-2">
+                <div className="bg-white rounded p-3">
+                  <p className="text-xs text-gray-600">Username (Email)</p>
+                  <p className="font-mono font-bold text-gray-900">{createdCredentials?.email}</p>
+                </div>
+                <div className="bg-white rounded p-3">
+                  <p className="text-xs text-gray-600">Password</p>
+                  <p className="font-mono font-bold text-gray-900">{createdCredentials?.password}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs text-blue-800">
+                The rider will also receive an invite email. They can login at: <strong>/RiderHome</strong>
+              </p>
+            </div>
+            <Button
+              onClick={() => setCreatedCredentials(null)}
+              className="w-full"
+            >
+              Done
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Add Rider Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
@@ -272,9 +322,20 @@ export default function SuperAdminRiders() {
               value={newRider.vehicle_number}
               onChange={(e) => setNewRider({...newRider, vehicle_number: e.target.value})}
             />
+            <Input
+              placeholder="Password (to give to rider)"
+              type="password"
+              value={newRider.password}
+              onChange={(e) => setNewRider({...newRider, password: e.target.value})}
+            />
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-xs text-amber-800">
+                <strong>Note:</strong> Share the email and password with the rider. They will receive an invite email to complete registration.
+              </p>
+            </div>
             <Button
               onClick={() => createRiderMutation.mutate(newRider)}
-              disabled={createRiderMutation.isPending}
+              disabled={createRiderMutation.isPending || !newRider.full_name || !newRider.email || !newRider.phone || !newRider.password}
               className="w-full bg-blue-500 hover:bg-blue-600"
             >
               {createRiderMutation.isPending ? 'Adding...' : 'Add Rider'}
