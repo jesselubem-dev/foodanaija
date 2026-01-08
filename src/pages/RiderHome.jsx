@@ -47,8 +47,7 @@ export default function RiderHome() {
 
     try {
       // Redirect to login page - platform handles authentication
-      const returnUrl = createPageUrl('RiderHome');
-      base44.auth.redirectToLogin(returnUrl);
+      base44.auth.redirectToLogin(window.location.href);
     } catch (error) {
       toast.error('Login failed. Please check your credentials.');
       setLoggingIn(false);
