@@ -2,27 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Bike, UserPlus
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from '@/components/ui/input';
 
 export default function SuperAdminDashboard() {
   const [user, setUser] = useState(null);
-  const [showDeliveryDialog, setShowDeliveryDialog] = useState(false);
-  const [deliveryEmail, setDeliveryEmail] = useState('');
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     checkAdmin();
@@ -70,29 +60,6 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000,
   });
 
-  const addDeliveryMutation = useMutation({
-    mutationFn: async (email) => {
-      await base44.users.inviteUser(email, 'delivery');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['all-users']);
-      setShowDeliveryDialog(false);
-      setDeliveryEmail('');
-      alert('Delivery rider added successfully! They can now login at /DeliveryLogin');
-    },
-    onError: (error) => {
-      alert('Failed to add delivery rider: ' + error.message);
-    }
-  });
-
-  const handleAddDelivery = (e) => {
-    e.preventDefault();
-    if (!deliveryEmail.trim()) return;
-    addDeliveryMutation.mutate(deliveryEmail);
-  };
-
-  const deliveryUsers = users.filter(u => u.role === 'delivery');
-
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
@@ -133,7 +100,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Restaurants"
             value={restaurants.length}
@@ -161,24 +128,6 @@ export default function SuperAdminDashboard() {
             icon={DollarSign}
             color="purple"
           />
-          <StatCard
-            title="Delivery Riders"
-            value={deliveryUsers.length}
-            icon={Bike}
-            color="orange"
-            subtitle={`Active riders`}
-          />
-        </div>
-
-        {/* Add Delivery Rider Button */}
-        <div className="mb-6">
-          <Button 
-            onClick={() => setShowDeliveryDialog(true)}
-            className="bg-gradient-to-r from-orange-500 to-orange-600"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add Delivery Rider
-          </Button>
         </div>
 
         {/* Quick Actions */}
@@ -314,78 +263,7 @@ export default function SuperAdminDashboard() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Delivery Riders List */}
-        <Card className="border-orange-100 mt-8">
-          <CardHeader>
-            <CardTitle>Delivery Riders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {deliveryUsers.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">No delivery riders added yet</p>
-              ) : (
-                deliveryUsers.map((rider) => (
-                  <div key={rider.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                        <Bike className="w-5 h-5 text-orange-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{rider.full_name}</p>
-                        <p className="text-sm text-gray-500">{rider.email}</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-orange-100 text-orange-700">Delivery</Badge>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
-
-      {/* Add Delivery Dialog */}
-      <Dialog open={showDeliveryDialog} onOpenChange={setShowDeliveryDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Delivery Rider</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleAddDelivery} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Email Address
-              </label>
-              <Input
-                type="email"
-                placeholder="rider@example.com"
-                value={deliveryEmail}
-                onChange={(e) => setDeliveryEmail(e.target.value)}
-                required
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                An invitation will be sent to this email. They can login at /DeliveryLogin
-              </p>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setShowDeliveryDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit"
-                className="bg-gradient-to-r from-orange-500 to-orange-600"
-                disabled={addDeliveryMutation.isPending}
-              >
-                {addDeliveryMutation.isPending ? 'Adding...' : 'Add Rider'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -396,7 +274,6 @@ function StatCard({ title, value, icon: Icon, color, subtitle, link }) {
     amber: 'bg-amber-100 text-amber-600',
     emerald: 'bg-emerald-100 text-emerald-600',
     purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
   };
 
   return (
