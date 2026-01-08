@@ -31,7 +31,7 @@ export default function RiderOrders() {
   const checkAuth = () => {
     const riderAuth = localStorage.getItem('rider_auth');
     if (!riderAuth) {
-      window.location.href = '/RiderLogin';
+      window.location.href = createPageUrl('RiderLogin');
       return;
     }
     
@@ -39,7 +39,7 @@ export default function RiderOrders() {
       const riderData = JSON.parse(riderAuth);
       setRider(riderData);
     } catch (e) {
-      window.location.href = '/RiderLogin';
+      window.location.href = createPageUrl('RiderLogin');
     }
   };
 
