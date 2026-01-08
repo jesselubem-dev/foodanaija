@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, User, MapPin, Phone, Mail, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import LocationCheck from '../components/customer/LocationCheck';
 import {
   Select,
   SelectContent,
@@ -21,7 +20,6 @@ import { toast } from "sonner";
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
-  const [locationVerified, setLocationVerified] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -85,7 +83,8 @@ export default function Checkout() {
     const restaurant = cart[0];
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryFee = 500;
-    const total = subtotal + deliveryFee;
+    const valueAddedService = 300;
+    const total = subtotal + deliveryFee + valueAddedService;
 
     const orderData = {
       restaurant_id: restaurant.restaurant_id,
@@ -109,11 +108,8 @@ export default function Checkout() {
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = cart.length > 0 ? 500 : 0;
-  const total = subtotal + deliveryFee;
-
-  if (!locationVerified) {
-    return <LocationCheck onLocationVerified={() => setLocationVerified(true)} />;
-  }
+  const valueAddedService = cart.length > 0 ? 300 : 0;
+  const total = subtotal + deliveryFee + valueAddedService;
 
   if (cart.length === 0) {
     return (
@@ -259,6 +255,10 @@ export default function Checkout() {
                   <div className="flex justify-between text-gray-600">
                     <span>Delivery Fee</span>
                     <span>₦{deliveryFee.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Value Added Service</span>
+                    <span>₦{valueAddedService.toLocaleString()}</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between text-xl font-bold text-gray-900">
