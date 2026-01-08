@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Bike
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,6 +60,13 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000,
   });
 
+  const { data: riders = [] } = useQuery({
+    queryKey: ['all-riders'],
+    queryFn: () => base44.asServiceRole.entities.Rider.list(),
+    enabled: !!user,
+    refetchInterval: 10000,
+  });
+
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
@@ -100,7 +107,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <StatCard
             title="Total Restaurants"
             value={restaurants.length}
@@ -128,10 +135,17 @@ export default function SuperAdminDashboard() {
             icon={DollarSign}
             color="purple"
           />
+          <StatCard
+            title="Delivery Riders"
+            value={riders.length}
+            icon={Bike}
+            color="orange"
+            subtitle={`${riders.filter(r => r.is_online).length} online`}
+          />
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-5 gap-6 mb-8">
           <Link to={createPageUrl('SuperAdminRestaurants')}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -193,6 +207,24 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-muted-foreground">All sent notifications</p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-purple-600">
                   View All <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl('SuperAdminRiders')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Delivery Riders</CardTitle>
+                <Bike className="w-4 h-4 text-orange-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{riders.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {riders.filter(r => r.is_online).length} online now
+                </p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-orange-600">
+                  Manage <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>
@@ -274,6 +306,7 @@ function StatCard({ title, value, icon: Icon, color, subtitle, link }) {
     amber: 'bg-amber-100 text-amber-600',
     emerald: 'bg-emerald-100 text-emerald-600',
     purple: 'bg-purple-100 text-purple-600',
+    orange: 'bg-orange-100 text-orange-600',
   };
 
   return (

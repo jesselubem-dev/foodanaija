@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  ShoppingBag, ArrowLeft, Search, Filter, Eye, Calendar
+  ShoppingBag, ArrowLeft, Search, Filter, Eye, Calendar, UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-700',
@@ -33,6 +41,9 @@ export default function SuperAdminOrders() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [assignRider, setAssignRider] = useState(null);
+  const [selectedRiderId, setSelectedRiderId] = useState('');
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     checkAdmin();
@@ -56,6 +67,32 @@ export default function SuperAdminOrders() {
     queryKey: ['all-orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
     enabled: !!user,
+  });
+
+  const { data: riders = [] } = useQuery({
+    queryKey: ['all-riders'],
+    queryFn: () => base44.asServiceRole.entities.Rider.filter({ status: 'active' }),
+    enabled: !!user,
+  });
+
+  const assignRiderMutation = useMutation({
+    mutationFn: async ({ orderId, riderId }) => {
+      const rider = riders.find(r => r.id === riderId);
+      return base44.asServiceRole.entities.Order.update(orderId, {
+        rider_id: riderId,
+        rider_name: rider?.full_name,
+        delivery_status: 'assigned'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['all-orders']);
+      setAssignRider(null);
+      setSelectedRiderId('');
+      toast.success('Rider assigned successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to assign rider: ' + error.message);
+    }
   });
 
   const filteredOrders = orders.filter(o => {
@@ -202,6 +239,22 @@ export default function SuperAdminOrders() {
                     <p className="text-sm text-gray-600">
                       Payment: {order.payment_method || 'N/A'}
                     </p>
+                    {order.status === 'accepted' && !order.rider_id && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAssignRider(order)}
+                        className="ml-auto mr-2"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Assign Rider
+                      </Button>
+                    )}
+                    {order.rider_name && (
+                      <Badge className="bg-orange-100 text-orange-700 mr-2">
+                        Rider: {order.rider_name}
+                      </Badge>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -293,6 +346,101 @@ export default function SuperAdminOrders() {
                     <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{selectedOrder.notes}</p>
                   </div>
                 )}
+
+                {selectedOrder.rider_name && (
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Assigned Rider</p>
+                    <p className="font-medium text-orange-900">{selectedOrder.rider_name}</p>
+                    <p className="text-sm text-gray-600">
+                      Status: <Badge className="bg-orange-100 text-orange-700">
+                        {selectedOrder.delivery_status}
+                      </Badge>
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Assign Rider Dialog */}
+        <Dialog open={!!assignRider} onOpenChange={() => setAssignRider(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Delivery Rider</DialogTitle>
+            </DialogHeader>
+            {assignRider && (
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-500">Order Details</p>
+                  <p className="font-medium">{assignRider.restaurant_name}</p>
+                  <p className="text-sm text-gray-600">{assignRider.customer_name}</p>
+                  <p className="text-sm text-gray-600">{assignRider.delivery_address}</p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Select Rider
+                  </label>
+                  <Select value={selectedRiderId} onValueChange={setSelectedRiderId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a rider..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {riders.filter(r => r.is_online).length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+                            Online Now
+                          </div>
+                          {riders.filter(r => r.is_online).map((rider) => (
+                            <SelectItem key={rider.id} value={rider.id}>
+                              {rider.full_name} - {rider.phone} ✓ Online
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                      {riders.filter(r => !r.is_online).length > 0 && (
+                        <>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">
+                            Offline
+                          </div>
+                          {riders.filter(r => !r.is_online).map((rider) => (
+                            <SelectItem key={rider.id} value={rider.id}>
+                              {rider.full_name} - {rider.phone}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                      {riders.length === 0 && (
+                        <div className="px-2 py-4 text-center text-sm text-gray-500">
+                          No active riders available
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setAssignRider(null);
+                      setSelectedRiderId('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-gradient-to-r from-orange-500 to-orange-600"
+                    onClick={() => assignRiderMutation.mutate({
+                      orderId: assignRider.id,
+                      riderId: selectedRiderId
+                    })}
+                    disabled={!selectedRiderId || assignRiderMutation.isPending}
+                  >
+                    {assignRiderMutation.isPending ? 'Assigning...' : 'Assign Rider'}
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
