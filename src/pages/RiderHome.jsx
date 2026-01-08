@@ -7,13 +7,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 export default function RiderHome() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [loggingIn, setLoggingIn] = useState(false);
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: ''
-  });
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -25,13 +20,9 @@ export default function RiderHome() {
       
       if (isAuth) {
         const userData = await base44.auth.me();
-        // Check if user is a registered rider
-        const riders = await base44.entities.Rider.filter({ email: userData.email });
-        if (riders.length > 0) {
-          // Found rider record - redirect to dashboard
-          window.location.href = createPageUrl('RiderDashboard');
-          return;
-        }
+        // Redirect authenticated users to dashboard
+        window.location.href = createPageUrl('RiderDashboard');
+        return;
       }
     } catch (e) {
       console.error('Auth check failed:', e);
@@ -40,23 +31,10 @@ export default function RiderHome() {
     }
   };
 
-  const handleLogin = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    
-    if (!credentials.email || !credentials.password) {
-      toast.error('Please enter both email and password');
-      return;
-    }
-
-    setLoggingIn(true);
-
-    try {
-      // Redirect to login page - platform handles authentication
-      base44.auth.redirectToLogin(window.location.href);
-    } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
-      setLoggingIn(false);
-    }
+    setIsAuthenticating(true);
+    base44.auth.redirectToLogin(window.location.href);
   };
 
   if (loading) {
