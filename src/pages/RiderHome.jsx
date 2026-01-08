@@ -60,60 +60,44 @@ export default function RiderHome() {
           <p className="text-gray-600 text-lg">Deliver. Earn. Grow.</p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-blue-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Welcome Back</h2>
+        {/* Sign Up Card */}
+         <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-blue-100">
+           <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
+           <p className="text-gray-600 mb-6">Sign up as a rider and start earning</p>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-blue-600" />
-                Email Address
-              </label>
-              <Input
-                type="email"
-                placeholder="your.email@example.com"
-                value={credentials.email}
-                onChange={(e) => setCredentials({...credentials, email: e.target.value})}
-                className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
-                required
-              />
-            </div>
+           <form onSubmit={handleSignUp} className="space-y-5">
+             <div>
+               <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                 <Mail className="w-4 h-4 text-blue-600" />
+                 Email Address
+               </label>
+               <Input
+                 type="email"
+                 placeholder="your.email@example.com"
+                 className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
+                 required
+               />
+             </div>
 
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-blue-600" />
-                Password
-              </label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={credentials.password}
-                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
-                className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loggingIn}
-              className="w-full h-14 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 hover:from-blue-600 hover:via-cyan-600 hover:to-blue-700 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              {loggingIn ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                  <span>Logging in...</span>
-                </div>
-              ) : (
-                <>
-                  <Navigation className="w-5 h-5 mr-2" />
-                  Start Delivering
-                </>
-              )}
-            </Button>
-          </form>
-        </div>
+             <Button
+               type="submit"
+               disabled={isAuthenticating}
+               className="w-full h-14 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 hover:from-blue-600 hover:via-cyan-600 hover:to-blue-700 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+             >
+               {isAuthenticating ? (
+                 <div className="flex items-center gap-2">
+                   <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                   <span>Creating account...</span>
+                 </div>
+               ) : (
+                 <>
+                   <Navigation className="w-5 h-5 mr-2" />
+                   Create Account & Sign In
+                 </>
+               )}
+             </Button>
+           </form>
+         </div>
 
         {/* Features Grid */}
         <div className="grid grid-cols-3 gap-3 mt-6">
