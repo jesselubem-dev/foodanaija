@@ -23,8 +23,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Account suspended. Contact admin.' }, { status: 403 });
     }
 
-    // Simple password verification (in production, use proper hashing like bcrypt)
-    if (rider.password_hash !== password) {
+    // Hash the provided password to compare
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const providedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    if (rider.password_hash !== providedHash) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
