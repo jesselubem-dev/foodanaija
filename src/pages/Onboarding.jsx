@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { createPageUrl } from '../utils';
-import { ChefHat, MapPin, ShoppingBag, Zap } from 'lucide-react';
+import { ChefHat, ShoppingBag, Bike, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -11,22 +12,26 @@ export default function Onboarding() {
   const slides = [
   {
     icon: ChefHat,
-    title: 'Discover Restaurants',
-    description: 'Browse hundreds of restaurants and cuisines in your city',
-    color: 'orange'
+    title: 'Discover Amazing Food',
+    description: 'Explore delicious meals from the best restaurants in Sokoto',
+    gradient: 'from-orange-400 via-orange-500 to-orange-600',
+    bgGradient: 'from-orange-50 to-orange-100'
   },
   {
     icon: ShoppingBag,
-    title: 'Order Your Favorites',
-    description: 'Add items to cart and customize your order',
-    color: 'yellow'
+    title: 'Order in Minutes',
+    description: 'Quick and easy ordering with just a few taps',
+    gradient: 'from-emerald-400 via-emerald-500 to-emerald-600',
+    bgGradient: 'from-emerald-50 to-emerald-100'
   },
   {
-    icon: Zap,
+    icon: Bike,
     title: 'Fast Delivery',
     description: 'Get your food delivered hot and fresh to your doorstep',
-    color: 'amber'
-  }];
+    gradient: 'from-blue-400 via-blue-500 to-blue-600',
+    bgGradient: 'from-blue-50 to-blue-100'
+  }
+];
 
 
   const handleNext = () => {
@@ -76,66 +81,182 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 flex flex-col">
-      <div className="bg-stone-50 p-6 flex-1 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex flex-col relative overflow-hidden">
+      {/* Animated background shapes */}
+      <motion.div 
+        className="absolute top-20 left-10 w-32 h-32 bg-orange-200/30 rounded-full blur-3xl"
+        animate={{
+          y: [0, -30, 0],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      <motion.div 
+        className="absolute bottom-20 right-10 w-40 h-40 bg-amber-200/30 rounded-full blur-3xl"
+        animate={{
+          y: [0, 30, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+
+      <div className="p-6 flex-1 flex items-center justify-center relative z-10">
         <div
           className="max-w-md w-full"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}>
 
-          <div className="text-center">
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center justify-center mb-8"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          >
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+              <ChefHat className="w-8 h-8 text-white" />
+            </div>
+          </motion.div>
+
+          <AnimatePresence mode="wait">
             {slides.map((slide, index) => {
               const Icon = slide.icon;
-              return (
-                <div
+              return index === currentSlide ? (
+                <motion.div
                   key={index}
-                  className={`transition-all duration-500 ${
-                  index === currentSlide ? 'block' : 'hidden'}`
-                  }>
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="text-center"
+                >
+                  {/* Animated Icon Container */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 260, 
+                      damping: 20,
+                      delay: 0.1 
+                    }}
+                    className="relative mx-auto mb-12 w-48 h-48"
+                  >
+                    {/* Pulsing background */}
+                    <motion.div 
+                      className={`absolute inset-0 rounded-full bg-gradient-to-br ${slide.bgGradient} opacity-50`}
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    
+                    {/* Main circle */}
+                    <motion.div 
+                      className={`absolute inset-4 rounded-full bg-gradient-to-br ${slide.gradient} flex items-center justify-center shadow-2xl`}
+                      animate={{ 
+                        boxShadow: [
+                          "0 20px 60px rgba(0,0,0,0.2)",
+                          "0 30px 80px rgba(0,0,0,0.3)",
+                          "0 20px 60px rgba(0,0,0,0.2)"
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <motion.div
+                        animate={{ 
+                          rotate: [0, 5, -5, 0],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      >
+                        <Icon className="w-20 h-20 text-white" />
+                      </motion.div>
+                    </motion.div>
 
-                  <div className={`w-32 h-32 rounded-full bg-gradient-to-br from-${slide.color}-500 to-${slide.color}-600 flex items-center justify-center mx-auto mb-8 shadow-xl`}>
-                    <Icon className="w-16 h-16 text-white" />
-                  </div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">{slide.title}</h1>
-                  <p className="text-lg text-gray-600 mb-8">{slide.description}</p>
-                </div>);
+                    {/* Sparkles */}
+                    <motion.div
+                      className="absolute -top-2 -right-2"
+                      animate={{ 
+                        rotate: 360,
+                        scale: [1, 1.5, 1]
+                      }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <Sparkles className="w-8 h-8 text-yellow-400" />
+                    </motion.div>
+                  </motion.div>
 
+                  <motion.h1 
+                    className="text-4xl font-bold text-gray-900 mb-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {slide.title}
+                  </motion.h1>
+                  
+                  <motion.p 
+                    className="text-lg text-gray-600 mb-8 px-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    {slide.description}
+                  </motion.p>
+                </motion.div>
+              ) : null;
             })}
-          </div>
+          </AnimatePresence>
 
+          {/* Progress dots */}
           <div className="flex justify-center gap-2 mb-8">
-            {slides.map((_, index) =>
-            <div
-              key={index}
-              className={`h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide ?
-              'w-8 bg-orange-600' :
-              'w-2 bg-gray-300'}`
-              } />
-
-            )}
+            {slides.map((_, index) => (
+              <motion.div
+                key={index}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? 'w-8 bg-gradient-to-r from-orange-500 to-orange-600'
+                    : 'w-2 bg-gray-300'
+                }`}
+                whileHover={{ scale: 1.2 }}
+                onClick={() => setCurrentSlide(index)}
+              />
+            ))}
           </div>
 
-          <div className="space-y-3">
+          {/* Buttons */}
+          <motion.div 
+            className="space-y-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <Button
               onClick={handleNext}
-              className="w-full h-12 bg-gradient-to-r from-orange-500 to-orange-600 text-lg">
-
-              {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
+              className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-lg font-semibold rounded-2xl shadow-lg shadow-orange-500/30 transition-all hover:shadow-xl hover:scale-[1.02]"
+            >
+              {currentSlide === slides.length - 1 ? '🚀 Get Started' : 'Next →'}
             </Button>
-            {currentSlide < slides.length - 1 &&
-            <Button
-              onClick={handleSkip}
-              variant="ghost"
-              className="w-full h-12 text-gray-600">
-
-                Skip
+            {currentSlide < slides.length - 1 && (
+              <Button
+                onClick={handleSkip}
+                variant="ghost"
+                className="w-full h-14 text-gray-600 hover:text-gray-900 text-base rounded-2xl"
+              >
+                Skip for now
               </Button>
-            }
-          </div>
+            )}
+          </motion.div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 }
