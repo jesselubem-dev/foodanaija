@@ -149,7 +149,7 @@ export default function RiderDashboard() {
                 />
               </div>
               <Button
-                onClick={() => base44.auth.logout()}
+                onClick={() => base44.auth.logout(createPageUrl('RiderHome'))}
                 variant="outline"
                 className="rounded-xl border-2 hover:bg-red-50 hover:border-red-200"
               >
