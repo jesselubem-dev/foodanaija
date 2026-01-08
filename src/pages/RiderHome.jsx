@@ -27,15 +27,9 @@ export default function RiderHome() {
       const riders = await base44.entities.Rider.filter({ email: userData.email });
       if (riders.length > 0) {
         window.location.href = createPageUrl('RiderDashboard');
-        return;
       }
-      
-      // User is logged in but not a rider - log them out
-      await base44.auth.logout(createPageUrl('RiderHome'));
-      setIsLoggedIn(false);
     } catch (e) {
-      // Not logged in - show login form
-      setIsLoggedIn(false);
+      // Not logged in or error - show login form
     } finally {
       setLoading(false);
     }
