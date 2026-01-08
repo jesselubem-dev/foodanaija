@@ -20,6 +20,7 @@ import SuperAdminUsers from './pages/SuperAdminUsers';
 import RiderLogin from './pages/RiderLogin';
 import RiderDashboard from './pages/RiderDashboard';
 import RiderOrders from './pages/RiderOrders';
+import SuperAdminRiders from './pages/SuperAdminRiders';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "RiderLogin": RiderLogin,
     "RiderDashboard": RiderDashboard,
     "RiderOrders": RiderOrders,
+    "SuperAdminRiders": SuperAdminRiders,
 }
 
 export const pagesConfig = {
