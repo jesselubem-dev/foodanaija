@@ -48,34 +48,55 @@ export default function DeliveryDashboard() {
     window.location.href = '/DeliveryLogin';
   };
 
-  const { data: allOrders = [], isLoading } = useQuery({
+  const { data: allOrders = [], isLoading, error } = useQuery({
     queryKey: ['delivery-orders'],
     queryFn: async () => {
-      const orders = await base44.entities.Order.list('-created_date');
-      return orders.filter(order => 
-        order.delivery_address && 
-        order.status !== 'declined' && 
-        order.status !== 'cancelled'
-      );
+      try {
+        const orders = await base44.asServiceRole.entities.Order.list('-created_date');
+        return orders.filter(order => 
+          order.delivery_address && 
+          order.status !== 'declined' && 
+          order.status !== 'cancelled'
+        );
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        return [];
+      }
     },
     enabled: !!user,
     refetchInterval: 5000,
   });
 
   const orders = allOrders.filter(o => o.status === 'accepted');
+  
+  console.log('User:', user);
+  console.log('Orders:', allOrders);
+  console.log('Loading:', isLoading);
+  console.log('Error:', error);
 
   const { data: restaurants = [] } = useQuery({
     queryKey: ['delivery-restaurants'],
-    queryFn: () => base44.entities.Restaurant.list(),
+    queryFn: async () => {
+      try {
+        return await base44.asServiceRole.entities.Restaurant.list();
+      } catch (err) {
+        console.error('Error fetching restaurants:', err);
+        return [];
+      }
+    },
     enabled: !!user,
   });
 
   const markAsDeliveredMutation = useMutation({
-    mutationFn: (orderId) => base44.entities.Order.update(orderId, { status: 'delivered' }),
+    mutationFn: (orderId) => base44.asServiceRole.entities.Order.update(orderId, { status: 'delivered' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['delivery-orders']);
       setSelectedOrder(null);
+      alert('Order marked as delivered successfully!');
     },
+    onError: (error) => {
+      alert('Failed to update order: ' + error.message);
+    }
   });
 
   const getRestaurantName = (restaurantId) => {
