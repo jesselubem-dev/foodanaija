@@ -36,8 +36,8 @@ export default function RiderDashboard() {
   };
 
   const { data: orders = [] } = useQuery({
-    queryKey: ['rider-orders', rider?.id],
-    queryFn: () => base44.entities.Order.filter({ rider_id: rider.id }),
+    queryKey: ['all-orders'],
+    queryFn: () => base44.entities.Order.filter({ status: 'accepted' }),
     enabled: !!rider,
     refetchInterval: 5000,
   });
@@ -49,10 +49,11 @@ export default function RiderDashboard() {
     setRider({ ...rider, is_available: !rider.is_available });
   };
 
-  const assignedOrders = orders.filter(o => o.delivery_status === 'assigned');
-  const activeOrders = orders.filter(o => ['picked_up', 'on_the_way'].includes(o.delivery_status));
-  const completedOrders = orders.filter(o => o.delivery_status === 'delivered');
-  const todayEarnings = completedOrders
+  const myActiveOrders = orders.filter(o => o.rider_id === rider.id && ['picked_up', 'on_the_way'].includes(o.delivery_status));
+  const myCompletedOrders = orders.filter(o => o.rider_id === rider.id && o.delivery_status === 'delivered');
+  const unassignedOrders = orders.filter(o => o.delivery_status === 'unassigned');
+  const assignedToOthers = orders.filter(o => o.delivery_status === 'assigned' && o.rider_id && o.rider_id !== rider.id);
+  const todayEarnings = myCompletedOrders
     .filter(o => {
       const orderDate = new Date(o.created_date);
       const today = new Date();
@@ -108,20 +109,20 @@ export default function RiderDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatCard
             icon={Package}
-            title="New Orders"
-            value={assignedOrders.length}
+            title="Available Orders"
+            value={unassignedOrders.length}
             color="blue"
           />
           <StatCard
             icon={Clock}
-            title="Active Deliveries"
-            value={activeOrders.length}
+            title="My Active Deliveries"
+            value={myActiveOrders.length}
             color="orange"
           />
           <StatCard
             icon={CheckCircle}
             title="Completed Today"
-            value={completedOrders.filter(o => {
+            value={myCompletedOrders.filter(o => {
               const orderDate = new Date(o.created_date);
               const today = new Date();
               return orderDate.toDateString() === today.toDateString();
@@ -136,18 +137,18 @@ export default function RiderDashboard() {
           />
         </div>
 
-        {/* Active Deliveries */}
-        {activeOrders.length > 0 && (
+        {/* My Active Deliveries */}
+        {myActiveOrders.length > 0 && (
           <Card className="mb-6 border-orange-100">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-orange-600" />
-                Active Deliveries
+                My Active Deliveries
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {activeOrders.map((order) => (
+                {myActiveOrders.map((order) => (
                   <Link key={order.id} to={createPageUrl(`RiderDelivery?id=${order.id}`)}>
                     <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer">
                       <div className="flex items-start justify-between mb-3">
@@ -171,23 +172,23 @@ export default function RiderDashboard() {
           </Card>
         )}
 
-        {/* New Assignments */}
+        {/* Available Orders */}
         <Card className="border-blue-100">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="w-5 h-5 text-blue-600" />
-              New Assignments
+              Available Orders - Pick One
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {assignedOrders.length === 0 ? (
+            {unassignedOrders.length === 0 ? (
               <div className="text-center py-8">
                 <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No new assignments</p>
+                <p className="text-gray-500">No available orders</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {assignedOrders.map((order) => (
+                {unassignedOrders.map((order) => (
                   <Link key={order.id} to={createPageUrl(`RiderDelivery?id=${order.id}`)}>
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer">
                       <div className="flex items-start justify-between mb-3">
@@ -211,8 +212,19 @@ export default function RiderDashboard() {
                         <MapPin className="w-4 h-4" />
                         <span className="line-clamp-1">{order.delivery_address}</span>
                       </div>
-                      <Button className="w-full bg-blue-500 hover:bg-blue-600 rounded-xl">
-                        Start Delivery
+                      <Button 
+                        className="w-full bg-blue-500 hover:bg-blue-600 rounded-xl"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          await base44.entities.Order.update(order.id, {
+                            rider_id: rider.id,
+                            rider_name: rider.full_name,
+                            delivery_status: 'assigned'
+                          });
+                          window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
+                        }}
+                      >
+                        Accept & Start Delivery
                       </Button>
                     </div>
                   </Link>
