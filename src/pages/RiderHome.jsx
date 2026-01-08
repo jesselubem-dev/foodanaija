@@ -153,22 +153,21 @@ export default function RiderHome() {
       </div>
     </div>
   );
-  }
-  }
+}
 
-  function FeatureCard({ icon: Icon, label, color }) {
+function FeatureCard({ icon: Icon, label, color }) {
   const colors = {
-  blue: 'from-blue-500 to-blue-600',
-  green: 'from-green-500 to-green-600',
-  orange: 'from-orange-500 to-orange-600',
+    blue: 'from-blue-500 to-blue-600',
+    green: 'from-green-500 to-green-600',
+    orange: 'from-orange-500 to-orange-600',
   };
 
   return (
-  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 text-center border border-gray-100 hover:shadow-lg transition-all">
-    <div className={`w-12 h-12 bg-gradient-to-br ${colors[color]} rounded-xl flex items-center justify-center mx-auto mb-2`}>
-      <Icon className="w-6 h-6 text-white" />
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 text-center border border-gray-100 hover:shadow-lg transition-all">
+      <div className={`w-12 h-12 bg-gradient-to-br ${colors[color]} rounded-xl flex items-center justify-center mx-auto mb-2`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      <p className="text-xs font-semibold text-gray-700">{label}</p>
     </div>
-    <p className="text-xs font-semibold text-gray-700">{label}</p>
-  </div>
   );
 }
