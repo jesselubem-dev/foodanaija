@@ -16,11 +16,10 @@ import { toast } from "sonner";
 const steps = [
   { id: 1, title: 'Your Details', icon: Store },
   { id: 2, title: 'Restaurant Info', icon: Store },
-  { id: 3, title: 'Location', icon: MapPin },
-  { id: 4, title: 'Hours & Contact', icon: Clock },
+  { id: 3, title: 'Hours & Contact', icon: Clock },
 ];
 
-const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu'];
+const cities = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu', 'Sokoto'];
 const cuisineTypes = ['Nigerian', 'Swallow', 'Rice Dishes', 'Grills', 'Snacks', 'Drinks', 'Continental', 'Fast Food'];
 
 export default function RestaurantSetup() {
