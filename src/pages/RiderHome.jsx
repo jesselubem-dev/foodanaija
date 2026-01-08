@@ -21,16 +21,15 @@ export default function RiderHome() {
 
   const checkAuth = async () => {
     try {
-      const userData = await base44.auth.me();
+      const isAuth = await base44.auth.isAuthenticated();
       
-      if (userData) {
+      if (isAuth) {
+        const userData = await base44.auth.me();
         // Check if user is a registered rider
         const riders = await base44.entities.Rider.filter({ email: userData.email });
         if (riders.length > 0) {
           // Found rider record - redirect to dashboard
-          setTimeout(() => {
-            window.location.href = createPageUrl('RiderDashboard');
-          }, 100);
+          window.location.href = createPageUrl('RiderDashboard');
           return;
         }
       }

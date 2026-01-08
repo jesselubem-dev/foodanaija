@@ -22,13 +22,14 @@ export default function RiderDashboard() {
 
   const checkRider = async () => {
     try {
-      const userData = await base44.auth.me();
+      const isAuth = await base44.auth.isAuthenticated();
       
-      if (!userData) {
+      if (!isAuth) {
         base44.auth.redirectToLogin(window.location.href);
         return;
       }
-      
+
+      const userData = await base44.auth.me();
       setUser(userData);
       
       // Check if user is a registered rider
