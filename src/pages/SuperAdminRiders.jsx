@@ -173,10 +173,6 @@ export default function SuperAdminRiders() {
     );
   }
 
-  if (ridersError) {
-    console.error('Riders error:', ridersError);
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -217,6 +213,21 @@ export default function SuperAdminRiders() {
           />
         </div>
 
+        {loadingRiders ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
+              <p className="text-gray-500">Loading riders...</p>
+            </div>
+          </div>
+        ) : ridersError ? (
+          <Card className="border-red-100 bg-red-50">
+            <CardContent className="p-8 text-center">
+              <p className="text-red-600">Failed to load riders. Please try refreshing the page.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="border-orange-100">
@@ -355,6 +366,8 @@ export default function SuperAdminRiders() {
               )}
             </CardContent>
           </Card>
+        )}
+        </>
         )}
       </div>
 
