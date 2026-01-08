@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DeliveryLogin() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,19 +26,11 @@ export default function DeliveryLogin() {
 
     try {
       // Verify delivery user exists
-      const users = await base44.entities.User.filter({ email: email });
+      const allUsers = await base44.entities.User.list();
+      const user = allUsers.find(u => u.email === email && u.role === 'delivery');
       
-      if (users.length === 0) {
-        setError('Invalid email or password');
-        setLoading(false);
-        return;
-      }
-
-      const user = users[0];
-      
-      // Check if user has delivery role
-      if (user.role !== 'delivery') {
-        setError('Access denied. Delivery riders only.');
+      if (!user) {
+        setError('Invalid email. Please check with your administrator.');
         setLoading(false);
         return;
       }
@@ -89,21 +80,9 @@ export default function DeliveryLogin() {
                   required
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the email registered by your administrator
+              </p>
             </div>
 
             <Button 
