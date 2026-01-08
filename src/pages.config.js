@@ -12,15 +12,15 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
 import RestaurantDetail from './pages/RestaurantDetail';
 import RestaurantSetup from './pages/RestaurantSetup';
+import RiderDashboard from './pages/RiderDashboard';
+import RiderDelivery from './pages/RiderDelivery';
+import RiderHome from './pages/RiderHome';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
-import SuperAdminUsers from './pages/SuperAdminUsers';
-import RiderHome from './pages/RiderHome';
-import RiderDashboard from './pages/RiderDashboard';
-import RiderDelivery from './pages/RiderDelivery';
 import SuperAdminRiders from './pages/SuperAdminRiders';
+import SuperAdminUsers from './pages/SuperAdminUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -39,15 +39,15 @@ export const PAGES = {
     "OrderHistory": OrderHistory,
     "RestaurantDetail": RestaurantDetail,
     "RestaurantSetup": RestaurantSetup,
+    "RiderDashboard": RiderDashboard,
+    "RiderDelivery": RiderDelivery,
+    "RiderHome": RiderHome,
     "SuperAdminDashboard": SuperAdminDashboard,
     "SuperAdminMessages": SuperAdminMessages,
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
-    "SuperAdminUsers": SuperAdminUsers,
-    "RiderHome": RiderHome,
-    "RiderDashboard": RiderDashboard,
-    "RiderDelivery": RiderDelivery,
     "SuperAdminRiders": SuperAdminRiders,
+    "SuperAdminUsers": SuperAdminUsers,
 }
 
 export const pagesConfig = {
