@@ -351,14 +351,9 @@ export default function RestaurantSetup() {
 
         {currentStep === 2 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <Label>Full Address *</Label>
-              <Textarea
-                placeholder="Street address, landmark..."
-                value={formData.address}
-                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                className="min-h-[80px] rounded-xl"
-              />
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Restaurant location & preferences</h2>
+              <p className="text-gray-500 text-sm">Where is your restaurant located?</p>
             </div>
 
             <div className="space-y-2">
@@ -390,7 +385,7 @@ export default function RestaurantSetup() {
           </div>
         )}
 
-        {currentStep === 4 && (
+        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="space-y-2">
               <Label>Phone Number *</Label>
