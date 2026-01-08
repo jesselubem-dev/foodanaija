@@ -149,10 +149,8 @@ export default function RestaurantSetup() {
       case 1:
         return formData.owner_name;
       case 2:
-        return formData.name && formData.description;
+        return formData.name && formData.description && formData.city;
       case 3:
-        return formData.address && formData.city;
-      case 4:
         return formData.phone;
       default:
         return false;
