@@ -45,78 +45,80 @@ export default function RiderHome() {
     );
   }
 
-  // Show login form
+  // Show sign up form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Hero Section */}
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-pulse">
-            <Bike className="w-12 h-12 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-            Foodanaija Rider
-          </h1>
-          <p className="text-gray-600 text-lg">Deliver. Earn. Grow.</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 flex flex-col safe-area-inset-bottom">
+      {/* Hero Section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-8">
+        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mb-4 shadow-2xl">
+          <Bike className="w-10 h-10 text-white" />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">
+          Foodanaija Rider
+        </h1>
+        <p className="text-gray-600 text-center text-sm md:text-base">Deliver. Earn. Grow.</p>
+      </div>
+
+      {/* Content Section */}
+      <div className="flex-1 flex flex-col px-4 pb-4 space-y-4">
+        {/* Sign Up Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-blue-100">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">Get Started</h2>
+          <p className="text-gray-600 text-sm mb-6">Join thousands of riders earning daily</p>
+
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-blue-600" />
+                Email Address
+              </label>
+              <Input
+                type="email"
+                placeholder="your.email@example.com"
+                className="h-12 text-base rounded-lg border-2 border-gray-200 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isAuthenticating}
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-md active:scale-95 transition-all"
+            >
+              {isAuthenticating ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                  <span>Creating...</span>
+                </div>
+              ) : (
+                <>
+                  <Navigation className="w-4 h-4 mr-2" />
+                  Sign Up & Start
+                </>
+              )}
+            </Button>
+          </form>
         </div>
 
-        {/* Sign Up Card */}
-         <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-blue-100">
-           <h2 className="text-2xl font-bold text-gray-900 mb-2">Create Account</h2>
-           <p className="text-gray-600 mb-6">Sign up as a rider and start earning</p>
-
-           <form onSubmit={handleSignUp} className="space-y-5">
-             <div>
-               <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                 <Mail className="w-4 h-4 text-blue-600" />
-                 Email Address
-               </label>
-               <Input
-                 type="email"
-                 placeholder="your.email@example.com"
-                 className="h-14 text-base rounded-xl border-2 border-gray-200 focus:border-blue-500"
-                 required
-               />
-             </div>
-
-             <Button
-               type="submit"
-               disabled={isAuthenticating}
-               className="w-full h-14 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 hover:from-blue-600 hover:via-cyan-600 hover:to-blue-700 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-             >
-               {isAuthenticating ? (
-                 <div className="flex items-center gap-2">
-                   <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                   <span>Creating account...</span>
-                 </div>
-               ) : (
-                 <>
-                   <Navigation className="w-5 h-5 mr-2" />
-                   Create Account & Sign In
-                 </>
-               )}
-             </Button>
-           </form>
-         </div>
-
         {/* Features Grid */}
-        <div className="grid grid-cols-3 gap-3 mt-6">
+        <div className="grid grid-cols-3 gap-2">
           <FeatureCard icon={Package} label="Orders" color="blue" />
           <FeatureCard icon={TrendingUp} label="Earnings" color="green" />
           <FeatureCard icon={MapPin} label="Track" color="orange" />
         </div>
 
-        <div className="mt-6 text-center space-y-3">
-          <p className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm rounded-xl py-3 px-4">
-            🔒 Secure rider portal • Need access? Contact admin
-          </p>
+        {/* Demo & Info */}
+        <div className="space-y-2">
           <Button
             onClick={() => window.location.href = createPageUrl('RiderDashboard?demo=true')}
             variant="outline"
-            className="w-full rounded-xl"
+            className="w-full h-11 rounded-lg border-2 active:scale-95 transition-all"
           >
-            👀 View Demo Dashboard
+            👀 View Demo
           </Button>
+          <p className="text-xs text-gray-600 text-center">
+            🔒 Secure • No password needed
+          </p>
         </div>
       </div>
     </div>
