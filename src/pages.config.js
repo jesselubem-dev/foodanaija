@@ -19,8 +19,8 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
-import SuperAdminUsers from './pages/SuperAdminUsers';
 import SuperAdminRiders from './pages/SuperAdminRiders';
+import SuperAdminUsers from './pages/SuperAdminUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -46,8 +46,8 @@ export const PAGES = {
     "SuperAdminMessages": SuperAdminMessages,
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
-    "SuperAdminUsers": SuperAdminUsers,
     "SuperAdminRiders": SuperAdminRiders,
+    "SuperAdminUsers": SuperAdminUsers,
 }
 
 export const pagesConfig = {
