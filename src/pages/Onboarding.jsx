@@ -109,11 +109,7 @@ export default function Onboarding() {
       />
 
       <div className="p-6 flex-1 flex items-center justify-center relative z-10">
-        <div
-          className="max-w-md w-full"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}>
+        <div className="max-w-md w-full">
 
           {/* Logo */}
           <motion.div 
@@ -127,6 +123,12 @@ export default function Onboarding() {
             </div>
           </motion.div>
 
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="touch-pan-y select-none"
+          >
           <AnimatePresence mode="wait">
             {slides.map((slide, index) => {
               const Icon = slide.icon;
@@ -215,6 +217,7 @@ export default function Onboarding() {
               ) : null;
             })}
           </AnimatePresence>
+          </div>
 
           {/* Swipe indicator */}
           <motion.div 
