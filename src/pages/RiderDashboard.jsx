@@ -314,7 +314,7 @@ export default function RiderDashboard() {
                             rider_name: rider.full_name,
                             delivery_status: 'assigned'
                           });
-                          window.location.href = createPageUrl('RiderDashboard');
+                          window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
                         }}
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
