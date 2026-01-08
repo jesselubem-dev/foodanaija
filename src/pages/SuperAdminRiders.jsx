@@ -47,7 +47,7 @@ export default function SuperAdminRiders() {
     full_name: '',
     phone: '',
     email: '',
-    password_hash: '',
+    password: '',
     status: 'active'
   });
 
@@ -75,7 +75,10 @@ export default function SuperAdminRiders() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.asServiceRole.entities.Rider.create(data),
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('createRider', data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['all-riders']);
       setShowDialog(false);
@@ -83,12 +86,18 @@ export default function SuperAdminRiders() {
       toast.success('Rider created successfully');
     },
     onError: (error) => {
-      toast.error('Failed to create rider: ' + error.message);
+      toast.error('Failed to create rider: ' + (error.response?.data?.error || error.message));
     }
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.asServiceRole.entities.Rider.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const response = await base44.functions.invoke('updateRider', {
+        rider_id: id,
+        ...data
+      });
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['all-riders']);
       setShowDialog(false);
@@ -97,7 +106,7 @@ export default function SuperAdminRiders() {
       toast.success('Rider updated successfully');
     },
     onError: (error) => {
-      toast.error('Failed to update rider: ' + error.message);
+      toast.error('Failed to update rider: ' + (error.response?.data?.error || error.message));
     }
   });
 
@@ -118,7 +127,7 @@ export default function SuperAdminRiders() {
       full_name: '',
       phone: '',
       email: '',
-      password_hash: '',
+      password: '',
       status: 'active'
     });
   };
@@ -127,8 +136,8 @@ export default function SuperAdminRiders() {
     e.preventDefault();
     if (editingRider) {
       const updateData = { ...formData };
-      if (!updateData.password_hash) {
-        delete updateData.password_hash; // Don't update password if empty
+      if (!updateData.password) {
+        delete updateData.password; // Don't update password if empty
       }
       updateMutation.mutate({ id: editingRider.id, data: updateData });
     } else {
@@ -142,7 +151,7 @@ export default function SuperAdminRiders() {
       full_name: rider.full_name,
       phone: rider.phone,
       email: rider.email,
-      password_hash: '',
+      password: '',
       status: rider.status
     });
     setShowDialog(true);
@@ -385,8 +394,9 @@ export default function SuperAdminRiders() {
               </label>
               <Input
                 type="password"
-                value={formData.password_hash}
-                onChange={(e) => setFormData({ ...formData, password_hash: e.target.value })}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder={editingRider ? 'Leave blank to keep current password' : 'Enter password'}
                 required={!editingRider}
               />
             </div>
