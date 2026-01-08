@@ -22,7 +22,7 @@ export default function RiderDashboard() {
   const checkAuth = () => {
     const riderAuth = localStorage.getItem('rider_auth');
     if (!riderAuth) {
-      window.location.href = '/RiderLogin';
+      window.location.href = createPageUrl('RiderLogin');
       return;
     }
     
@@ -30,13 +30,13 @@ export default function RiderDashboard() {
       const riderData = JSON.parse(riderAuth);
       setRider(riderData);
     } catch (e) {
-      window.location.href = '/RiderLogin';
+      window.location.href = createPageUrl('RiderLogin');
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('rider_auth');
-    window.location.href = '/RiderLogin';
+    window.location.href = createPageUrl('RiderLogin');
   };
 
   const { data: orders = [] } = useQuery({

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { ChefHat, Bike, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export default function RiderLogin() {
       if (response.data.success) {
         // Store rider data in localStorage
         localStorage.setItem('rider_auth', JSON.stringify(response.data.rider));
-        window.location.href = '/RiderDashboard';
+        window.location.href = createPageUrl('RiderDashboard');
       } else {
         setError(response.data.error || 'Login failed');
       }
