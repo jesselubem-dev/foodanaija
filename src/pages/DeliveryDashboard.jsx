@@ -26,12 +26,26 @@ export default function DeliveryDashboard() {
   }, []);
 
   const checkAuth = async () => {
-    try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
+    const deliveryAuth = localStorage.getItem('delivery_auth');
+    if (!deliveryAuth) {
+      window.location.href = '/DeliveryLogin';
+      return;
     }
+    
+    try {
+      const authData = JSON.parse(deliveryAuth);
+      setUser({ 
+        email: authData.email, 
+        full_name: authData.name 
+      });
+    } catch (e) {
+      window.location.href = '/DeliveryLogin';
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('delivery_auth');
+    window.location.href = '/DeliveryLogin';
   };
 
   const { data: allOrders = [], isLoading } = useQuery({
@@ -92,7 +106,7 @@ export default function DeliveryDashboard() {
                 <p className="text-sm text-gray-500">Welcome, {user?.full_name || 'Delivery Rider'}</p>
               </div>
             </div>
-            <Button variant="outline" onClick={() => base44.auth.logout()}>
+            <Button variant="outline" onClick={handleLogout}>
               Logout
             </Button>
           </div>

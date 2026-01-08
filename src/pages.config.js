@@ -6,6 +6,7 @@ import DashboardHome from './pages/DashboardHome';
 import DashboardMenu from './pages/DashboardMenu';
 import DashboardOrders from './pages/DashboardOrders';
 import DashboardSettings from './pages/DashboardSettings';
+import DeliveryDashboard from './pages/DeliveryDashboard';
 import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
 import OrderConfirmation from './pages/OrderConfirmation';
@@ -17,7 +18,7 @@ import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import DeliveryDashboard from './pages/DeliveryDashboard';
+import DeliveryLogin from './pages/DeliveryLogin';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "DashboardMenu": DashboardMenu,
     "DashboardOrders": DashboardOrders,
     "DashboardSettings": DashboardSettings,
+    "DeliveryDashboard": DeliveryDashboard,
     "Home": Home,
     "Onboarding": Onboarding,
     "OrderConfirmation": OrderConfirmation,
@@ -41,7 +43,7 @@ export const PAGES = {
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminUsers": SuperAdminUsers,
-    "DeliveryDashboard": DeliveryDashboard,
+    "DeliveryLogin": DeliveryLogin,
 }
 
 export const pagesConfig = {
