@@ -28,16 +28,22 @@ export default function RiderOrders() {
     checkAuth();
   }, []);
 
-  const checkAuth = () => {
-    const riderAuth = localStorage.getItem('rider_auth');
-    if (!riderAuth) {
-      window.location.href = createPageUrl('RiderLogin');
-      return;
-    }
-    
+  const checkAuth = async () => {
     try {
-      const riderData = JSON.parse(riderAuth);
-      setRider(riderData);
+      const user = await base44.auth.me();
+      if (!user.rider_id) {
+        window.location.href = createPageUrl('RiderLogin');
+        return;
+      }
+      
+      // Fetch rider data
+      const riderData = await base44.asServiceRole.entities.Rider.filter({ id: user.rider_id });
+      if (riderData.length === 0) {
+        window.location.href = createPageUrl('RiderLogin');
+        return;
+      }
+      
+      setRider(riderData[0]);
     } catch (e) {
       window.location.href = createPageUrl('RiderLogin');
     }

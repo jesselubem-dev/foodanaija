@@ -18,17 +18,20 @@ export default function RiderLogin() {
     setLoading(true);
 
     try {
-      const response = await base44.functions.invoke('riderAuth', { email, password });
+      // Use Base44 authentication
+      await base44.auth.signInWithPassword(email, password);
       
-      if (response.data.success) {
-        // Store rider data in localStorage
-        localStorage.setItem('rider_auth', JSON.stringify(response.data.rider));
-        window.location.href = createPageUrl('RiderDashboard');
-      } else {
-        setError(response.data.error || 'Login failed');
+      // Verify user has rider_id
+      const user = await base44.auth.me();
+      if (!user.rider_id) {
+        setError('This account is not registered as a rider');
+        await base44.auth.logout();
+        return;
       }
+      
+      window.location.href = createPageUrl('RiderDashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
+      setError('Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
