@@ -464,7 +464,7 @@ export default function RestaurantSetup() {
             <div />
           )}
 
-          {currentStep < 4 ? (
+          {currentStep < 3 ? (
             <Button
               onClick={() => setCurrentStep(prev => prev + 1)}
               disabled={!canProceed()}
