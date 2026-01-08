@@ -144,10 +144,17 @@ export default function RiderHome() {
           <FeatureCard icon={MapPin} label="Track" color="orange" />
         </div>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-3">
           <p className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm rounded-xl py-3 px-4">
             🔒 Secure rider portal • Need access? Contact admin
           </p>
+          <Button
+            onClick={() => window.location.href = createPageUrl('RiderDashboard?demo=true')}
+            variant="outline"
+            className="w-full rounded-xl"
+          >
+            👀 View Demo Dashboard
+          </Button>
         </div>
       </div>
     </div>
