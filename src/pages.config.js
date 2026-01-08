@@ -12,14 +12,10 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
 import RestaurantDetail from './pages/RestaurantDetail';
 import RestaurantSetup from './pages/RestaurantSetup';
-import RiderDashboard from './pages/RiderDashboard';
-import RiderLogin from './pages/RiderLogin';
-import RiderOrders from './pages/RiderOrders';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
-import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminUsers from './pages/SuperAdminUsers';
 import __Layout from './Layout.jsx';
 
@@ -39,14 +35,10 @@ export const PAGES = {
     "OrderHistory": OrderHistory,
     "RestaurantDetail": RestaurantDetail,
     "RestaurantSetup": RestaurantSetup,
-    "RiderDashboard": RiderDashboard,
-    "RiderLogin": RiderLogin,
-    "RiderOrders": RiderOrders,
     "SuperAdminDashboard": SuperAdminDashboard,
     "SuperAdminMessages": SuperAdminMessages,
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
-    "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminUsers": SuperAdminUsers,
 }
 
