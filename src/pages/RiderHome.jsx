@@ -133,9 +133,9 @@ function FeatureCard({ icon: Icon, label, color }) {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 text-center border border-gray-100 hover:shadow-lg transition-all">
-      <div className={`w-12 h-12 bg-gradient-to-br ${colors[color]} rounded-xl flex items-center justify-center mx-auto mb-2`}>
-        <Icon className="w-6 h-6 text-white" />
+    <div className="bg-white rounded-lg p-3 text-center border border-gray-100 shadow-sm active:scale-95 transition-all">
+      <div className={`w-10 h-10 bg-gradient-to-br ${colors[color]} rounded-lg flex items-center justify-center mx-auto mb-1`}>
+        <Icon className="w-5 h-5 text-white" />
       </div>
       <p className="text-xs font-semibold text-gray-700">{label}</p>
     </div>
