@@ -70,15 +70,10 @@ export default function SuperAdminRiders() {
 
   const { data: riders = [], isLoading: loadingRiders, error: ridersError } = useQuery({
     queryKey: ['all-riders'],
-    queryFn: async () => {
-      try {
-        return await base44.asServiceRole.entities.Rider.list('-created_date');
-      } catch (error) {
-        console.error('Failed to load riders:', error);
-        return [];
-      }
-    },
+    queryFn: () => base44.asServiceRole.entities.Rider.list('-created_date'),
     enabled: !!user,
+    retry: 1,
+    staleTime: 30000,
   });
 
   const createMutation = useMutation({
@@ -170,15 +165,16 @@ export default function SuperAdminRiders() {
     r.phone?.includes(searchTerm)
   );
 
-  if (!user || loadingRiders) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-gray-500">Loading...</p>
-        </div>
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
+  }
+
+  if (ridersError) {
+    console.error('Riders error:', ridersError);
   }
 
   return (
