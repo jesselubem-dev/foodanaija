@@ -17,6 +17,10 @@ import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminUsers from './pages/SuperAdminUsers';
+import RiderHome from './pages/RiderHome';
+import RiderDashboard from './pages/RiderDashboard';
+import RiderDelivery from './pages/RiderDelivery';
+import SuperAdminRiders from './pages/SuperAdminRiders';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +44,10 @@ export const PAGES = {
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminUsers": SuperAdminUsers,
+    "RiderHome": RiderHome,
+    "RiderDashboard": RiderDashboard,
+    "RiderDelivery": RiderDelivery,
+    "SuperAdminRiders": SuperAdminRiders,
 }
 
 export const pagesConfig = {
