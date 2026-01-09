@@ -149,7 +149,7 @@ export default function RestaurantSetup() {
       case 1:
         return formData.owner_name;
       case 2:
-        return formData.name && formData.description && formData.city;
+        return formData.name && formData.description && formData.address && formData.city;
       case 3:
         return formData.phone;
       default:
@@ -270,6 +270,33 @@ export default function RestaurantSetup() {
             </div>
 
             <div className="space-y-2">
+              <Label>Address *</Label>
+              <Input
+                placeholder="e.g., 123 Main Street, Ikeja"
+                value={formData.address}
+                onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>City *</Label>
+              <Select 
+                value={formData.city} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
+              >
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label>Cuisine Types</Label>
               <div className="flex flex-wrap gap-2">
                 {cuisineTypes.map((cuisine) => (
@@ -345,32 +372,6 @@ export default function RestaurantSetup() {
                   </label>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Restaurant location & preferences</h2>
-              <p className="text-gray-500 text-sm">Where is your restaurant located?</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>City *</Label>
-              <Select 
-                value={formData.city} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
-              >
-                <SelectTrigger className="h-12 rounded-xl">
-                  <SelectValue placeholder="Select city" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
