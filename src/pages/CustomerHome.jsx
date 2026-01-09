@@ -125,18 +125,6 @@ export default function CustomerHome() {
         </div>
       </header>
 
-      {/* Floating Cart Button */}
-      <Link to={createPageUrl('Cart')} className="fixed bottom-24 right-4 z-40">
-        <Button className="relative bg-orange-500 hover:bg-orange-600 h-14 w-14 rounded-full shadow-2xl shadow-orange-500/50 hover:scale-110 transition-transform">
-          <ShoppingBag className="w-6 h-6 text-white" />
-          {cartItemCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold border-2 border-white">
-              {cartItemCount}
-            </span>
-          )}
-        </Button>
-      </Link>
-
       <div className="max-w-7xl mx-auto px-4 pb-24">
         {/* Compact Welcome */}
         {user && (
