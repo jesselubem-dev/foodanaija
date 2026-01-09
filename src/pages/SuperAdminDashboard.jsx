@@ -96,9 +96,16 @@ export default function SuperAdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
-          <p className="text-gray-500 mt-1">Platform overview and management</p>
+        <div className="mb-8 flex items-center gap-4">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+            alt="Fooda Naija" 
+            className="h-12 w-auto object-contain"
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
+            <p className="text-gray-500 mt-1">Platform overview and management</p>
+          </div>
         </div>
 
         {/* Stats Grid */}
