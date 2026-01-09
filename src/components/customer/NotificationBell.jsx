@@ -55,7 +55,7 @@ export default function NotificationBell({ userEmail }) {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-80 p-0 mb-2" align="end" side="top">
         <div className="p-4 border-b">
           <h3 className="font-semibold">Notifications</h3>
           <p className="text-xs text-gray-500">{unreadCount} unread</p>
