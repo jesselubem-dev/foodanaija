@@ -23,10 +23,18 @@ export default function RiderDashboard() {
   const [user, setUser] = useState(null);
   const [rider, setRider] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [previousOrderCount, setPreviousOrderCount] = useState(0);
 
   useEffect(() => {
     checkRider();
+    requestNotificationPermission();
   }, []);
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+    }
+  };
 
   const checkRider = async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -112,6 +120,31 @@ export default function RiderDashboard() {
     return orderDate.toDateString() === today.toDateString();
   });
   const todayEarnings = todayCompleted.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+
+  // Notify rider of new orders
+  useEffect(() => {
+    if (unassignedOrders.length > previousOrderCount && previousOrderCount > 0) {
+      const newOrderCount = unassignedOrders.length - previousOrderCount;
+      
+      // Play notification sound
+      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZPQ4XZr==');
+      audio.play().catch(() => {});
+
+      // Show browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const latestOrder = unassignedOrders[0];
+        new Notification('🚨 New Delivery Available!', {
+          body: `${latestOrder.restaurant_name}\n₦${latestOrder.total?.toLocaleString()} • ${latestOrder.items?.length} items`,
+          icon: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=200',
+          badge: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=200',
+          tag: 'new-order',
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
+        });
+      }
+    }
+    setPreviousOrderCount(unassignedOrders.length);
+  }, [unassignedOrders.length]);
 
   if (!rider) {
     return (
