@@ -3,7 +3,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  ArrowLeft, MapPin, Phone, User, Package, CheckCircle, Navigation
+  ArrowLeft, MapPin, Phone, User, Package, CheckCircle, Navigation, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import {
 export default function RiderDelivery() {
   const [rider, setRider] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(1200); // 20 minutes in seconds
   const queryClient = useQueryClient();
   
   const urlParams = new URLSearchParams(window.location.search);
@@ -45,7 +46,25 @@ export default function RiderDelivery() {
     queryKey: ['order', orderId],
     queryFn: () => base44.entities.Order.filter({ id: orderId }).then(r => r[0]),
     enabled: !!orderId,
+    refetchInterval: 5000,
   });
+
+  useEffect(() => {
+    if (!order?.accepted_at) return;
+
+    const calculateTimeRemaining = () => {
+      const acceptedTime = new Date(order.accepted_at).getTime();
+      const now = new Date().getTime();
+      const elapsed = Math.floor((now - acceptedTime) / 1000);
+      const remaining = Math.max(0, 1200 - elapsed); // 20 mins = 1200 seconds
+      setTimeRemaining(remaining);
+    };
+
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 1000);
+
+    return () => clearInterval(interval);
+  }, [order?.accepted_at]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus) => {
@@ -98,6 +117,12 @@ export default function RiderDelivery() {
 
   const currentStatus = statusConfig[order.delivery_status] || statusConfig.assigned;
 
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100">
       {/* Header */}
@@ -120,6 +145,33 @@ export default function RiderDelivery() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        {/* Timer Card */}
+        {order.delivery_status !== 'delivered' && (
+          <Card className={`border-2 ${timeRemaining < 300 ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-blue-50'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-full ${timeRemaining < 300 ? 'bg-red-500' : 'bg-blue-500'} flex items-center justify-center`}>
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Delivery Timer</p>
+                    <p className="text-xs text-gray-500">Target: 20 minutes</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`text-3xl font-bold ${timeRemaining < 300 ? 'text-red-600' : 'text-blue-600'}`}>
+                    {formatTime(timeRemaining)}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {timeRemaining === 0 ? 'Time exceeded!' : 'remaining'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Customer Info */}
         <Card className="border-blue-100">
           <CardHeader>

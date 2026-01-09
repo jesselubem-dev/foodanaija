@@ -361,7 +361,8 @@ export default function RiderDashboard() {
                           await base44.entities.Order.update(order.id, {
                             rider_id: rider.id,
                             rider_name: rider.full_name,
-                            delivery_status: 'assigned'
+                            delivery_status: 'assigned',
+                            accepted_at: new Date().toISOString()
                           });
                           window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
                         }}
