@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import ReviewSection from '../components/restaurant/ReviewSection';
 import FloatingCart from '../components/customer/FloatingCart';
 import NotificationBell from '../components/customer/NotificationBell';
+import FloatingMenu from '../components/customer/FloatingMenu';
 
 export default function RestaurantDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -171,7 +172,7 @@ export default function RestaurantDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 pb-20">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -374,6 +375,8 @@ export default function RestaurantDetail() {
         onUpdateQuantity={updateCartQuantity}
         onRemoveItem={removeFromCart}
       />
+
+      <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
     </div>
   );
 }
