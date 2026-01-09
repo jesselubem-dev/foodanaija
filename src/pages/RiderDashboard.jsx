@@ -391,13 +391,25 @@ export default function RiderDashboard() {
                         className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl h-12 font-semibold"
                         onClick={async (e) => {
                           e.preventDefault();
-                          await base44.entities.Order.update(order.id, {
-                            rider_id: rider.id,
-                            rider_name: rider.full_name,
-                            delivery_status: 'assigned',
-                            accepted_at: new Date().toISOString()
-                          });
-                          window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
+                          try {
+                            // Check if order is still unassigned
+                            const currentOrder = await base44.entities.Order.filter({ id: order.id });
+                            if (currentOrder[0].delivery_status !== 'unassigned') {
+                              alert('Sorry, this order has already been accepted by another rider.');
+                              window.location.reload();
+                              return;
+                            }
+
+                            await base44.entities.Order.update(order.id, {
+                              rider_id: rider.id,
+                              rider_name: rider.full_name,
+                              delivery_status: 'assigned',
+                              accepted_at: new Date().toISOString()
+                            });
+                            window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
+                          } catch (error) {
+                            alert('Failed to accept order. Please try again.');
+                          }
                         }}
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
