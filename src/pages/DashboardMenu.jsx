@@ -633,10 +633,18 @@ export default function DashboardMenu() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
-              <div>
-                <p className="font-medium text-gray-900">Mark as Promo</p>
-                <p className="text-sm text-gray-500">Show in Best Orders carousel</p>
+            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
+                  <Flame className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 flex items-center gap-2">
+                    Special Promo Deal
+                    <Badge className="bg-orange-500 text-white text-xs">HOT</Badge>
+                  </p>
+                  <p className="text-sm text-gray-600">Showcase this item to all customers on login</p>
+                </div>
               </div>
               <Switch 
                 checked={itemForm.is_promo}
