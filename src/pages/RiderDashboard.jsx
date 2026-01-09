@@ -91,6 +91,12 @@ export default function RiderDashboard() {
     refetchInterval: 5000,
   });
 
+  const { data: deliveredOrders = [] } = useQuery({
+    queryKey: ['delivered-orders', rider?.id],
+    queryFn: () => base44.entities.Order.filter({ rider_id: rider.id, delivery_status: 'delivered' }, '-updated_date'),
+    enabled: !!rider,
+  });
+
   const toggleAvailability = async () => {
     await base44.entities.Rider.update(rider.id, {
       is_available: !rider.is_available
@@ -99,16 +105,13 @@ export default function RiderDashboard() {
   };
 
   const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
-  const myCompletedOrders = rider ? orders.filter(o => o.rider_id === rider.id && o.delivery_status === 'delivered') : [];
   const unassignedOrders = orders.filter(o => o.delivery_status === 'unassigned');
-  const assignedToOthers = rider ? orders.filter(o => o.delivery_status === 'assigned' && o.rider_id && o.rider_id !== rider.id) : [];
-  const todayEarnings = myCompletedOrders
-    .filter(o => {
-      const orderDate = new Date(o.created_date);
-      const today = new Date();
-      return orderDate.toDateString() === today.toDateString();
-    })
-    .reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+  const todayCompleted = deliveredOrders.filter(o => {
+    const orderDate = new Date(o.updated_date);
+    const today = new Date();
+    return orderDate.toDateString() === today.toDateString();
+  });
+  const todayEarnings = todayCompleted.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
 
   if (!rider) {
     return (
@@ -117,12 +120,6 @@ export default function RiderDashboard() {
       </div>
     );
   }
-
-  const todayCompleted = myCompletedOrders.filter(o => {
-    const orderDate = new Date(o.created_date);
-    const today = new Date();
-    return orderDate.toDateString() === today.toDateString();
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 safe-area-inset-bottom">
@@ -245,18 +242,22 @@ export default function RiderDashboard() {
 
         {/* Mobile-First Tabbed Interface */}
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 bg-white rounded-xl p-1 shadow-sm">
-            <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-              <Navigation className="w-4 h-4 mr-2" />
+          <TabsList className="grid w-full grid-cols-4 mb-4 bg-white rounded-xl p-1 shadow-sm">
+            <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs">
+              <Navigation className="w-3 h-3 mr-1" />
               Active ({myActiveOrders.length})
             </TabsTrigger>
-            <TabsTrigger value="available" className="rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              <Package className="w-4 h-4 mr-2" />
+            <TabsTrigger value="available" className="rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs">
+              <Package className="w-3 h-3 mr-1" />
               Available ({unassignedOrders.length})
             </TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Completed ({todayCompleted.length})
+            <TabsTrigger value="today" className="rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white text-xs">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Today ({todayCompleted.length})
+            </TabsTrigger>
+            <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs">
+              <Clock className="w-3 h-3 mr-1" />
+              History
             </TabsTrigger>
           </TabsList>
 
@@ -377,8 +378,8 @@ export default function RiderDashboard() {
             )}
           </TabsContent>
 
-          {/* Completed Orders Tab */}
-          <TabsContent value="completed">
+          {/* Today's Completed Orders Tab */}
+          <TabsContent value="today">
             {todayCompleted.length === 0 ? (
               <Card className="border-green-100">
                 <CardContent className="text-center py-12">
@@ -406,6 +407,57 @@ export default function RiderDashboard() {
                           <p className="text-lg font-bold text-green-600">₦{order.total?.toLocaleString()}</p>
                           <p className="text-xs text-gray-500">+₦{order.delivery_fee || 500} earned</p>
                         </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Delivery History Tab */}
+          <TabsContent value="history">
+            {deliveredOrders.length === 0 ? (
+              <Card className="border-purple-100">
+                <CardContent className="text-center py-12">
+                  <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Delivery History</h3>
+                  <p className="text-gray-500">Your completed deliveries will appear here</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {deliveredOrders.map((order) => (
+                  <Card key={order.id} className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
+                            <CheckCircle className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-900">{order.restaurant_name}</h4>
+                            <p className="text-sm text-gray-600">{order.customer_name}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(order.updated_date).toLocaleDateString('en-NG', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
+                          <p className="text-xs text-green-600 font-medium">+₦{order.delivery_fee || 500}</p>
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-2">
+                        <p className="text-xs text-gray-600 flex items-start gap-1">
+                          <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                          {order.delivery_address}
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
