@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPageUrl } from '../utils';
 import { ChefHat, ShoppingBag, Bike, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,15 @@ export default function Onboarding() {
   }
 ];
 
+
+  // Auto-slide every 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleNext();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [currentSlide]);
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
