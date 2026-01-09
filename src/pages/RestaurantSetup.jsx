@@ -57,9 +57,14 @@ export default function RestaurantSetup() {
       setFormData(prev => ({ ...prev, email: userData.email }));
       
       // Check if already has restaurant
-      const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
-      if (restaurants.length > 0) {
-        window.location.href = createPageUrl('DashboardHome');
+      try {
+        const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
+        if (restaurants.length > 0) {
+          window.location.href = createPageUrl('DashboardHome');
+        }
+      } catch (e) {
+        // Allow user to proceed if restaurant check fails
+        console.log('Could not check existing restaurant:', e);
       }
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
