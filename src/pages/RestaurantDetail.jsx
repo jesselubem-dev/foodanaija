@@ -128,6 +128,7 @@ export default function RestaurantDetail() {
     
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
+    setCartOpen(true);
   };
 
   const updateCartQuantity = (itemId, newQuantity) => {
