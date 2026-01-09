@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X
+  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -170,76 +170,48 @@ export default function RiderDashboard() {
                 <p className="text-xs text-gray-600 font-medium">{rider.full_name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
-                rider.is_available 
-                  ? 'bg-green-100 border border-green-200' 
-                  : 'bg-gray-100 border border-gray-200'
-              }`}>
-                <div className={`w-2 h-2 rounded-full ${rider.is_available ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                <span className="text-xs font-medium text-gray-700 hidden sm:inline">
-                  {rider.is_available ? 'Available' : 'Offline'}
-                </span>
-                <Switch
-                  checked={rider.is_available}
-                  onCheckedChange={toggleAvailability}
-                />
-              </div>
-              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-xl">
-                    <Menu className="w-5 h-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[280px]">
-                  <SheetHeader className="mb-6">
-                    <SheetTitle className="text-left">Menu</SheetTitle>
-                  </SheetHeader>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-                        <User className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{rider.full_name}</p>
-                        <p className="text-xs text-gray-600">{rider.email}</p>
-                      </div>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-xl">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <SheetHeader className="mb-6">
+                  <SheetTitle className="text-left">Profile</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                      <User className="w-6 h-6 text-white" />
                     </div>
-
-                    <div className="space-y-2 pt-4 border-t">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                        <span className="text-sm font-medium text-gray-700">Total Deliveries</span>
-                        <span className="text-lg font-bold text-blue-600">{rider.total_deliveries}</span>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                        <span className="text-sm font-medium text-gray-700">Rating</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-lg font-bold text-gray-900">{rider.rating}</span>
-                        </div>
-                      </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{rider.full_name}</p>
+                      <p className="text-xs text-gray-600">{rider.email}</p>
                     </div>
-
-                    <Button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        base44.auth.logout(createPageUrl('RiderHome'));
-                      }}
-                      variant="outline"
-                      className="w-full rounded-xl border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 h-12 font-semibold"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
                   </div>
-                </SheetContent>
-              </Sheet>
-            </div>
+
+                  <div className="space-y-2 pt-4 border-t">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <span className="text-sm font-medium text-gray-700">Total Deliveries</span>
+                      <span className="text-lg font-bold text-blue-600">{rider.total_deliveries}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <span className="text-sm font-medium text-gray-700">Rating</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <span className="text-lg font-bold text-gray-900">{rider.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
-      <div className="px-4 py-4 pb-20">
+      <div className="px-4 py-4 pb-24">
         {/* Mobile-First Stats Grid */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <StatCard
@@ -510,10 +482,48 @@ export default function RiderDashboard() {
             )}
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
-  );
-}
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-blue-100 shadow-2xl z-50 safe-area-inset-bottom">
+        <div className="grid grid-cols-3 gap-1 px-4 py-3">
+          {/* Home Button */}
+          <button
+            onClick={() => window.location.href = createPageUrl('RiderHome')}
+            className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
+          >
+            <Home className="w-5 h-5 text-gray-600" />
+            <span className="text-xs font-medium text-gray-700">Home</span>
+          </button>
+
+          {/* Available Toggle */}
+          <button
+            onClick={toggleAvailability}
+            className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
+          >
+            <div className={`flex items-center justify-center w-5 h-5 rounded-full ${
+              rider.is_available ? 'bg-green-500' : 'bg-gray-400'
+            }`}>
+              <div className={`w-2.5 h-2.5 rounded-full bg-white ${rider.is_available ? 'animate-pulse' : ''}`} />
+            </div>
+            <span className={`text-xs font-medium ${rider.is_available ? 'text-green-600' : 'text-gray-600'}`}>
+              {rider.is_available ? 'Available' : 'Offline'}
+            </span>
+          </button>
+
+          {/* Logout Button */}
+          <button
+            onClick={() => base44.auth.logout(createPageUrl('RiderHome'))}
+            className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="w-5 h-5 text-red-600" />
+            <span className="text-xs font-medium text-red-600">Logout</span>
+          </button>
+        </div>
+        </div>
+        </div>
+        );
+        }
 
 function StatCard({ icon: Icon, title, value, subtitle, color }) {
   const colors = {
