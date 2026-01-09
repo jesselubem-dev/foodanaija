@@ -11,13 +11,15 @@ export default function Home() {
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 py-20 text-center">
           <div className="inline-block mb-6">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <ChefHat className="w-10 h-10 text-white" />
-            </div>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              alt="Fooda Naija" 
+              className="h-24 w-auto object-contain mx-auto"
+            />
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Welcome to <span className="gradient-text">Fooda Niger</span>
+            Partner with <span className="gradient-text">Fooda Naija</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
