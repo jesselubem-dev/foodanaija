@@ -161,13 +161,12 @@ export default function RiderDashboard() {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Bike className="w-6 h-6 text-white" />
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+                alt="Fooda Naija" 
+                className="h-10 w-auto object-contain"
+              />
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  Dashboard
-                </h1>
                 <p className="text-xs text-gray-600 font-medium">{rider.full_name}</p>
               </div>
             </div>

@@ -50,11 +50,13 @@ export default function RiderHome() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 flex flex-col safe-area-inset-bottom">
       {/* Hero Section */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pt-8">
-        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center mb-4 shadow-2xl">
-          <Bike className="w-10 h-10 text-white" />
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">
-          Foodanaija Rider
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+          alt="Fooda Naija" 
+          className="h-24 w-auto object-contain mb-4"
+        />
+        <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-1">
+          Rider Portal
         </h1>
         <p className="text-gray-600 text-center text-sm md:text-base">Deliver. Earn. Grow.</p>
       </div>

@@ -68,13 +68,11 @@ export default function Layout({ children, currentPageName }) {
       <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">
         <div className="p-6">
           <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-              <ChefHat className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <span className="font-bold text-lg text-gray-900">Foodanaija</span>
-              <span className="block text-xs text-orange-600">Business Portal</span>
-            </div>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              alt="Fooda Naija" 
+              className="h-12 w-auto object-contain"
+            />
           </Link>
         </div>
         
@@ -106,10 +104,11 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Header for Dashboard */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
         <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-            <ChefHat className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold text-gray-900">Foodanaija</span>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+            alt="Fooda Naija" 
+            className="h-10 w-auto object-contain"
+          />
         </Link>
         <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
