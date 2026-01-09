@@ -19,12 +19,14 @@ import {
 } from "@/components/ui/select";
 import FloatingMenu from '../components/customer/FloatingMenu';
 import NotificationBell from '../components/customer/NotificationBell';
+import PromoModal from '../components/customer/PromoModal';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [showPromo, setShowPromo] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -58,6 +60,33 @@ export default function CustomerHome() {
       return results;
     },
   });
+
+  const { data: promoItems = [] } = useQuery({
+    queryKey: ['promo-items'],
+    queryFn: async () => {
+      const items = await base44.entities.MenuItem.filter({ is_promo: true, is_available: true });
+      const itemsWithRestaurants = await Promise.all(
+        items.map(async (item) => {
+          const restaurant = restaurants.find(r => r.id === item.restaurant_id);
+          return { ...item, restaurant };
+        })
+      );
+      return itemsWithRestaurants.filter(item => item.restaurant?.is_approved && item.restaurant?.is_open);
+    },
+    enabled: restaurants.length > 0,
+  });
+
+  useEffect(() => {
+    if (user && promoItems.length > 0) {
+      const promoShown = sessionStorage.getItem('promo_shown');
+      if (!promoShown) {
+        setTimeout(() => {
+          setShowPromo(true);
+          sessionStorage.setItem('promo_shown', 'true');
+        }, 1000);
+      }
+    }
+  }, [user, promoItems]);
 
   if (error) {
     console.error('Error loading restaurants:', error);
@@ -254,6 +283,14 @@ export default function CustomerHome() {
 
       {/* Floating Menu */}
       <FloatingMenu cartCount={cartItemCount} />
+
+      {/* Promo Modal */}
+      {showPromo && promoItems.length > 0 && (
+        <PromoModal 
+          promoItems={promoItems} 
+          onClose={() => setShowPromo(false)} 
+        />
+      )}
     </div>
   );
 }
