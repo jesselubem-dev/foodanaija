@@ -4,17 +4,25 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp
+  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function RiderDashboard() {
   const [user, setUser] = useState(null);
   const [rider, setRider] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     checkRider();
@@ -117,30 +125,30 @@ export default function RiderDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100">
-      {/* Enhanced Header */}
-      <header className="bg-white/90 backdrop-blur-lg border-b border-blue-100 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 safe-area-inset-bottom">
+      {/* Mobile-First Header */}
+      <header className="bg-white/95 backdrop-blur-xl border-b border-blue-100 shadow-lg sticky top-0 z-50">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Bike className="w-7 h-7 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <Bike className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  Rider Dashboard
+                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  Dashboard
                 </h1>
-                <p className="text-sm text-gray-600 font-medium">{rider.full_name}</p>
+                <p className="text-xs text-gray-600 font-medium">{rider.full_name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
                 rider.is_available 
                   ? 'bg-green-100 border border-green-200' 
                   : 'bg-gray-100 border border-gray-200'
               }`}>
                 <div className={`w-2 h-2 rounded-full ${rider.is_available ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-xs font-medium text-gray-700 hidden sm:inline">
                   {rider.is_available ? 'Available' : 'Offline'}
                 </span>
                 <Switch
@@ -148,22 +156,63 @@ export default function RiderDashboard() {
                   onCheckedChange={toggleAvailability}
                 />
               </div>
-              <Button
-                onClick={() => base44.auth.logout(createPageUrl('RiderHome'))}
-                variant="outline"
-                className="rounded-xl border-2 hover:bg-red-50 hover:border-red-200"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-xl">
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[280px]">
+                  <SheetHeader className="mb-6">
+                    <SheetTitle className="text-left">Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                        <User className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{rider.full_name}</p>
+                        <p className="text-xs text-gray-600">{rider.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-sm font-medium text-gray-700">Total Deliveries</span>
+                        <span className="text-lg font-bold text-blue-600">{rider.total_deliveries}</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-sm font-medium text-gray-700">Rating</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          <span className="text-lg font-bold text-gray-900">{rider.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        base44.auth.logout(createPageUrl('RiderHome'));
+                      }}
+                      variant="outline"
+                      className="w-full rounded-xl border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 h-12 font-semibold"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="px-4 py-4 pb-20">
+        {/* Mobile-First Stats Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <StatCard
             icon={Package}
             title="Available Orders"
@@ -194,9 +243,9 @@ export default function RiderDashboard() {
           />
         </div>
 
-        {/* Tabbed Interface */}
+        {/* Mobile-First Tabbed Interface */}
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-white rounded-xl p-1 shadow-sm">
+          <TabsList className="grid w-full grid-cols-3 mb-4 bg-white rounded-xl p-1 shadow-sm">
             <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
               <Navigation className="w-4 h-4 mr-2" />
               Active ({myActiveOrders.length})
@@ -379,13 +428,13 @@ function StatCard({ icon: Icon, title, value, subtitle, color }) {
 
   return (
     <Card className="border-gray-100 hover:shadow-lg transition-all">
-      <CardContent className="p-6">
-        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${colors[color]} flex items-center justify-center mb-4 shadow-lg`}>
-          <Icon className="w-7 h-7 text-white" />
+      <CardContent className="p-4">
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[color]} flex items-center justify-center mb-3 shadow-lg`}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
-        <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
-        <p className="text-sm font-medium text-gray-700">{title}</p>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+        <p className="text-2xl font-bold text-gray-900 mb-0.5">{value}</p>
+        <p className="text-xs font-medium text-gray-700">{title}</p>
+        {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
       </CardContent>
     </Card>
   );
