@@ -150,12 +150,12 @@ export default function Checkout() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Card>
           <CardContent className="p-12 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
             <Link to={createPageUrl('CustomerHome')}>
-              <Button className="bg-gradient-to-r from-emerald-500 to-emerald-600">
+              <Button className="bg-orange-500 hover:bg-orange-600">
                 Browse Restaurants
               </Button>
             </Link>
@@ -166,9 +166,9 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-emerald-100 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('Cart')}>
@@ -185,7 +185,7 @@ export default function Checkout() {
         <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
           {/* Delivery Details */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="border-emerald-100">
+            <Card className="border-gray-100">
               <CardHeader>
                 <CardTitle>Delivery Details</CardTitle>
               </CardHeader>
@@ -244,11 +244,11 @@ export default function Checkout() {
                   />
                 </div>
 
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                  <p className="text-sm text-emerald-800 font-medium">
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <p className="text-sm text-orange-800 font-medium">
                     💵 Cash on Delivery
                   </p>
-                  <p className="text-xs text-emerald-700 mt-1">
+                  <p className="text-xs text-orange-700 mt-1">
                     Pay with cash when your order arrives
                   </p>
                 </div>
@@ -268,7 +268,7 @@ export default function Checkout() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="border-emerald-100 sticky top-24">
+            <Card className="border-gray-100 sticky top-24">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
@@ -307,7 +307,7 @@ export default function Checkout() {
 
                 <Button 
                   type="submit"
-                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 h-12"
+                  className="w-full bg-orange-500 hover:bg-orange-600 h-12"
                   disabled={createOrderMutation.isPending}
                 >
                   {createOrderMutation.isPending ? 'Placing Order...' : 'Place Order'}
@@ -324,21 +324,21 @@ export default function Checkout() {
           <div className="text-center py-6">
             <div className="mb-4 flex justify-center">
               <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center animate-bounce">
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center animate-bounce">
                   <CheckCircle2 className="w-12 h-12 text-white" />
                 </div>
-                <div className="absolute inset-0 w-20 h-20 bg-green-500 rounded-full animate-ping opacity-75"></div>
+                <div className="absolute inset-0 w-20 h-20 bg-orange-500 rounded-full animate-ping opacity-75"></div>
               </div>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
             <p className="text-gray-600 mb-4">
               Your order has been successfully sent to the restaurant
             </p>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <p className="text-sm text-emerald-800 font-medium">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <p className="text-sm text-orange-800 font-medium">
                 ✓ Restaurant will review your order shortly
               </p>
-              <p className="text-xs text-emerald-700 mt-1">
+              <p className="text-xs text-orange-700 mt-1">
                 You'll receive notifications about your order status
               </p>
             </div>
