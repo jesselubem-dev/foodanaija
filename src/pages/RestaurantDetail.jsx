@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import ReviewSection from '../components/restaurant/ReviewSection';
+import FloatingCart from '../components/customer/FloatingCart';
 import NotificationBell from '../components/customer/NotificationBell';
 
 export default function RestaurantDetail() {
@@ -19,6 +20,7 @@ export default function RestaurantDetail() {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [user, setUser] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
