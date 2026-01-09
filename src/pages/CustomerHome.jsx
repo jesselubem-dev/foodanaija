@@ -229,7 +229,11 @@ export default function CustomerHome() {
         {/* Restaurants Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              alt="Loading..." 
+              className="h-16 w-auto object-contain animate-pulse"
+            />
           </div>
         ) : filteredRestaurants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
