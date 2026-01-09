@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
-import { Home, ShoppingBag, History, User, LogOut, Moon, Sun } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Home, ShoppingBag, History, User, LogOut, Moon, Sun, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export default function FloatingMenu({ cartCount = 0 }) {
+export default function FloatingMenu({ cartCount = 0, userEmail }) {
   const [darkMode, setDarkMode] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const isDark = localStorage.getItem('darkMode') === 'true';
@@ -21,6 +24,22 @@ export default function FloatingMenu({ cartCount = 0 }) {
       document.documentElement.classList.add('dark');
     }
   }, []);
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications', userEmail],
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, '-created_date'),
+    enabled: !!userEmail,
+    refetchInterval: 10000,
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: (notificationId) => base44.entities.Notification.update(notificationId, { is_read: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', userEmail] });
+    },
+  });
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const toggleDarkMode = () => {
     const newMode = !darkMode;
@@ -81,37 +100,85 @@ export default function FloatingMenu({ cartCount = 0 }) {
               <span className="text-xs text-gray-600 font-medium">Profile</span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-48 p-2 mb-2" align="end">
-            <div className="space-y-1">
-              <button
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-orange-50 transition-colors text-left"
-                onClick={() => setProfileOpen(false)}
-              >
-                <User className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">My Profile</span>
-              </button>
-              
-              <button
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                onClick={toggleDarkMode}
-              >
-                {darkMode ? (
-                  <Sun className="w-4 h-4 text-gray-600" />
-                ) : (
-                  <Moon className="w-4 h-4 text-gray-600" />
-                )}
-                <span className="text-sm font-medium text-gray-700">
-                  {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </span>
-              </button>
+          <PopoverContent className="w-80 p-0 mb-2" align="end">
+            <div className="max-h-96 overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b p-3">
+                <h3 className="font-semibold text-gray-900">Menu</h3>
+              </div>
 
-              <button
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors text-left"
-                onClick={() => base44.auth.logout()}
-              >
-                <LogOut className="w-4 h-4 text-red-600" />
-                <span className="text-sm font-medium text-red-600">Logout</span>
-              </button>
+              <div className="p-2 space-y-1">
+                <button
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-orange-50 transition-colors text-left"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  <User className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">My Profile</span>
+                </button>
+
+                <div className="border-t my-2"></div>
+
+                <div className="px-3 py-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-700">Notifications</span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <Badge className="bg-orange-500 text-white">{unreadCount}</Badge>
+                    )}
+                  </div>
+
+                  {notifications.length === 0 ? (
+                    <p className="text-xs text-gray-500 py-2">No notifications</p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {notifications.slice(0, 5).map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-2 rounded-lg cursor-pointer transition-colors ${
+                            notification.is_read ? 'bg-gray-50' : 'bg-orange-50'
+                          }`}
+                          onClick={() => {
+                            if (!notification.is_read) {
+                              markAsReadMutation.mutate(notification.id);
+                            }
+                          }}
+                        >
+                          <p className="text-xs font-semibold text-gray-900">{notification.title}</p>
+                          <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(notification.created_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t my-2"></div>
+
+                <button
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                  onClick={toggleDarkMode}
+                >
+                  {darkMode ? (
+                    <Sun className="w-4 h-4 text-gray-600" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-gray-600" />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {darkMode ? 'Light Mode' : 'Dark Mode'}
+                  </span>
+                </button>
+
+                <button
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors text-left"
+                  onClick={() => base44.auth.logout()}
+                >
+                  <LogOut className="w-4 h-4 text-red-600" />
+                  <span className="text-sm font-medium text-red-600">Logout</span>
+                </button>
+              </div>
             </div>
           </PopoverContent>
         </Popover>

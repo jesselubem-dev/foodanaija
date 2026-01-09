@@ -282,7 +282,7 @@ export default function CustomerHome() {
       </div>
 
       {/* Floating Menu */}
-      <FloatingMenu cartCount={cartItemCount} />
+      <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
 
       {/* Promo Modal */}
       {showPromo && promoItems.length > 0 && (
