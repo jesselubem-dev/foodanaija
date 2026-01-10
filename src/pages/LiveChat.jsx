@@ -82,10 +82,12 @@ export default function LiveChat() {
           chat_id: chatId,
           customer_message: variables.message,
           customer_name: user.full_name,
+          customer_email: user.email,
         });
         queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
       } catch (error) {
         console.error('Failed to get AI response:', error);
+        toast.error('AI response failed, but your message was sent');
       }
     },
   });
@@ -142,9 +144,21 @@ export default function LiveChat() {
           </div>
         ) : messages.length === 0 ? (
           <div className="text-center py-12">
-            <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-2">Start a conversation</p>
-            <p className="text-sm text-gray-400">Send a message and we'll respond shortly</p>
+            <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 mb-6 max-w-md mx-auto">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                  <User className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-gray-900">Fooda AI</p>
+                  <p className="text-xs text-gray-500">Online now</p>
+                </div>
+              </div>
+              <p className="text-gray-700 text-sm">
+                Hello! 👋 I'm Fooda AI, your personal food delivery assistant. How can I help you today?
+              </p>
+            </div>
+            <p className="text-sm text-gray-400">Send a message to get started</p>
           </div>
         ) : (
           <div className="space-y-4">

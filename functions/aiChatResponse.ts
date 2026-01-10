@@ -3,9 +3,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { chat_id, customer_message, customer_name } = await req.json();
+    const { chat_id, customer_message, customer_name, customer_email } = await req.json();
 
-    if (!chat_id || !customer_message) {
+    if (!chat_id || !customer_message || !customer_email) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -52,8 +52,8 @@ If the customer needs urgent help or complex issues (refunds, payment problems),
     // Create AI message
     await base44.asServiceRole.entities.ChatMessage.create({
       chat_id,
-      customer_email: messages[0]?.customer_email,
-      customer_name: messages[0]?.customer_name,
+      customer_email: customer_email,
+      customer_name: customer_name,
       sender_type: 'ai',
       sender_name: 'Fooda AI',
       message: aiResponse,
