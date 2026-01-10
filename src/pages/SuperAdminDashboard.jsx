@@ -91,6 +91,19 @@ export default function SuperAdminDashboard() {
     };
   }).sort((a, b) => b.revenue - a.revenue);
 
+  // Calculate earnings per rider
+  const riderEarnings = riders.map(rider => {
+    const riderDeliveries = orders.filter(o => 
+      o.rider_id === rider.id && o.delivery_status === 'delivered'
+    );
+    const earnings = riderDeliveries.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+    return {
+      ...rider,
+      earnings,
+      deliveryCount: riderDeliveries.length
+    };
+  }).sort((a, b) => b.earnings - a.earnings);
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -274,6 +287,39 @@ export default function SuperAdminDashboard() {
               ))}
               {restaurantRevenue.filter(r => r.is_approved).length === 0 && (
                 <p className="text-center text-gray-500 py-4">No revenue data yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rider Earnings Breakdown */}
+        <Card className="border-blue-100 mb-8">
+          <CardHeader>
+            <CardTitle>Rider Earnings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {riderEarnings.map((rider) => (
+                <div key={rider.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{rider.full_name}</p>
+                      <p className="text-sm text-gray-500">{rider.deliveryCount} deliveries • ₦{rider.deliveryCount > 0 ? Math.round(rider.earnings / rider.deliveryCount) : 0}/delivery</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-blue-600">₦{rider.earnings.toLocaleString()}</p>
+                    <Badge className={rider.is_available ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
+                      {rider.is_available ? 'Available' : 'Offline'}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              {riderEarnings.length === 0 && (
+                <p className="text-center text-gray-500 py-4">No rider data yet</p>
               )}
             </div>
           </CardContent>
