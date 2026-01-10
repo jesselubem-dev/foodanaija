@@ -253,33 +253,6 @@ export default function CustomerHome() {
           </div>
         </div>
 
-        {/* Live Support Card */}
-        <Link to={createPageUrl('LiveChat')}>
-          <Card className="mb-6 bg-gradient-to-r from-orange-500 to-amber-600 border-none hover:shadow-xl transition-all cursor-pointer relative overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Headset className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-lg">Need Help?</h3>
-                    <p className="text-white/90 text-sm">Chat with Fooda AI Support</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {unreadChatCount > 0 && (
-                    <span className="w-8 h-8 bg-red-500 text-white text-sm rounded-full flex items-center justify-center font-bold">
-                      {unreadChatCount}
-                    </span>
-                  )}
-                  <ChevronRight className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
         {/* Banner Carousel */}
         <BannerCarousel />
 
