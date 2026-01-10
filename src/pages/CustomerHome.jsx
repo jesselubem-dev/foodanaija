@@ -142,14 +142,7 @@ export default function CustomerHome() {
         {/* Search Bar */}
         <div className="pt-2 pb-4">
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowVoiceOrder(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-2xl w-14 h-14 p-0 flex items-center justify-center shadow-lg flex-shrink-0"
-              title="AI Auto Order"
-            >
-              <span className="text-2xl">🤖</span>
-            </Button>
-            <div className="relative flex-1">
+              <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 placeholder="Search restaurants or cuisines..."
