@@ -62,6 +62,8 @@ export default function DashboardMenu() {
     is_available: true,
     is_popular: false,
     is_promo: false,
+    promo_start_date: '',
+    promo_end_date: '',
     preparation_time: '15-20 mins'
   });
 
@@ -185,6 +187,8 @@ export default function DashboardMenu() {
       is_available: true,
       is_popular: false,
       is_promo: false,
+      promo_start_date: '',
+      promo_end_date: '',
       preparation_time: '15-20 mins'
     });
   };
@@ -278,6 +282,8 @@ export default function DashboardMenu() {
                 is_available: true,
                 is_popular: false,
                 is_promo: false,
+                promo_start_date: '',
+                promo_end_date: '',
                 preparation_time: '15-20 mins'
               });
               setShowItemDialog(true);
@@ -414,6 +420,8 @@ export default function DashboardMenu() {
                         is_available: item.is_available,
                         is_popular: item.is_popular || false,
                         is_promo: item.is_promo || false,
+                        promo_start_date: item.promo_start_date || '',
+                        promo_end_date: item.promo_end_date || '',
                         preparation_time: item.preparation_time || '15-20 mins'
                       });
                       setShowItemDialog(true);
@@ -633,23 +641,48 @@ export default function DashboardMenu() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
-                  <Flame className="w-5 h-5 text-white" />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
+                    <Flame className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 flex items-center gap-2">
+                      Special Promo Deal
+                      <Badge className="bg-orange-500 text-white text-xs">HOT</Badge>
+                    </p>
+                    <p className="text-sm text-gray-600">Showcase this item to all customers</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-gray-900 flex items-center gap-2">
-                    Special Promo Deal
-                    <Badge className="bg-orange-500 text-white text-xs">HOT</Badge>
-                  </p>
-                  <p className="text-sm text-gray-600">Showcase this item to all customers on login</p>
-                </div>
+                <Switch 
+                  checked={itemForm.is_promo}
+                  onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_promo: checked }))}
+                />
               </div>
-              <Switch 
-                checked={itemForm.is_promo}
-                onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_promo: checked }))}
-              />
+
+              {itemForm.is_promo && (
+                <div className="grid grid-cols-2 gap-4 pl-6 pt-2 border-l-2 border-orange-200">
+                  <div className="space-y-2">
+                    <Label>Promo Start Date & Time</Label>
+                    <Input
+                      type="datetime-local"
+                      value={itemForm.promo_start_date ? new Date(itemForm.promo_start_date).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_start_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Promo End Date & Time</Label>
+                    <Input
+                      type="datetime-local"
+                      value={itemForm.promo_end_date ? new Date(itemForm.promo_end_date).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_end_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button 

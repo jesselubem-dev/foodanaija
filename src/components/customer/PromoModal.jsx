@@ -18,17 +18,21 @@ export default function PromoModal({ promoItems, onClose }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (promoItems.length > 1) {
+    if (activePromos.length === 0) {
+      onClose();
+      return;
+    }
+    if (activePromos.length > 1) {
       const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % promoItems.length);
+        setCurrentIndex((prev) => (prev + 1) % activePromos.length);
       }, 4000);
       return () => clearInterval(interval);
     }
-  }, [promoItems.length]);
+  }, [activePromos.length, onClose]);
 
-  if (!isVisible || promoItems.length === 0) return null;
+  if (!isVisible || activePromos.length === 0) return null;
 
-  const currentPromo = promoItems[currentIndex];
+  const currentPromo = activePromos[currentIndex];
 
   const handleClose = () => {
     setIsVisible(false);
@@ -151,9 +155,9 @@ export default function PromoModal({ promoItems, onClose }) {
                 </AnimatePresence>
 
                 {/* Indicators for multiple promos */}
-                {promoItems.length > 1 && (
+                {activePromos.length > 1 && (
                   <div className="flex justify-center gap-2 mb-6">
-                    {promoItems.map((_, idx) => (
+                    {activePromos.map((_, idx) => (
                       <div
                         key={idx}
                         className={`h-1.5 rounded-full transition-all ${
