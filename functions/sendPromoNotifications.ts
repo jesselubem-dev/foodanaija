@@ -41,7 +41,8 @@ Deno.serve(async (req) => {
             });
         }
 
-        const itemName = featuredItems.length > 0 ? featuredItems[0].name : 'delicious meals';
+        const featuredItem = featuredItems.length > 0 ? featuredItems[0] : null;
+        const itemName = featuredItem?.name || 'delicious meals';
         
         // Notification messages variety
         const messages = [
@@ -63,8 +64,11 @@ Deno.serve(async (req) => {
                     user_email: user.email,
                     title: '🍴 Amazing Food Alert!',
                     message: randomMessage,
-                    type: 'order_accepted', // Reusing existing type
-                    is_read: false
+                    type: 'order_accepted',
+                    is_read: false,
+                    metadata: {
+                        image_url: featuredItem?.images?.[0] || randomRestaurant?.cover_image_url || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'
+                    }
                 });
                 notificationCount++;
             } catch (err) {
