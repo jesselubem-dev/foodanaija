@@ -67,6 +67,13 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000,
   });
 
+  const { data: chatMessages = [] } = useQuery({
+    queryKey: ['all-chat-messages'],
+    queryFn: () => base44.entities.ChatMessage.list(),
+    enabled: !!user,
+    refetchInterval: 5000,
+  });
+
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
@@ -92,6 +99,16 @@ export default function SuperAdminDashboard() {
   }).sort((a, b) => b.revenue - a.revenue);
 
   // Calculate earnings per rider
+  // Count active chats with unread messages
+  const activeChatCount = chatMessages.reduce((acc, msg) => {
+    if (msg.sender_type === 'customer' && !msg.is_read) {
+      if (!acc.includes(msg.chat_id)) {
+        acc.push(msg.chat_id);
+      }
+    }
+    return acc;
+  }, []).length;
+
   const riderEarnings = riders.map(rider => {
     const riderDeliveries = orders.filter(o => 
       o.rider_id === rider.id && o.delivery_status === 'delivered'
@@ -258,14 +275,25 @@ export default function SuperAdminDashboard() {
           </Link>
 
           <Link to={createPageUrl('AdminLiveChat')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100 relative">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Live Chat Support</CardTitle>
-                <Headset className="w-4 h-4 text-pink-600" />
+                <div className="relative">
+                  <Headset className="w-4 h-4 text-pink-600" />
+                  {activeChatCount > 0 && (
+                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      {activeChatCount}
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Chat</div>
-                <p className="text-xs text-muted-foreground">Customer messages</p>
+                <div className="text-2xl font-bold">
+                  {activeChatCount > 0 ? activeChatCount : 'Chat'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {activeChatCount > 0 ? `${activeChatCount} active chat${activeChatCount > 1 ? 's' : ''}` : 'Customer messages'}
+                </p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-pink-600">
                   Open Chat <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
