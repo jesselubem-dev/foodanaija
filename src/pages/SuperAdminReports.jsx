@@ -305,51 +305,20 @@ export default function SuperAdminReports() {
           yPosition += chartHeight + 15;
         }
 
-        // Add metrics sections
-        const metricsCards = document.querySelectorAll('[data-section="metrics-card"]');
-        if (metricsCards.length > 0) {
-          checkNewPage(80);
-          pdf.setFont(undefined, 'bold');
-          pdf.setFontSize(11);
-          pdf.text('Key Metrics Breakdown', margin, yPosition);
-          yPosition += 8;
+        // Add main revenue chart
+        const mainChart = document.querySelector('[data-chart="main"]');
+        if (mainChart) {
+          const canvas = await html2canvas(mainChart, { scale: 2, backgroundColor: '#ffffff' });
+          const imgData = canvas.toDataURL('image/png');
+          const chartWidth = pageWidth - 2 * margin;
+          const chartHeight = (chartWidth * canvas.height) / canvas.width;
 
-          metricsCards.forEach((card, idx) => {
-            const canvas = html2CanvasSync(card);
-            if (canvas) {
-              const imgData = canvas.toDataURL('image/png');
-              const cardWidth = (pageWidth - 3 * margin) / 3;
-              const cardHeight = (cardWidth * canvas.height) / canvas.width;
-              
-              const xPos = margin + (idx % 3) * (cardWidth + margin / 2);
-              if (idx % 3 === 0) {
-                checkNewPage(cardHeight + 5);
-                if (idx > 0) yPosition += cardHeight + 5;
-              }
+          if (checkNewPage(chartHeight + 10)) {
+            yPosition += 5;
+          }
 
-              pdf.addImage(imgData, 'PNG', xPos, yPosition, cardWidth, cardHeight);
-            }
-          });
-          if (metricsCards.length > 0) yPosition += Math.ceil(metricsCards.length / 3) * 60;
-        }
-
-        // Top performers section
-        const topPerformers = document.querySelectorAll('[data-section="top-performers"]');
-        if (topPerformers.length > 0) {
-          checkNewPage(100);
-          topPerformers.forEach(async (section) => {
-            const canvas = await html2canvas(section, { scale: 2, backgroundColor: '#ffffff' });
-            const imgData = canvas.toDataURL('image/png');
-            const chartWidth = (pageWidth - 3 * margin) / 2;
-            const chartHeight = (chartWidth * canvas.height) / canvas.width;
-
-            if (checkNewPage(chartHeight + 5)) {
-              yPosition += 5;
-            }
-
-            pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-            yPosition += chartHeight + 10;
-          });
+          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+          yPosition += chartHeight + 15;
         }
       } else {
         // Capture and add chart for other report types
