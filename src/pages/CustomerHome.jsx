@@ -20,6 +20,7 @@ import {
 import FloatingMenu from '../components/customer/FloatingMenu';
 import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
+import BannerCarousel from '../components/customer/BannerCarousel';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -149,18 +150,8 @@ export default function CustomerHome() {
           </div>
         </div>
 
-        {/* Promo Banner */}
-        <Link to={createPageUrl('Promos')}>
-          <div className="mb-6 p-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer">
-            <div className="flex items-center justify-between text-white">
-              <div>
-                <h3 className="font-bold text-lg mb-1">🔥 Special Deals</h3>
-                <p className="text-sm text-white/90">View all active promos</p>
-              </div>
-              <ChevronRight className="w-6 h-6" />
-            </div>
-          </div>
-        </Link>
+        {/* Banner Carousel */}
+        <BannerCarousel />
 
         {/* City Filter Pills */}
         <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
