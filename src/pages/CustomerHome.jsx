@@ -36,7 +36,14 @@ export default function CustomerHome() {
     checkAuth();
   }, []);
 
-  // Poll for new notifications and show as toast
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Poll for new notifications and show as browser notifications
   useEffect(() => {
     if (!user?.email) return;
 
@@ -56,6 +63,18 @@ export default function CustomerHome() {
         });
 
         recentNotifications.forEach(notification => {
+          // Show browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(notification.title, {
+              body: notification.message,
+              icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
+              badge: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
+              tag: notification.id,
+              requireInteraction: false,
+            });
+          }
+
+          // Also show toast for in-app
           toast.success(notification.message, {
             duration: 8000,
             position: 'top-center',
