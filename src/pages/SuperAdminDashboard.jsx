@@ -60,11 +60,18 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000,
   });
 
-
+  const { data: riders = [] } = useQuery({
+    queryKey: ['all-riders'],
+    queryFn: () => base44.entities.Rider.list(),
+    enabled: !!user,
+    refetchInterval: 10000,
+  });
 
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
+  const deliveredOrders = orders.filter(o => o.delivery_status === 'delivered');
+  const totalRiderEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
   const todayOrders = orders.filter(o => {
     const orderDate = new Date(o.created_date);
     const today = new Date();
@@ -136,6 +143,20 @@ export default function SuperAdminDashboard() {
             value={`₦${totalRevenue.toLocaleString()}`}
             icon={DollarSign}
             color="purple"
+          />
+          <StatCard
+            title="Active Riders"
+            value={riders.length}
+            icon={Users}
+            color="blue"
+            subtitle={`${riders.filter(r => r.is_available).length} available`}
+          />
+          <StatCard
+            title="Rider Earnings"
+            value={`₦${totalRiderEarnings.toLocaleString()}`}
+            icon={TrendingUp}
+            color="emerald"
+            subtitle={`${deliveredOrders.length} deliveries`}
           />
         </div>
 
