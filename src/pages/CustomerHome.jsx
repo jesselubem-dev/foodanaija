@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, MessageSquare, Headset
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -150,6 +150,24 @@ export default function CustomerHome() {
     enabled: restaurants.length > 0,
   });
 
+  // Fetch unread chat messages
+  const { data: chatMessages = [] } = useQuery({
+    queryKey: ['chat-messages', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      const chatId = localStorage.getItem(`chat_id_${user.email}`);
+      if (!chatId) return [];
+      return await base44.entities.ChatMessage.filter({ chat_id: chatId }, '-created_date');
+    },
+    enabled: !!user?.email,
+    refetchInterval: 5000,
+  });
+
+  // Count unread messages from admin/AI
+  const unreadChatCount = chatMessages.filter(
+    msg => (msg.sender_type === 'admin' || msg.sender_type === 'ai') && !msg.is_read
+  ).length;
+
   useEffect(() => {
     if (user && promoItems.length > 0) {
       const promoShown = sessionStorage.getItem('promo_shown');
@@ -193,6 +211,16 @@ export default function CustomerHome() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Link to={createPageUrl('LiveChat')}>
+                <Button variant="ghost" size="icon" className="relative">
+                  <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  {unreadChatCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      {unreadChatCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               <NotificationBell userEmail={user?.email} />
             </div>
           </div>
@@ -224,6 +252,33 @@ export default function CustomerHome() {
             </div>
           </div>
         </div>
+
+        {/* Live Support Card */}
+        <Link to={createPageUrl('LiveChat')}>
+          <Card className="mb-6 bg-gradient-to-r from-orange-500 to-amber-600 border-none hover:shadow-xl transition-all cursor-pointer relative overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <Headset className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg">Need Help?</h3>
+                    <p className="text-white/90 text-sm">Chat with Fooda AI Support</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {unreadChatCount > 0 && (
+                    <span className="w-8 h-8 bg-red-500 text-white text-sm rounded-full flex items-center justify-center font-bold">
+                      {unreadChatCount}
+                    </span>
+                  )}
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Banner Carousel */}
         <BannerCarousel />
