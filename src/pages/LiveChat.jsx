@@ -159,30 +159,19 @@ export default function LiveChat() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link to={createPageUrl('CustomerHome')}>
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-6 h-6 text-orange-600" />
-                <div>
-                  <h1 className="text-lg font-bold">Fooda Support</h1>
-                  <p className="text-xs text-green-600">● AI Assistant Active</p>
-                </div>
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('CustomerHome')}>
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-6 h-6 text-orange-600" />
+              <div>
+                <h1 className="text-lg font-bold">Fooda Support</h1>
+                <p className="text-xs text-green-600">● AI Assistant Active</p>
               </div>
             </div>
-            <Button 
-              onClick={startNewChat}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 border-orange-200 hover:bg-orange-50 text-orange-600"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Chat</span>
-            </Button>
           </div>
         </div>
       </header>
@@ -267,6 +256,15 @@ export default function LiveChat() {
       {/* Message Input */}
       <div className="bg-white border-t border-orange-100 sticky bottom-16 pb-safe">
         <div className="max-w-4xl mx-auto px-4 py-4">
+          <Button 
+            onClick={startNewChat}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 border-orange-200 hover:bg-orange-50 text-orange-600 mb-3 w-full"
+          >
+            <Plus className="w-4 h-4" />
+            Start New Chat
+          </Button>
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               placeholder="Type your message..."
