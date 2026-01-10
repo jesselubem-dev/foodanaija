@@ -122,12 +122,6 @@ export default function CustomerHome() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowVoiceOrder(true)}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-lg"
-              >
-                <Mic className="w-5 h-5" />
-              </Button>
               <NotificationBell userEmail={user?.email} />
             </div>
           </div>
@@ -147,14 +141,22 @@ export default function CustomerHome() {
 
         {/* Search Bar */}
         <div className="pt-2 pb-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input
-              placeholder="Search restaurants or cuisines..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-14 rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-colors text-base"
-            />
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowVoiceOrder(true)}
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl w-14 h-14 p-0 flex items-center justify-center shadow-lg flex-shrink-0"
+            >
+              <Mic className="w-6 h-6" />
+            </Button>
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                placeholder="Search restaurants or cuisines..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 h-14 rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-colors text-base"
+              />
+            </div>
           </div>
         </div>
 
