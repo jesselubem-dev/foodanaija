@@ -72,6 +72,7 @@ export default function OrderHistory() {
   const statusConfig = {
     pending: { icon: Clock, color: 'bg-yellow-100 text-yellow-700', label: 'Pending' },
     accepted: { icon: CheckCircle, color: 'bg-blue-100 text-blue-700', label: 'Accepted' },
+    declined: { icon: XCircle, color: 'bg-red-100 text-red-700', label: 'Declined' },
     preparing: { icon: Package, color: 'bg-purple-100 text-purple-700', label: 'Preparing' },
     ready: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Ready' },
     delivered: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Delivered' },
