@@ -468,6 +468,14 @@ export default function CustomerHome() {
           console.log('Add to cart:', items);
         }}
       />
-    </div>
-  );
-}
+
+      {/* Rider Rating Modal */}
+      {riderRatingOrder && (
+        <RiderRatingModal
+          order={riderRatingOrder}
+          onClose={() => setRiderRatingOrder(null)}
+        />
+      )}
+      </div>
+      );
+      }
