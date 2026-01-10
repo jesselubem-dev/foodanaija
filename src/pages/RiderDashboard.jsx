@@ -528,15 +528,6 @@ export default function RiderDashboard() {
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-blue-100 shadow-2xl z-50 safe-area-inset-bottom">
           <div className="grid grid-cols-2 gap-1 px-4 py-3">
-            {/* Profile Button */}
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
-            >
-              <User className="w-5 h-5 text-gray-600" />
-              <span className="text-xs font-medium text-gray-700">Profile</span>
-            </button>
-
             {/* Available Toggle */}
             <button
               onClick={toggleAvailability}
@@ -550,6 +541,15 @@ export default function RiderDashboard() {
               <span className={`text-xs font-medium ${rider.is_available ? 'text-green-600' : 'text-gray-600'}`}>
                 {rider.is_available ? 'Available' : 'Offline'}
               </span>
+            </button>
+
+            {/* Profile Button */}
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
+            >
+              <User className="w-5 h-5 text-gray-600" />
+              <span className="text-xs font-medium text-gray-700">Profile</span>
             </button>
           </div>
         </div>
