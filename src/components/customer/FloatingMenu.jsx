@@ -77,8 +77,17 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-50 safe-area-inset-bottom transition-colors">
-      <div className="grid grid-cols-6 gap-1 px-4 py-3">
+    <motion.div 
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-50 safe-area-inset-bottom transition-colors"
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+    >
+      <motion.div 
+        className="grid grid-cols-6 gap-1 px-4 py-3"
+        whileHover={{ y: -4 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
         <Link to={createPageUrl('CustomerHome')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
