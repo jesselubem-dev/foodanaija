@@ -4,16 +4,44 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function NoInternet() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const checkConnection = async () => {
+      try {
+        // Try to fetch a small resource
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        await fetch('https://www.google.com/favicon.ico', {
+          mode: 'no-cors',
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        setIsOnline(true);
+      } catch (error) {
+        setIsOnline(false);
+      }
+    };
+
+    // Check immediately
+    checkConnection();
+
+    // Check every 5 seconds
+    const interval = setInterval(checkConnection, 5000);
+
+    // Also listen to browser events
+    const handleOnline = () => {
+      checkConnection();
+    };
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     return () => {
+      clearInterval(interval);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
