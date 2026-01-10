@@ -210,6 +210,18 @@ export default function OrderHistory() {
 
           {/* Floating Menu */}
           <FloatingMenu cartCount={0} />
+
+          {/* Cancel Order Modal */}
+          <CancelOrderModal
+            isOpen={!!cancelOrderId}
+            order={orders.find(o => o.id === cancelOrderId)}
+            onConfirm={(orderId) => {
+              cancelOrderMutation.mutate(orderId);
+              setCancelOrderId(null);
+            }}
+            onCancel={() => setCancelOrderId(null)}
+            isLoading={cancelOrderMutation.isPending}
+          />
           </div>
           );
           }
