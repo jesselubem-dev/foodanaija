@@ -39,18 +39,15 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
       const firstName = user.full_name.split(' ')[0];
       setUserName(firstName);
       
-      const greeting = `Hello ${firstName}! Welcome to voice ordering. What would you like to order today?`;
-      speak(greeting);
-      
       setConversationHistory([{
         role: 'assistant',
-        message: greeting
+        message: `Hello ${firstName}! Let me recommend some delicious meals for you...`
       }]);
       
-      // Start listening after greeting (longer delay)
+      // Auto-generate recommendations
       setTimeout(() => {
-        startListening();
-      }, 4000);
+        generateRecommendation();
+      }, 1000);
     } catch (err) {
       console.error('Failed to initialize conversation:', err);
     }
@@ -232,18 +229,8 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
     fullTranscriptRef.current = '';
   };
 
-  const processConversation = async (userMessage) => {
-    if (!userMessage || isProcessing) return;
-
+  const generateRecommendation = async () => {
     setIsProcessing(true);
-    stopListening();
-
-    // Add user message to history
-    const newHistory = [...conversationHistory, {
-      role: 'user',
-      message: userMessage
-    }];
-    setConversationHistory(newHistory);
 
     try {
       // Create restaurant context for AI
@@ -253,36 +240,30 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         cuisine: r.cuisine_types?.join(', ')
       }));
 
-      const conversationContext = newHistory.map(h => `${h.role}: ${h.message}`).join('\n');
-
-      const prompt = `You are a friendly voice assistant helping ${userName} order food. Have a natural conversation.
-
-Conversation so far:
-${conversationContext}
+      const prompt = `You are an AI food recommendation assistant for ${userName}. 
 
 Available restaurants: ${JSON.stringify(restaurantContext)}
 
-Analyze the conversation and respond with:
-1. A friendly conversational response (ask clarifying questions if needed)
-2. If you have enough info to place an order, extract the structured order details
+Generate a delicious meal recommendation based on:
+- Popular Nigerian cuisine
+- Time of day (it's currently ${new Date().getHours()}:00)
+- What people usually crave
 
 Return JSON with:
-- response: your conversational response to the user
-- order_ready: boolean (true if you have complete order info)
-- restaurant_name: restaurant name (if order_ready)
-- restaurant_id: restaurant ID (if order_ready)
-- items: array of {name, quantity} (if order_ready)
-- special_instructions: any notes (if order_ready)
+- recommendation_message: A friendly, appetizing description of the recommended meal (2-3 sentences)
+- restaurant_name: the restaurant name
+- restaurant_id: the restaurant ID
+- items: array of {name, quantity} for the recommended items
+- why_recommend: Brief reason why this is a great choice right now
 
-Be conversational, friendly, and confirm details before finalizing.`;
+Make it sound delicious and irresistible!`;
 
       const aiResponse = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: {
           type: 'object',
           properties: {
-            response: { type: 'string' },
-            order_ready: { type: 'boolean' },
+            recommendation_message: { type: 'string' },
             restaurant_name: { type: 'string' },
             restaurant_id: { type: 'string' },
             items: {
@@ -295,41 +276,30 @@ Be conversational, friendly, and confirm details before finalizing.`;
                 }
               }
             },
-            special_instructions: { type: 'string' }
+            why_recommend: { type: 'string' }
           }
         }
       });
 
-      // Add AI response to history
-      setConversationHistory([...newHistory, {
+      // Add AI recommendation to history
+      setConversationHistory(prev => [...prev, {
         role: 'assistant',
-        message: aiResponse.response
+        message: aiResponse.recommendation_message + '\n\n' + aiResponse.why_recommend
       }]);
 
-      // Speak AI response
-      await speak(aiResponse.response);
+      // Speak recommendation
+      await speak(aiResponse.recommendation_message);
 
-      // If order is ready, show confirmation
-      if (aiResponse.order_ready && aiResponse.items?.length > 0) {
-        setParsedOrder(aiResponse);
-      } else {
-        // Continue conversation
-        setTranscript('');
-        setTimeout(() => {
-          startListening();
-        }, 1000);
-      }
+      // Set parsed order for confirmation
+      setParsedOrder(aiResponse);
     } catch (err) {
-      console.error('Error processing conversation:', err);
-      const errorMsg = 'Sorry, I had trouble understanding. Could you repeat that?';
-      await speak(errorMsg);
-      setConversationHistory([...newHistory, {
+      console.error('Error generating recommendation:', err);
+      const errorMsg = 'Sorry, I had trouble generating a recommendation. Please try again.';
+      setConversationHistory(prev => [...prev, {
         role: 'assistant',
         message: errorMsg
       }]);
-      setTimeout(() => {
-        startListening();
-      }, 2000);
+      await speak(errorMsg);
     } finally {
       setIsProcessing(false);
     }
@@ -370,7 +340,7 @@ Be conversational, friendly, and confirm details before finalizing.`;
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Voice Order</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">🤖 AI Auto Order</h2>
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -476,14 +446,12 @@ Be conversational, friendly, and confirm details before finalizing.`;
           <div className="space-y-3">
             {!parsedOrder ? (
               <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-                {isListening ? (
-                  <p className="animate-pulse">🎤 Listening to your order...</p>
-                ) : isProcessing ? (
-                  <p className="animate-pulse">⏳ Processing...</p>
+                {isProcessing ? (
+                  <p className="animate-pulse">⏳ Generating recommendation...</p>
                 ) : aiSpeaking ? (
                   <p className="animate-pulse">🔊 AI is speaking...</p>
                 ) : (
-                  <p>Conversation in progress...</p>
+                  <p>AI is thinking of something delicious for you...</p>
                 )}
               </div>
             ) : (
@@ -512,7 +480,7 @@ Be conversational, friendly, and confirm details before finalizing.`;
 
           {/* Instructions */}
           <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
-            💡 Just speak naturally! The AI will guide you through your order.
+            ✨ Let AI recommend the perfect meal for you!
           </p>
         </motion.div>
       </motion.div>

@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Onboarding from './pages/Onboarding';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
+import Promos from './pages/Promos';
 import RestaurantDetail from './pages/RestaurantDetail';
 import RestaurantSetup from './pages/RestaurantSetup';
 import RiderDashboard from './pages/RiderDashboard';
@@ -21,7 +22,6 @@ import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import Promos from './pages/Promos';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +38,7 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "OrderConfirmation": OrderConfirmation,
     "OrderHistory": OrderHistory,
+    "Promos": Promos,
     "RestaurantDetail": RestaurantDetail,
     "RestaurantSetup": RestaurantSetup,
     "RiderDashboard": RiderDashboard,
@@ -49,7 +50,6 @@ export const PAGES = {
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminUsers": SuperAdminUsers,
-    "Promos": Promos,
 }
 
 export const pagesConfig = {

@@ -144,9 +144,10 @@ export default function CustomerHome() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setShowVoiceOrder(true)}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl w-14 h-14 p-0 flex items-center justify-center shadow-lg flex-shrink-0"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-2xl w-14 h-14 p-0 flex items-center justify-center shadow-lg flex-shrink-0"
+              title="AI Auto Order"
             >
-              <Mic className="w-6 h-6" />
+              <span className="text-2xl">🤖</span>
             </Button>
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
