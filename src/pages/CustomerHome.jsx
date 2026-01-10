@@ -23,6 +23,7 @@ import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
 import BannerCarousel from '../components/customer/BannerCarousel';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
+import NoInternet from '../components/NoInternet';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -229,6 +230,7 @@ export default function CustomerHome() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+      <NoInternet />
       {/* Modern App Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3">
