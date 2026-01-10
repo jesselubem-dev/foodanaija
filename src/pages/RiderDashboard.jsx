@@ -256,15 +256,15 @@ export default function RiderDashboard() {
         </div>
 
         {/* Mobile-First Tabbed Interface */}
-        <Tabs defaultValue="active" className="w-full">
+        <Tabs defaultValue="available" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-4 bg-white rounded-xl p-1 shadow-sm">
-            <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs">
-              <Navigation className="w-3 h-3 mr-1" />
-              Active ({myActiveOrders.length})
-            </TabsTrigger>
             <TabsTrigger value="available" className="rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs">
               <Package className="w-3 h-3 mr-1" />
               Available ({unassignedOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs">
+              <Navigation className="w-3 h-3 mr-1" />
+              Active ({myActiveOrders.length})
             </TabsTrigger>
             <TabsTrigger value="today" className="rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white text-xs">
               <CheckCircle className="w-3 h-3 mr-1" />
