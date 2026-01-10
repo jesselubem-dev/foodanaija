@@ -641,49 +641,49 @@ export default function DashboardMenu() {
               />
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
-                    <Flame className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 flex items-center gap-2">
-                      Special Promo Deal
-                      <Badge className="bg-orange-500 text-white text-xs">HOT</Badge>
-                    </p>
-                    <p className="text-sm text-gray-600">Showcase this item to all customers</p>
-                  </div>
+            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
+                  <Flame className="w-5 h-5 text-white" />
                 </div>
-                <Switch 
-                  checked={itemForm.is_promo}
-                  onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_promo: checked }))}
-                />
+                <div>
+                  <p className="font-bold text-gray-900 flex items-center gap-2">
+                    Special Promo Deal
+                    <Badge className="bg-orange-500 text-white text-xs">HOT</Badge>
+                  </p>
+                  <p className="text-sm text-gray-600">Showcase this item to all customers on login</p>
+                </div>
               </div>
+              <Switch 
+                checked={itemForm.is_promo}
+                onCheckedChange={(checked) => setItemForm(prev => ({ ...prev, is_promo: checked }))}
+              />
+            </div>
 
-              {itemForm.is_promo && (
-                <div className="grid grid-cols-2 gap-4 pl-6 pt-2 border-l-2 border-orange-200">
+            {itemForm.is_promo && (
+              <div className="space-y-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                <p className="text-sm font-semibold text-gray-900">Promo Schedule</p>
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>Promo Start Date & Time</Label>
+                    <Label>Start Date & Time</Label>
                     <Input
                       type="datetime-local"
-                      value={itemForm.promo_start_date ? new Date(itemForm.promo_start_date).toISOString().slice(0, 16) : ''}
-                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_start_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
-                      className="w-full"
+                      value={itemForm.promo_start_date}
+                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_start_date: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Promo End Date & Time</Label>
+                    <Label>End Date & Time</Label>
                     <Input
                       type="datetime-local"
-                      value={itemForm.promo_end_date ? new Date(itemForm.promo_end_date).toISOString().slice(0, 16) : ''}
-                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_end_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
-                      className="w-full"
+                      value={itemForm.promo_end_date}
+                      onChange={(e) => setItemForm(prev => ({ ...prev, promo_end_date: e.target.value }))}
                     />
                   </div>
                 </div>
-              )}
-            </div>
+                <p className="text-xs text-gray-600">Set when this promo should be visible to customers</p>
+              </div>
+            )}
 
             <Button 
               onClick={handleSaveItem}
