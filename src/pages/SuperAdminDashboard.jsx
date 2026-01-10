@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -296,6 +296,22 @@ export default function SuperAdminDashboard() {
                 </p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-pink-600">
                   Open Chat <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl('SuperAdminReports')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Generate Reports</CardTitle>
+                <BarChart3 className="w-4 h-4 text-indigo-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Analytics</div>
+                <p className="text-xs text-muted-foreground">Daily, weekly, monthly reports</p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-indigo-600">
+                  View Reports <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>
