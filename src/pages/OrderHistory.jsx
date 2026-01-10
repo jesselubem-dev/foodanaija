@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import moment from 'moment';
 import FloatingMenu from '../components/customer/FloatingMenu';
+import CancelOrderModal from '../components/customer/CancelOrderModal';
 
 export default function OrderHistory() {
   const [user, setUser] = useState(null);
