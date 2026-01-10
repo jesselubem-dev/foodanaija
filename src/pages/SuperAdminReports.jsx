@@ -209,60 +209,76 @@ export default function SuperAdminReports() {
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
+        logging: false,
       });
 
       const imgData = canvas.toDataURL('image/png');
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const margin = 15;
+      const contentWidth = pageWidth - 2 * margin;
+      const contentHeight = (contentWidth * canvas.height) / canvas.width;
 
       const pdf = new jsPDF({
-        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      let yPosition = margin;
-
-      // Add title
-      pdf.setFontSize(16);
-      pdf.setFont(undefined, 'bold');
-      pdf.text(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report`, margin, yPosition);
-      yPosition += 12;
-
+      // Add title page
+      pdf.setFillColor(31, 41, 55);
+      pdf.rect(0, 0, pageWidth, 40, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(24);
+      pdf.text('FOODA NAIJA', margin, 15);
+      pdf.setFontSize(12);
+      pdf.text(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report`, margin, 28);
+      
+      pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      pdf.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)} | Generated: ${new Date().toLocaleString()}`, margin, yPosition);
-      yPosition += 15;
+      pdf.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`, margin, 55);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, 62);
 
-      // Add report content
-      const contentWidth = imgWidth - 2 * margin;
-      let currentHeight = imgHeight;
+      // Add content starting on first page
+      let yPosition = 70;
+      let remainingHeight = contentHeight;
+      let srcY = 0;
 
-      while (currentHeight > 0) {
-        if (yPosition + contentHeight > pageHeight - margin) {
+      while (remainingHeight > 0) {
+        const availableHeight = pageHeight - yPosition - margin;
+        const chunkHeight = Math.min(remainingHeight, availableHeight);
+        
+        // Calculate the source crop
+        const srcHeightRatio = chunkHeight / contentHeight;
+        const srcHeightPixels = canvas.height * srcHeightRatio;
+
+        // Create a temporary canvas for cropping
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = srcHeightPixels;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(canvas, 0, srcY, canvas.width, srcHeightPixels, 0, 0, canvas.width, srcHeightPixels);
+        
+        const chunkImgData = tempCanvas.toDataURL('image/png');
+        pdf.addImage(chunkImgData, 'PNG', margin, yPosition, contentWidth, chunkHeight);
+
+        remainingHeight -= chunkHeight;
+        srcY += srcHeightPixels;
+        yPosition = margin + 20; // New page spacing
+
+        if (remainingHeight > 0) {
           pdf.addPage();
-          yPosition = margin;
+          yPosition = margin + 20;
         }
+      }
 
-        const contentHeight = Math.min(currentHeight, pageHeight - yPosition - margin);
-        pdf.addImage(
-          imgData,
-          'PNG',
-          margin,
-          yPosition,
-          contentWidth,
-          contentHeight
-        );
-
-        yPosition += contentHeight + margin;
-        currentHeight -= contentHeight;
-
-        if (currentHeight > 0) {
-          pdf.addPage();
-          yPosition = margin;
-        }
+      // Add footer to all pages
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setTextColor(160, 174, 192);
+        pdf.setFontSize(9);
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
       }
 
       pdf.save(`fooda_report_${reportType}_${period}_${Date.now()}.pdf`);
