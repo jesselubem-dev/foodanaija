@@ -11,16 +11,83 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
   const [isProcessing, setIsProcessing] = useState(false);
   const [parsedOrder, setParsedOrder] = useState(null);
   const [error, setError] = useState('');
+  const [conversationHistory, setConversationHistory] = useState([]);
+  const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [userName, setUserName] = useState('');
   const recognitionRef = useRef(null);
+  const synthRef = useRef(window.speechSynthesis);
 
   useEffect(() => {
     if (!isOpen) {
       stopListening();
+      stopSpeaking();
       setTranscript('');
       setParsedOrder(null);
       setError('');
+      setConversationHistory([]);
+    } else {
+      // Auto-start conversation when modal opens
+      initializeConversation();
     }
   }, [isOpen]);
+
+  const initializeConversation = async () => {
+    try {
+      const user = await base44.auth.me();
+      const firstName = user.full_name.split(' ')[0];
+      setUserName(firstName);
+      
+      const greeting = `Hello ${firstName}! Welcome to voice ordering. What would you like to order today?`;
+      speak(greeting);
+      
+      setConversationHistory([{
+        role: 'assistant',
+        message: greeting
+      }]);
+      
+      // Start listening after greeting
+      setTimeout(() => {
+        startListening();
+      }, 3000);
+    } catch (err) {
+      console.error('Failed to initialize conversation:', err);
+    }
+  };
+
+  const speak = (text) => {
+    return new Promise((resolve) => {
+      stopSpeaking();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      utterance.lang = 'en-US';
+      
+      utterance.onstart = () => {
+        setAiSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        setAiSpeaking(false);
+        resolve();
+      };
+      
+      utterance.onerror = () => {
+        setAiSpeaking(false);
+        resolve();
+      };
+      
+      synthRef.current.speak(utterance);
+    });
+  };
+
+  const stopSpeaking = () => {
+    if (synthRef.current.speaking) {
+      synthRef.current.cancel();
+      setAiSpeaking(false);
+    }
+  };
 
   const startListening = async () => {
     try {
@@ -74,6 +141,13 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         const currentTranscript = (finalTranscript || interimTranscript).trim();
         if (currentTranscript) {
           setTranscript(currentTranscript);
+          
+          // Auto-process when user stops speaking (final result)
+          if (finalTranscript.trim()) {
+            setTimeout(() => {
+              processConversation(finalTranscript.trim());
+            }, 500);
+          }
         }
       };
 
@@ -99,15 +173,6 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
       recognitionRef.current.onend = () => {
         console.log('Speech recognition ended');
         setIsListening(false);
-        
-        // Auto-restart if continuous listening was intended
-        if (isListening && !transcript) {
-          setTimeout(() => {
-            if (recognitionRef.current) {
-              recognitionRef.current.start();
-            }
-          }, 100);
-        }
       };
 
       recognitionRef.current.start();
@@ -126,14 +191,18 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
     }
   };
 
-  const processOrder = async () => {
-    if (!transcript) {
-      toast.error('Please say your order first');
-      return;
-    }
+  const processConversation = async (userMessage) => {
+    if (!userMessage || isProcessing) return;
 
     setIsProcessing(true);
     stopListening();
+
+    // Add user message to history
+    const newHistory = [...conversationHistory, {
+      role: 'user',
+      message: userMessage
+    }];
+    setConversationHistory(newHistory);
 
     try {
       // Create restaurant context for AI
@@ -143,26 +212,36 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         cuisine: r.cuisine_types?.join(', ')
       }));
 
-      const prompt = `You are a food ordering assistant. Parse this customer's voice order and extract structured information.
+      const conversationContext = newHistory.map(h => `${h.role}: ${h.message}`).join('\n');
 
-Customer said: "${transcript}"
+      const prompt = `You are a friendly voice assistant helping ${userName} order food. Have a natural conversation.
+
+Conversation so far:
+${conversationContext}
 
 Available restaurants: ${JSON.stringify(restaurantContext)}
 
-Extract and return ONLY the following information in JSON format:
-- restaurant_name: the restaurant they want to order from (match from available restaurants)
-- restaurant_id: the ID of the matched restaurant
-- items: array of items they want to order with quantities
-- special_instructions: any special notes or dietary requirements
-- confidence: how confident you are this is correct (0-100)
+Analyze the conversation and respond with:
+1. A friendly conversational response (ask clarifying questions if needed)
+2. If you have enough info to place an order, extract the structured order details
 
-If you cannot determine the restaurant or items clearly, set confidence to low and explain what's missing in a "clarification_needed" field.`;
+Return JSON with:
+- response: your conversational response to the user
+- order_ready: boolean (true if you have complete order info)
+- restaurant_name: restaurant name (if order_ready)
+- restaurant_id: restaurant ID (if order_ready)
+- items: array of {name, quantity} (if order_ready)
+- special_instructions: any notes (if order_ready)
 
-      const response = await base44.integrations.Core.InvokeLLM({
+Be conversational, friendly, and confirm details before finalizing.`;
+
+      const aiResponse = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: {
           type: 'object',
           properties: {
+            response: { type: 'string' },
+            order_ready: { type: 'boolean' },
             restaurant_name: { type: 'string' },
             restaurant_id: { type: 'string' },
             items: {
@@ -175,22 +254,41 @@ If you cannot determine the restaurant or items clearly, set confidence to low a
                 }
               }
             },
-            special_instructions: { type: 'string' },
-            confidence: { type: 'number' },
-            clarification_needed: { type: 'string' }
+            special_instructions: { type: 'string' }
           }
         }
       });
 
-      setParsedOrder(response);
+      // Add AI response to history
+      setConversationHistory([...newHistory, {
+        role: 'assistant',
+        message: aiResponse.response
+      }]);
 
-      if (response.confidence < 70 || response.clarification_needed) {
-        setError(response.clarification_needed || 'I need more details about your order. Please try again.');
+      // Speak AI response
+      await speak(aiResponse.response);
+
+      // If order is ready, show confirmation
+      if (aiResponse.order_ready && aiResponse.items?.length > 0) {
+        setParsedOrder(aiResponse);
+      } else {
+        // Continue conversation
+        setTranscript('');
+        setTimeout(() => {
+          startListening();
+        }, 1000);
       }
     } catch (err) {
-      console.error('Error processing order:', err);
-      setError('Failed to process your order. Please try again.');
-      toast.error('Failed to process order');
+      console.error('Error processing conversation:', err);
+      const errorMsg = 'Sorry, I had trouble understanding. Could you repeat that?';
+      await speak(errorMsg);
+      setConversationHistory([...newHistory, {
+        role: 'assistant',
+        message: errorMsg
+      }]);
+      setTimeout(() => {
+        startListening();
+      }, 2000);
     } finally {
       setIsProcessing(false);
     }
@@ -264,21 +362,40 @@ If you cannot determine the restaurant or items clearly, set confidence to low a
             </motion.div>
 
             <p className="text-center text-gray-600 dark:text-gray-400 font-medium">
-              {isProcessing 
-                ? 'Processing your order...' 
+              {aiSpeaking
+                ? '🔊 AI is speaking...'
+                : isProcessing 
+                ? '🤔 Thinking...' 
                 : isListening 
-                ? 'Listening... Speak your order' 
-                : 'Tap the button to start'}
+                ? '👂 Listening...' 
+                : 'Starting conversation...'}
             </p>
           </div>
 
-          {/* Transcript */}
-          {transcript && (
-            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-4">
-              <p className="text-sm font-semibold text-orange-900 dark:text-orange-200 mb-1">You said:</p>
-              <p className="text-gray-700 dark:text-gray-300">{transcript}</p>
-            </div>
-          )}
+          {/* Conversation History */}
+          <div className="max-h-64 overflow-y-auto mb-4 space-y-2">
+            {conversationHistory.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`p-3 rounded-xl ${
+                  msg.role === 'user'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 ml-8'
+                    : 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 mr-8'
+                }`}
+              >
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                  {msg.role === 'user' ? 'You' : 'AI Assistant'}
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{msg.message}</p>
+              </div>
+            ))}
+            {transcript && isListening && (
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 ml-8 opacity-60">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">You (speaking...)</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{transcript}</p>
+              </div>
+            )}
+          </div>
 
           {/* Parsed Order */}
           {parsedOrder && !error && (
@@ -317,43 +434,17 @@ If you cannot determine the restaurant or items clearly, set confidence to low a
           {/* Action Buttons */}
           <div className="space-y-3">
             {!parsedOrder ? (
-              <>
-                {!isListening ? (
-                  <Button
-                    onClick={startListening}
-                    disabled={isProcessing}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl"
-                  >
-                    <Mic className="w-5 h-5 mr-2" />
-                    Start Speaking
-                  </Button>
+              <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                {isListening ? (
+                  <p className="animate-pulse">🎤 Listening to your order...</p>
+                ) : isProcessing ? (
+                  <p className="animate-pulse">⏳ Processing...</p>
+                ) : aiSpeaking ? (
+                  <p className="animate-pulse">🔊 AI is speaking...</p>
                 ) : (
-                  <Button
-                    onClick={stopListening}
-                    className="w-full h-12 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl"
-                  >
-                    <MicOff className="w-5 h-5 mr-2" />
-                    Stop Recording
-                  </Button>
+                  <p>Conversation in progress...</p>
                 )}
-                
-                {transcript && !isListening && (
-                  <Button
-                    onClick={processOrder}
-                    disabled={isProcessing}
-                    className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Process Order'
-                    )}
-                  </Button>
-                )}
-              </>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 <Button
@@ -380,7 +471,7 @@ If you cannot determine the restaurant or items clearly, set confidence to low a
 
           {/* Instructions */}
           <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
-            Example: "I want to order 2 plates of jollof rice and 1 fried chicken from XYZ Restaurant"
+            💡 Just speak naturally! The AI will guide you through your order.
           </p>
         </motion.div>
       </motion.div>
