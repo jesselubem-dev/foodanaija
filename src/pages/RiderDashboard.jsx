@@ -261,7 +261,7 @@ export default function RiderDashboard() {
             </TabsTrigger>
             <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs">
               <Clock className="w-3 h-3 mr-1" />
-              History
+              All Recent
             </TabsTrigger>
           </TabsList>
 
@@ -330,11 +330,21 @@ export default function RiderDashboard() {
             ) : (
               <div className="space-y-4">
                 {unassignedOrders.map((order) => (
-                  <Card key={order.id} className="border-blue-200 bg-gradient-to-br from-blue-50 to-white hover:shadow-xl transition-all">
+                  <Card key={order.id} className="border-red-300 bg-gradient-to-br from-red-50 to-white hover:shadow-xl transition-all relative">
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-ping" />
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <Badge className="bg-blue-500 text-white px-3 py-1 mb-2">🆕 New Order</Badge>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-red-500 text-white px-3 py-1 animate-pulse">🚨 New Order</Badge>
+                            <span className="text-xs text-gray-500">
+                              {new Date(order.created_date).toLocaleTimeString('en-NG', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-1">{order.restaurant_name}</h3>
                           <div className="space-y-1">
                             <p className="text-gray-600 flex items-center gap-2">
@@ -348,7 +358,7 @@ export default function RiderDashboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-blue-600">₦{order.total?.toLocaleString()}</p>
+                          <p className="text-2xl font-bold text-red-600">₦{order.total?.toLocaleString()}</p>
                           <p className="text-sm text-gray-500">{order.items?.length} items</p>
                           <p className="text-xs text-green-600 font-medium mt-1">+₦{order.delivery_fee || 500} fee</p>
                         </div>
@@ -431,7 +441,7 @@ export default function RiderDashboard() {
             )}
           </TabsContent>
 
-          {/* Delivery History Tab */}
+          {/* All Recent Deliveries Tab */}
           <TabsContent value="history">
             {deliveredOrders.length === 0 ? (
               <Card className="border-purple-100">
