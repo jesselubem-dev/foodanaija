@@ -19,6 +19,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
   const [darkMode, setDarkMode] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState('CustomerHome');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -38,6 +39,14 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
       }
     };
     loadUser();
+
+    // Track current page
+    const path = window.location.pathname;
+    if (path.includes('OrderHistory')) setCurrentPage('OrderHistory');
+    else if (path.includes('Promos')) setCurrentPage('Promos');
+    else if (path.includes('Cart')) setCurrentPage('Cart');
+    else if (path.includes('LiveChat')) setCurrentPage('LiveChat');
+    else setCurrentPage('CustomerHome');
   }, []);
 
   const { data: notifications = [] } = useQuery({
@@ -80,7 +89,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={{ y: [0, -3, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Home className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <Home className={`w-5 h-5 ${currentPage === 'CustomerHome' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Home</span>
             </Button>
@@ -97,7 +106,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={{ rotate: [0, 15, -15, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Sparkles className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                <Sparkles className={`w-5 h-5 ${currentPage === 'Promos' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
               <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">Promos</span>
             </Button>
@@ -114,7 +123,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
               >
-                <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <ShoppingBag className={`w-5 h-5 ${currentPage === 'Cart' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Cart</span>
               {cartCount > 0 && (
@@ -137,7 +146,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               variant="ghost"
               className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
             >
-              <History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Orders</span>
             </Button>
           </motion.div>
@@ -153,7 +162,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={{ rotate: [0, -5, 5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <MessageSquare className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Chat</span>
             </Button>
@@ -167,7 +176,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 variant="ghost"
                 className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
-                <User className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <User className={`w-6 h-6 ${profileOpen ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Profile</span>
               </Button>
             </motion.div>
