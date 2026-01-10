@@ -170,20 +170,27 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         
-        // Handle specific errors
+        // Ignore no-speech errors and keep listening
         if (event.error === 'no-speech') {
-          setError('No speech detected. Please speak clearly into your microphone.');
-        } else if (event.error === 'audio-capture') {
-          setError('No microphone found. Please check your microphone connection.');
-        } else if (event.error === 'not-allowed') {
-          setError('Microphone access denied. Please allow microphone access.');
-        } else if (event.error === 'network') {
-          setError('Network error. Please check your internet connection.');
-        } else {
-          setError(`Error: ${event.error}. Please try again.`);
+          console.log('No speech detected, continuing to listen...');
+          return;
         }
         
-        setIsListening(false);
+        // Handle other errors
+        if (event.error === 'audio-capture') {
+          setError('No microphone found. Please check your microphone connection.');
+          setIsListening(false);
+        } else if (event.error === 'not-allowed') {
+          setError('Microphone access denied. Please allow microphone access.');
+          toast.error('Microphone access denied');
+          setIsListening(false);
+        } else if (event.error === 'network') {
+          setError('Network error. Please check your internet connection.');
+          setIsListening(false);
+        } else if (event.error !== 'aborted') {
+          setError(`Error: ${event.error}. Please try again.`);
+          setIsListening(false);
+        }
       };
 
       recognitionRef.current.onend = () => {
