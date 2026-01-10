@@ -257,17 +257,17 @@ export default function SuperAdminDashboard() {
             </Card>
           </Link>
 
-          <Link to={createPageUrl('SuperAdminSupport')}>
+          <Link to={createPageUrl('AdminLiveChat')}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Customer Support</CardTitle>
+                <CardTitle className="text-sm font-medium">Live Chat Support</CardTitle>
                 <Headset className="w-4 h-4 text-pink-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Messages</div>
-                <p className="text-xs text-muted-foreground">View complaints</p>
+                <div className="text-2xl font-bold">Chat</div>
+                <p className="text-xs text-muted-foreground">Customer messages</p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-pink-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
+                  Open Chat <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>

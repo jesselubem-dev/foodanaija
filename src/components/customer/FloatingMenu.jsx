@@ -114,13 +114,13 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </Button>
         </Link>
 
-        <Link to={createPageUrl('CustomerSupport')}>
+        <Link to={createPageUrl('LiveChat')}>
           <Button
             variant="ghost"
             className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
           >
             <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Support</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Chat</span>
           </Button>
         </Link>
 

@@ -24,6 +24,8 @@ import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminUsers from './pages/SuperAdminUsers';
 import CustomerSupport from './pages/CustomerSupport';
 import SuperAdminSupport from './pages/SuperAdminSupport';
+import LiveChat from './pages/LiveChat';
+import AdminLiveChat from './pages/AdminLiveChat';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +56,8 @@ export const PAGES = {
     "SuperAdminUsers": SuperAdminUsers,
     "CustomerSupport": CustomerSupport,
     "SuperAdminSupport": SuperAdminSupport,
+    "LiveChat": LiveChat,
+    "AdminLiveChat": AdminLiveChat,
 }
 
 export const pagesConfig = {
