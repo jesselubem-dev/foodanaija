@@ -304,22 +304,6 @@ export default function SuperAdminReports() {
           pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
           yPosition += chartHeight + 15;
         }
-
-        // Add main revenue chart
-        const mainChart = document.querySelector('[data-chart="main"]');
-        if (mainChart) {
-          const canvas = await html2canvas(mainChart, { scale: 2, backgroundColor: '#ffffff' });
-          const imgData = canvas.toDataURL('image/png');
-          const chartWidth = pageWidth - 2 * margin;
-          const chartHeight = (chartWidth * canvas.height) / canvas.width;
-
-          if (checkNewPage(chartHeight + 10)) {
-            yPosition += 5;
-          }
-
-          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-          yPosition += chartHeight + 15;
-        }
       } else {
         // Capture and add chart for other report types
         const chartElement = document.querySelector('[data-chart="main"]');
