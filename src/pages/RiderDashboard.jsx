@@ -24,10 +24,24 @@ export default function RiderDashboard() {
   const [rider, setRider] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
+  const [audioElement, setAudioElement] = useState(null);
 
   useEffect(() => {
     checkRider();
     requestNotificationPermission();
+    
+    // Create audio element for continuous alert
+    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    audio.loop = true;
+    audio.volume = 0.5;
+    setAudioElement(audio);
+    
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
   }, []);
 
   const requestNotificationPermission = async () => {
@@ -121,15 +135,9 @@ export default function RiderDashboard() {
   });
   const todayEarnings = todayCompleted.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
 
-  // Notify rider of new orders
+  // Notify rider of new orders and play continuous alert
   useEffect(() => {
     if (unassignedOrders.length > previousOrderCount && previousOrderCount > 0) {
-      const newOrderCount = unassignedOrders.length - previousOrderCount;
-      
-      // Play notification sound
-      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZPQ4XZr==');
-      audio.play().catch(() => {});
-
       // Show browser notification
       if ('Notification' in window && Notification.permission === 'granted') {
         const latestOrder = unassignedOrders[0];
@@ -145,6 +153,18 @@ export default function RiderDashboard() {
     }
     setPreviousOrderCount(unassignedOrders.length);
   }, [unassignedOrders.length]);
+
+  // Continuous alert sound when there are unassigned orders
+  useEffect(() => {
+    if (audioElement) {
+      if (unassignedOrders.length > 0 && rider?.is_available) {
+        audioElement.play().catch(() => {});
+      } else {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+      }
+    }
+  }, [unassignedOrders.length, rider?.is_available, audioElement]);
 
   if (!rider) {
     return (
