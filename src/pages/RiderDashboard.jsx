@@ -134,6 +134,7 @@ export default function RiderDashboard() {
     return orderDate.toDateString() === today.toDateString();
   });
   const todayEarnings = todayCompleted.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+  const allTimeEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
 
   // Notify rider of new orders and play continuous alert
   useEffect(() => {
@@ -272,6 +273,13 @@ export default function RiderDashboard() {
             value={`₦${todayEarnings.toLocaleString()}`}
             subtitle={`₦${rider.total_deliveries ? Math.round(todayEarnings / (todayCompleted.length || 1)) : 0}/order`}
             color="purple"
+          />
+          <StatCard
+            icon={TrendingUp}
+            title="All Time Earnings"
+            value={`₦${allTimeEarnings.toLocaleString()}`}
+            subtitle={`${deliveredOrders.length} total deliveries`}
+            color="blue"
           />
         </div>
 
