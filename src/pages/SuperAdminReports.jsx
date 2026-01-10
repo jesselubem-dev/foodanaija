@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -11,11 +11,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function SuperAdminReports() {
   const [period, setPeriod] = useState('daily');
   const [reportType, setReportType] = useState('restaurants');
   const [user, setUser] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const reportContentRef = useRef(null);
 
   useEffect(() => {
     checkAdmin();
@@ -176,29 +180,167 @@ export default function SuperAdminReports() {
     };
   })();
 
-  const handleExportReport = () => {
-    const reportData = {
-      period,
-      reportType,
-      generatedAt: new Date().toLocaleString(),
-      restaurants: restaurantReportData,
-      orders: orderReportData,
-      riders: riderReportData,
-    };
+  const handleExportReport = async () => {
+    setIsGenerating(true);
+    try {
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(reportData, null, 2)));
-    element.setAttribute('download', `fooda_report_${period}_${Date.now()}.json`);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPosition = margin;
+
+      // Helper function to check and add new page
+      const checkNewPage = (neededHeight) => {
+        if (yPosition + neededHeight > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+          return true;
+        }
+        return false;
+      };
+
+      // Title and Header
+      pdf.setFillColor(31, 41, 55);
+      pdf.rect(0, 0, pageWidth, 30, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(20);
+      pdf.text('FOODA NAIJA', margin, 12);
+      pdf.setFontSize(10);
+      pdf.text(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report - ${period.charAt(0).toUpperCase() + period.slice(1)}`, margin, 20);
+
+      yPosition = 35;
+
+      // Report Info
+      pdf.setTextColor(100, 116, 139);
+      pdf.setFontSize(9);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, yPosition);
+      yPosition += 8;
+
+      // Stats Section
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(12);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('Key Metrics', margin, yPosition);
+      yPosition += 8;
+      pdf.setFont(undefined, 'normal');
+      pdf.setFontSize(10);
+
+      const statColWidth = (pageWidth - 2 * margin) / 4;
+      const stats = reportType === 'restaurants' 
+        ? [
+            { label: 'Total Restaurants', value: restaurantReportData.total },
+            { label: 'Approved', value: restaurantReportData.approved },
+            { label: 'Open Now', value: restaurantReportData.open },
+            { label: 'Revenue', value: `₦${restaurantReportData.totalRevenue.toLocaleString()}` },
+          ]
+        : reportType === 'orders'
+        ? [
+            { label: 'Total Orders', value: orderReportData.total },
+            { label: 'Delivered', value: orderReportData.delivered },
+            { label: 'Pending', value: orderReportData.pending },
+            { label: 'Revenue', value: `₦${orderReportData.totalRevenue.toLocaleString()}` },
+          ]
+        : [
+            { label: 'Total Riders', value: riderReportData.total },
+            { label: 'Active', value: riderReportData.active },
+            { label: 'Available', value: riderReportData.available },
+            { label: 'Deliveries', value: riderReportData.totalDeliveries },
+          ];
+
+      stats.forEach((stat, idx) => {
+        const x = margin + idx * statColWidth;
+        pdf.setFillColor(243, 244, 246);
+        pdf.rect(x, yPosition, statColWidth - 5, 20, 'F');
+        pdf.setFont(undefined, 'normal');
+        pdf.setFontSize(8);
+        pdf.text(stat.label, x + 5, yPosition + 6);
+        pdf.setFont(undefined, 'bold');
+        pdf.setFontSize(11);
+        pdf.text(stat.value.toString(), x + 5, yPosition + 15);
+      });
+
+      yPosition += 30;
+
+      // Charts Section
+      checkNewPage(120);
+      pdf.setFont(undefined, 'bold');
+      pdf.setFontSize(12);
+      pdf.text('Analytics', margin, yPosition);
+      yPosition += 10;
+
+      // Capture and add chart
+      const chartElement = document.querySelector('[data-chart="main"]');
+      if (chartElement) {
+        const canvas = await html2canvas(chartElement, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const chartWidth = pageWidth - 2 * margin;
+        const chartHeight = (chartWidth * canvas.height) / canvas.width;
+
+        if (checkNewPage(chartHeight + 5)) {
+          yPosition += 5;
+        }
+
+        pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+        yPosition += chartHeight + 10;
+      }
+
+      // Status chart if available
+      const statusChart = document.querySelector('[data-chart="status"]');
+      if (statusChart) {
+        checkNewPage(100);
+        const canvas = await html2canvas(statusChart, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const chartWidth = (pageWidth - 3 * margin) / 2;
+        const chartHeight = (chartWidth * canvas.height) / canvas.width;
+        
+        pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+        yPosition += chartHeight + 10;
+      }
+
+      // Summary
+      checkNewPage(30);
+      pdf.setFont(undefined, 'bold');
+      pdf.setFontSize(12);
+      pdf.text('Report Summary', margin, yPosition);
+      yPosition += 8;
+      pdf.setFont(undefined, 'normal');
+      pdf.setFontSize(9);
+      
+      const summaryText = reportType === 'restaurants'
+        ? `Total of ${restaurantReportData.total} restaurants with ${restaurantReportData.approved} approved. Platform generated ₦${restaurantReportData.totalRevenue.toLocaleString()} revenue.`
+        : reportType === 'orders'
+        ? `Total of ${orderReportData.total} orders processed. ${orderReportData.delivered} successfully delivered. Average order value: ₦${Math.round(orderReportData.avgOrderValue).toLocaleString()}.`
+        : `Total of ${riderReportData.total} active riders completed ${riderReportData.totalDeliveries} deliveries. Average rating: ${riderReportData.avgRating}/5.`;
+
+      pdf.text(summaryText, margin, yPosition, { maxWidth: pageWidth - 2 * margin, align: 'left' });
+
+      // Footer
+      const totalPages = pdf.internal.pages.length;
+      for (let i = 1; i < totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setTextColor(160, 174, 192);
+        pdf.setFontSize(8);
+        pdf.text(`Page ${i} of ${totalPages - 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      }
+
+      pdf.save(`fooda_report_${reportType}_${period}_${Date.now()}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const { label } = getDateRange();
 
   const renderRestaurantReport = () => (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportContentRef}>
       <div className="grid md:grid-cols-4 gap-4">
         <StatCard
           title="Total Restaurants"
@@ -230,7 +372,7 @@ export default function SuperAdminReports() {
         <CardHeader>
           <CardTitle>Top 10 Restaurants by Revenue</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent data-chart="main">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={restaurantReportData.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -248,7 +390,7 @@ export default function SuperAdminReports() {
   );
 
   const renderOrderReport = () => (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportContentRef}>
       <div className="grid md:grid-cols-5 gap-4">
         <StatCard
           title="Total Orders"
@@ -287,7 +429,7 @@ export default function SuperAdminReports() {
           <CardHeader>
             <CardTitle>Orders Trend</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent data-chart="main">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={orderReportData.chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -307,7 +449,7 @@ export default function SuperAdminReports() {
           <CardHeader>
             <CardTitle>Order Status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent data-chart="status">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -334,7 +476,7 @@ export default function SuperAdminReports() {
   );
 
   const renderRiderReport = () => (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportContentRef}>
       <div className="grid md:grid-cols-5 gap-4">
         <StatCard
           title="Total Riders"
@@ -372,7 +514,7 @@ export default function SuperAdminReports() {
         <CardHeader>
           <CardTitle>Top 10 Riders by Deliveries</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent data-chart="main">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={riderReportData.chartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" />
@@ -416,10 +558,20 @@ export default function SuperAdminReports() {
             </div>
             <Button
               onClick={handleExportReport}
+              disabled={isGenerating}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Export Report
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as PDF
+                </>
+              )}
             </Button>
           </div>
 
