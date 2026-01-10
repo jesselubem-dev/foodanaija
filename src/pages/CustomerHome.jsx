@@ -4,8 +4,9 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, Mic
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,6 +35,48 @@ export default function CustomerHome() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Poll for new notifications and show as toast
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const checkNewNotifications = async () => {
+      try {
+        const notifications = await base44.entities.Notification.filter(
+          { user_email: user.email, is_read: false },
+          '-created_date',
+          5
+        );
+
+        // Check for notifications created in last 30 seconds
+        const recentNotifications = notifications.filter(n => {
+          const notifTime = new Date(n.created_date).getTime();
+          const now = Date.now();
+          return (now - notifTime) < 30000; // 30 seconds
+        });
+
+        recentNotifications.forEach(notification => {
+          toast.success(notification.message, {
+            duration: 8000,
+            position: 'top-center',
+          });
+          
+          // Mark as read after showing
+          setTimeout(() => {
+            base44.entities.Notification.update(notification.id, { is_read: true });
+          }, 2000);
+        });
+      } catch (err) {
+        console.error('Failed to check notifications:', err);
+      }
+    };
+
+    // Check immediately and then every 15 seconds
+    checkNewNotifications();
+    const interval = setInterval(checkNewNotifications, 15000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const checkAuth = async () => {
     try {
