@@ -16,6 +16,8 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
   const [userName, setUserName] = useState('');
   const recognitionRef = useRef(null);
   const synthRef = useRef(window.speechSynthesis);
+  const silenceTimerRef = useRef(null);
+  const fullTranscriptRef = useRef('');
 
   useEffect(() => {
     if (!isOpen) {
@@ -45,10 +47,10 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         message: greeting
       }]);
       
-      // Start listening after greeting
+      // Start listening after greeting (longer delay)
       setTimeout(() => {
         startListening();
-      }, 3000);
+      }, 4000);
     } catch (err) {
       console.error('Failed to initialize conversation:', err);
     }
@@ -114,7 +116,7 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
 
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false; // Changed to false for better stability
+      recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
       recognitionRef.current.maxAlternatives = 1;
@@ -129,7 +131,7 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         let finalTranscript = '';
         let interimTranscript = '';
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        for (let i = 0; i < event.results.length; i++) {
           const transcriptPiece = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcriptPiece + ' ';
@@ -138,17 +140,28 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
           }
         }
 
-        const currentTranscript = (finalTranscript || interimTranscript).trim();
-        if (currentTranscript) {
-          setTranscript(currentTranscript);
-          
-          // Auto-process when user stops speaking (final result)
-          if (finalTranscript.trim()) {
-            setTimeout(() => {
-              processConversation(finalTranscript.trim());
-            }, 500);
-          }
+        // Accumulate final transcripts
+        if (finalTranscript.trim()) {
+          fullTranscriptRef.current += finalTranscript;
         }
+
+        // Show current transcript (accumulated + interim)
+        const displayTranscript = (fullTranscriptRef.current + interimTranscript).trim();
+        setTranscript(displayTranscript);
+
+        // Clear previous silence timer
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
+
+        // Set new timer - process after 2 seconds of silence
+        silenceTimerRef.current = setTimeout(() => {
+          if (fullTranscriptRef.current.trim()) {
+            const messageToProcess = fullTranscriptRef.current.trim();
+            fullTranscriptRef.current = '';
+            processConversation(messageToProcess);
+          }
+        }, 2000);
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -189,6 +202,10 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
       recognitionRef.current.stop();
       setIsListening(false);
     }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+    }
+    fullTranscriptRef.current = '';
   };
 
   const processConversation = async (userMessage) => {
