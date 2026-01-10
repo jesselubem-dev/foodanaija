@@ -58,6 +58,8 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
 
   const speak = (text) => {
     return new Promise((resolve) => {
+      // Stop listening while AI speaks
+      stopListening();
       stopSpeaking();
       
       const utterance = new SpeechSynthesisUtterance(text);
@@ -154,14 +156,15 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
           clearTimeout(silenceTimerRef.current);
         }
 
-        // Set new timer - process after 2 seconds of silence
+        // Set new timer - process after 1.5 seconds of silence
         silenceTimerRef.current = setTimeout(() => {
           if (fullTranscriptRef.current.trim()) {
             const messageToProcess = fullTranscriptRef.current.trim();
             fullTranscriptRef.current = '';
+            setTranscript('');
             processConversation(messageToProcess);
           }
-        }, 2000);
+        }, 1500);
       };
 
       recognitionRef.current.onerror = (event) => {
@@ -186,6 +189,20 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
       recognitionRef.current.onend = () => {
         console.log('Speech recognition ended');
         setIsListening(false);
+        
+        // Auto-restart if not processing and AI not speaking
+        if (!isProcessing && !aiSpeaking && isOpen && !parsedOrder) {
+          setTimeout(() => {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+                setIsListening(true);
+              } catch (e) {
+                console.error('Failed to restart recognition:', e);
+              }
+            }
+          }, 500);
+        }
       };
 
       recognitionRef.current.start();
