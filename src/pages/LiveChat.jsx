@@ -49,6 +49,22 @@ export default function LiveChat() {
         const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         localStorage.setItem(`chat_id_${userData.email}`, newChatId);
         setChatId(newChatId);
+        
+        // Send welcome message from AI
+        setTimeout(async () => {
+          try {
+            await base44.entities.ChatMessage.create({
+              chat_id: newChatId,
+              customer_email: userData.email,
+              customer_name: userData.full_name,
+              sender_type: 'ai',
+              sender_name: 'Fooda AI',
+              message: `Hello ${userData.full_name.split(' ')[0]}! 👋 Welcome to Fooda Support. I'm here to help you with restaurant recommendations, orders, deliveries, and any questions you have. How can I assist you today?`,
+            });
+          } catch (error) {
+            console.error('Failed to send welcome message:', error);
+          }
+        }, 500);
       }
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
