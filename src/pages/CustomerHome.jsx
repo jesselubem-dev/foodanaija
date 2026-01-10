@@ -39,11 +39,11 @@ export default function CustomerHome() {
   }, []);
 
   useEffect(() => {
-    // Show loader for 4 seconds every time component mounts
+    // Show loader for 2 seconds every time component mounts
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 4000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [window.location.pathname]);
 
