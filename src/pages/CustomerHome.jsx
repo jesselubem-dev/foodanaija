@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,7 +137,7 @@ export default function CustomerHome() {
         )}
 
         {/* Search Bar */}
-        <div className="pt-2 pb-6">
+        <div className="pt-2 pb-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
@@ -148,6 +148,19 @@ export default function CustomerHome() {
             />
           </div>
         </div>
+
+        {/* Promo Banner */}
+        <Link to={createPageUrl('Promos')}>
+          <div className="mb-6 p-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer">
+            <div className="flex items-center justify-between text-white">
+              <div>
+                <h3 className="font-bold text-lg mb-1">🔥 Special Deals</h3>
+                <p className="text-sm text-white/90">View all active promos</p>
+              </div>
+              <ChevronRight className="w-6 h-6" />
+            </div>
+          </div>
+        </Link>
 
         {/* City Filter Pills */}
         <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
