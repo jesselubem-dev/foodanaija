@@ -146,7 +146,7 @@ export default function RiderDelivery() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         {/* Timer Card */}
-        {order.delivery_status !== 'delivered' && (
+        {(order.delivery_status !== 'delivered') && (
           <Card className={`border-2 ${timeRemaining < 300 ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-blue-50'}`}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -285,8 +285,8 @@ export default function RiderDelivery() {
           </div>
         )}
         
-        {/* Bottom padding for fixed button */}
-        {currentStatus.next && <div className="h-24" />}
+        {/* Bottom padding for fixed button or delivered state */}
+        {currentStatus.next || order.delivery_status === 'delivered' ? <div className="h-24" /> : null}
       </div>
 
       {/* Success Dialog */}
