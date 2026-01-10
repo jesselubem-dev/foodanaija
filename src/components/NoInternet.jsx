@@ -61,6 +61,14 @@ export default function NoInternet() {
             <WifiOff className="w-12 h-12 text-red-600" />
           </div>
           
+          <div className="mb-6">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png"
+              alt="Fooda Naija"
+              className="h-16 w-auto mx-auto mb-4"
+            />
+          </div>
+          
           <h1 className="text-3xl font-bold text-gray-900 mb-3">No Internet Connection</h1>
           <p className="text-gray-600 mb-8">
             Please check your internet connection and try again.

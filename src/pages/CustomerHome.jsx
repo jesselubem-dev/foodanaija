@@ -82,8 +82,8 @@ export default function CustomerHome() {
             
             new Notification(notification.title, {
               body: notification.message,
-              icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
-              badge: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
+              icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png',
+              badge: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png',
               image: notificationImage,
               tag: notification.id,
               requireInteraction: false,
@@ -211,7 +211,7 @@ export default function CustomerHome() {
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-ping opacity-20"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-pulse opacity-30"></div>
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
               alt="Fooda Naija" 
               className="relative w-32 h-32 object-contain animate-bounce"
             />
@@ -237,7 +237,7 @@ export default function CustomerHome() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
                 alt="Fooda Naija" 
                 className="h-10 w-auto object-contain"
               />
@@ -320,7 +320,7 @@ export default function CustomerHome() {
         {restaurantsLoading ? (
           <div className="flex items-center justify-center py-20">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
               alt="Loading..." 
               className="h-16 w-auto object-contain animate-pulse"
             />
