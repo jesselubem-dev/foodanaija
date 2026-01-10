@@ -133,7 +133,7 @@ export default function CustomerHome() {
     }
   };
 
-  const { data: restaurants = [], isLoading, error } = useQuery({
+  const { data: restaurants = [], isLoading: restaurantsLoading, error } = useQuery({
     queryKey: ['approved-restaurants'],
     queryFn: async () => {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
@@ -315,7 +315,7 @@ export default function CustomerHome() {
         </div>
 
         {/* Restaurants Grid */}
-        {isLoading ? (
+        {restaurantsLoading ? (
           <div className="flex items-center justify-center py-20">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
