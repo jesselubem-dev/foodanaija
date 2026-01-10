@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Home, ShoppingBag, History, User, LogOut, Moon, Sun, Bell, Sparkles } from 'lucide-react';
+import { Home, ShoppingBag, History, User, LogOut, Moon, Sun, Bell, Sparkles, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -68,7 +68,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-50 safe-area-inset-bottom transition-colors">
-      <div className="grid grid-cols-5 gap-1 px-4 py-3">
+      <div className="grid grid-cols-6 gap-1 px-4 py-3">
         <Link to={createPageUrl('CustomerHome')}>
           <Button
             variant="ghost"
@@ -111,6 +111,16 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           >
             <History className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Orders</span>
+          </Button>
+        </Link>
+
+        <Link to={createPageUrl('CustomerSupport')}>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
+          >
+            <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Support</span>
           </Button>
         </Link>
 
