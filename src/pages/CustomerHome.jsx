@@ -31,9 +31,15 @@ export default function CustomerHome() {
   const [user, setUser] = useState(null);
   const [showPromo, setShowPromo] = useState(false);
   const [showVoiceOrder, setShowVoiceOrder] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     checkAuth();
+    // Show loader for 4 seconds
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Request notification permission
@@ -195,6 +201,31 @@ export default function CustomerHome() {
   });
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center z-50">
+        <div className="text-center">
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-ping opacity-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-pulse opacity-30"></div>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+              alt="Fooda Naija" 
+              className="relative w-32 h-32 object-contain animate-bounce"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+          <p className="text-xl font-bold text-gray-800 mb-1">Welcome to Fooda</p>
+          <p className="text-sm text-gray-500">Preparing your experience...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">

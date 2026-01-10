@@ -1,12 +1,15 @@
+import AdminLiveChat from './pages/AdminLiveChat';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CustomerHome from './pages/CustomerHome';
+import CustomerSupport from './pages/CustomerSupport';
 import DashboardAnalytics from './pages/DashboardAnalytics';
 import DashboardHome from './pages/DashboardHome';
 import DashboardMenu from './pages/DashboardMenu';
 import DashboardOrders from './pages/DashboardOrders';
 import DashboardSettings from './pages/DashboardSettings';
 import Home from './pages/Home';
+import LiveChat from './pages/LiveChat';
 import Onboarding from './pages/Onboarding';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
@@ -21,24 +24,24 @@ import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
-import SuperAdminUsers from './pages/SuperAdminUsers';
-import CustomerSupport from './pages/CustomerSupport';
 import SuperAdminSupport from './pages/SuperAdminSupport';
-import LiveChat from './pages/LiveChat';
-import AdminLiveChat from './pages/AdminLiveChat';
+import SuperAdminUsers from './pages/SuperAdminUsers';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminLiveChat": AdminLiveChat,
     "Cart": Cart,
     "Checkout": Checkout,
     "CustomerHome": CustomerHome,
+    "CustomerSupport": CustomerSupport,
     "DashboardAnalytics": DashboardAnalytics,
     "DashboardHome": DashboardHome,
     "DashboardMenu": DashboardMenu,
     "DashboardOrders": DashboardOrders,
     "DashboardSettings": DashboardSettings,
     "Home": Home,
+    "LiveChat": LiveChat,
     "Onboarding": Onboarding,
     "OrderConfirmation": OrderConfirmation,
     "OrderHistory": OrderHistory,
@@ -53,11 +56,8 @@ export const PAGES = {
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminRiders": SuperAdminRiders,
-    "SuperAdminUsers": SuperAdminUsers,
-    "CustomerSupport": CustomerSupport,
     "SuperAdminSupport": SuperAdminSupport,
-    "LiveChat": LiveChat,
-    "AdminLiveChat": AdminLiveChat,
+    "SuperAdminUsers": SuperAdminUsers,
 }
 
 export const pagesConfig = {
