@@ -106,9 +106,9 @@ export default function CustomerHome() {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Modern App Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -130,10 +130,10 @@ export default function CustomerHome() {
         {/* Compact Welcome */}
         {user && (
           <div className="pt-6 pb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               Hi, {user.full_name.split(' ')[0]}! 👋
             </h2>
-            <p className="text-sm text-gray-500 mt-1">What would you like to eat today?</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">What would you like to eat today?</p>
           </div>
         )}
 
@@ -145,7 +145,7 @@ export default function CustomerHome() {
               placeholder="Search restaurants or cuisines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white transition-colors text-base"
+              className="pl-12 h-14 rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-colors text-base"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function CustomerHome() {
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               selectedCity === 'all'
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             All Cities
@@ -172,7 +172,7 @@ export default function CustomerHome() {
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 selectedCity === city
                   ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               {city}
@@ -200,7 +200,7 @@ export default function CustomerHome() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRestaurants.map((restaurant) => (
               <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)}>
-                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                   <div className="relative">
                     {restaurant.cover_image_url ? (
                       <img 
@@ -236,8 +236,8 @@ export default function CustomerHome() {
                   </div>
                   
                   <div className="p-4 pt-8">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{restaurant.name}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-1 mb-3">{restaurant.description}</p>
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">{restaurant.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mb-3">{restaurant.description}</p>
 
                     {/* Cuisine Tags */}
                     {restaurant.cuisine_types?.length > 0 && (
@@ -252,11 +252,11 @@ export default function CustomerHome() {
 
                     {/* Info Row */}
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Clock className="w-4 h-4" />
                         <span>{restaurant.delivery_time}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Bike className="w-4 h-4" />
                         <span>₦{restaurant.delivery_fee?.toLocaleString()}</span>
                       </div>

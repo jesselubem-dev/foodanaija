@@ -67,35 +67,35 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-50 safe-area-inset-bottom">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl z-50 safe-area-inset-bottom transition-colors">
       <div className="grid grid-cols-5 gap-1 px-4 py-3">
         <Link to={createPageUrl('CustomerHome')}>
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl"
+            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
           >
-            <Home className="w-5 h-5 text-gray-700" />
-            <span className="text-xs text-gray-600 font-medium">Home</span>
+            <Home className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Home</span>
           </Button>
         </Link>
 
         <Link to={createPageUrl('Promos')}>
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl"
+            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
           >
-            <Sparkles className="w-5 h-5 text-orange-500" />
-            <span className="text-xs text-orange-600 font-medium">Promos</span>
+            <Sparkles className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+            <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">Promos</span>
           </Button>
         </Link>
 
         <Link to={createPageUrl('Cart')}>
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl relative"
+            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl relative"
           >
-            <ShoppingBag className="w-5 h-5 text-gray-700" />
-            <span className="text-xs text-gray-600 font-medium">Cart</span>
+            <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Cart</span>
             {cartCount > 0 && (
               <span className="absolute top-1 right-6 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
                 {cartCount}
@@ -107,10 +107,10 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
         <Link to={createPageUrl('OrderHistory')}>
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl"
+            className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
           >
-            <History className="w-5 h-5 text-gray-700" />
-            <span className="text-xs text-gray-600 font-medium">Orders</span>
+            <History className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Orders</span>
           </Button>
         </Link>
 
@@ -118,10 +118,10 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl"
+              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl"
             >
-              <User className="w-6 h-6 text-gray-700" />
-              <span className="text-xs text-gray-600 font-medium">Profile</span>
+              <User className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Profile</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-full sm:w-[400px] p-0">
