@@ -329,7 +329,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
             </div>
           </SheetContent>
         </Sheet>
-         </motion.div>
+        </motion.div>
         </motion.div>
         );
         }
