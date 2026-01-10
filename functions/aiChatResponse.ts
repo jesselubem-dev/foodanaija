@@ -27,6 +27,39 @@ Deno.serve(async (req) => {
       .map(m => `${m.sender_name || m.sender_type}: ${m.message}`)
       .join('\n');
 
+    // Fetch all open restaurants with their menu items
+    const restaurants = await base44.asServiceRole.entities.Restaurant.filter({ 
+      is_approved: true, 
+      is_open: true 
+    });
+
+    const allMenuItems = await base44.asServiceRole.entities.MenuItem.filter({ 
+      is_available: true 
+    });
+
+    // Build restaurant catalog with menu items
+    const restaurantCatalog = restaurants.map(restaurant => {
+      const restaurantItems = allMenuItems.filter(item => item.restaurant_id === restaurant.id);
+      return {
+        name: restaurant.name,
+        city: restaurant.city,
+        description: restaurant.description,
+        cuisine_types: restaurant.cuisine_types || [],
+        delivery_fee: restaurant.delivery_fee,
+        delivery_time: restaurant.delivery_time,
+        min_order: restaurant.min_order,
+        rating: restaurant.rating,
+        menu_items: restaurantItems.map(item => ({
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          category: item.category_id,
+          is_popular: item.is_popular,
+          is_promo: item.is_promo
+        }))
+      };
+    });
+
     // Generate AI response
     const prompt = `You are Fooda AI, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
 
@@ -34,13 +67,17 @@ Customer: ${customer_name}
 Recent conversation:
 ${recentMessages}
 
-Provide a helpful, warm, and professional response. Keep it concise (2-3 sentences max). 
-You can help with:
-- Restaurant recommendations
-- Order information and tracking
-- Menu questions
-- Delivery issues
-- General platform questions
+AVAILABLE RESTAURANTS AND MENU:
+${JSON.stringify(restaurantCatalog, null, 2)}
+
+You have complete knowledge of all open restaurants, their menus, prices, and details. Use this information to:
+- Recommend specific restaurants and dishes based on customer preferences
+- Provide accurate pricing and availability information
+- Suggest popular items or current promotions
+- Answer questions about delivery fees, times, and minimum orders
+- Help customers find exactly what they're looking for
+
+Provide helpful, warm, and professional responses. Keep it concise (2-3 sentences max unless giving detailed recommendations).
 
 If the customer needs urgent help or complex issues (refunds, payment problems), politely let them know a human agent will assist them shortly.`;
 
