@@ -22,11 +22,11 @@ import RiderHome from './pages/RiderHome';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
+import SuperAdminReports from './pages/SuperAdminReports';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import SuperAdminReports from './pages/SuperAdminReports';
 import __Layout from './Layout.jsx';
 
 
@@ -55,11 +55,11 @@ export const PAGES = {
     "SuperAdminDashboard": SuperAdminDashboard,
     "SuperAdminMessages": SuperAdminMessages,
     "SuperAdminOrders": SuperAdminOrders,
+    "SuperAdminReports": SuperAdminReports,
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
-    "SuperAdminReports": SuperAdminReports,
 }
 
 export const pagesConfig = {

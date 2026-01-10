@@ -23,6 +23,7 @@ import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
 import BannerCarousel from '../components/customer/BannerCarousel';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
+import RiderRatingModal from '../components/customer/RiderRatingModal';
 import NoInternet from '../components/NoInternet';
 
 export default function CustomerHome() {
