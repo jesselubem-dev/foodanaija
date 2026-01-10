@@ -53,6 +53,16 @@ export default function SuperAdminReports() {
     queryFn: () => base44.entities.Rider.list(),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ['all-users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['all-reviews'],
+    queryFn: () => base44.entities.Review.list(),
+  });
+
   const getDateRange = () => {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -559,6 +569,10 @@ export default function SuperAdminReports() {
       })
       .reduce((sum, o) => sum + (o.total || 0), 0);
 
+    const totalRiderEarnings = orders
+      .filter(o => o.delivery_status === 'delivered')
+      .reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+
     const monthlyRevenue = Array.from({ length: 12 }, (_, i) => {
       const month = new Date(new Date().getFullYear(), i, 1);
       const monthOrders = orders.filter(o => {
@@ -572,10 +586,30 @@ export default function SuperAdminReports() {
       };
     }).filter(d => d.revenue > 0 || d.orders > 0);
 
+    const restaurantWithStats = restaurants.map(r => ({
+      ...r,
+      revenue: orders.filter(o => o.restaurant_id === r.id).reduce((sum, o) => sum + (o.total || 0), 0),
+      orderCount: orders.filter(o => o.restaurant_id === r.id).length,
+      avgRating: reviews.filter(rv => rv.restaurant_id === r.id).length > 0
+        ? (reviews.filter(rv => rv.restaurant_id === r.id).reduce((sum, rv) => sum + rv.rating, 0) / 
+           reviews.filter(rv => rv.restaurant_id === r.id).length).toFixed(1)
+        : 'N/A',
+    }));
+
+    const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+    const customerCount = new Set(orders.map(o => o.customer_email)).size;
+    const avgOrdersPerRestaurant = restaurants.length > 0 ? orders.length / restaurants.length : 0;
+
     return (
       <div className="space-y-6" ref={reportContentRef}>
         {/* Summary Cards */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-5 gap-4">
+          <StatCard
+            title="Total Users"
+            value={users.length}
+            icon={<Users className="w-6 h-6" />}
+            color="indigo"
+          />
           <StatCard
             title="Total Restaurants"
             value={restaurants.length}
@@ -584,11 +618,7 @@ export default function SuperAdminReports() {
           />
           <StatCard
             title="Total Orders"
-            value={orders.filter(o => {
-              const orderDate = new Date(o.created_date);
-              const { start, end } = getDateRange();
-              return orderDate >= start && orderDate <= end;
-            }).length}
+            value={orders.length}
             icon={<ShoppingCart className="w-6 h-6" />}
             color="orange"
           />
@@ -599,7 +629,7 @@ export default function SuperAdminReports() {
             color="green"
           />
           <StatCard
-            title="Platform Revenue"
+            title="Total Revenue"
             value={`₦${totalRevenue.toLocaleString()}`}
             icon={<TrendingUp className="w-6 h-6" />}
             color="purple"
@@ -607,7 +637,31 @@ export default function SuperAdminReports() {
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-5 gap-4">
+          <div data-section="metrics-card">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">User Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Users</span>
+                  <span className="font-bold text-indigo-600">{users.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Customers</span>
+                  <span className="font-bold text-blue-600">{customerCount}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Avg/Order</span>
+                  <span className="font-bold text-purple-600">₦{Math.round(avgOrderValue).toLocaleString()}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          </div>
+
           <div data-section="metrics-card">
           <Card>
             <CardHeader>
@@ -659,23 +713,47 @@ export default function SuperAdminReports() {
           <div data-section="metrics-card">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Rider Performance</CardTitle>
+              <CardTitle className="text-sm">Delivery Stats</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Total Deliveries</span>
-                  <span className="font-bold text-blue-600">{riders.reduce((sum, r) => sum + (r.total_deliveries || 0), 0)}</span>
+                  <span className="font-bold text-blue-600">{orders.filter(o => o.delivery_status === 'delivered').length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Rider Earnings</span>
+                  <span className="font-bold text-green-600">₦{totalRiderEarnings.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Avg Rating</span>
                   <span className="font-bold text-yellow-600">
-                    {(riders.reduce((sum, r) => sum + (r.rating || 0), 0) / riders.length).toFixed(2)}★
+                    {riders.length > 0 ? (riders.reduce((sum, r) => sum + (r.rating || 0), 0) / riders.length).toFixed(2) : 0}★
                   </span>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+          </div>
+
+          <div data-section="metrics-card">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Platform Health</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Available</span>
-                  <span className="font-bold text-green-600">{riders.filter(r => r.is_available).length}</span>
+                  <span className="text-sm text-gray-600">Riders Active</span>
+                  <span className="font-bold text-green-600">{riders.filter(r => r.is_active).length}/{riders.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Avg Orders/Rest</span>
+                  <span className="font-bold text-orange-600">{Math.round(avgOrdersPerRestaurant)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Reviews</span>
+                  <span className="font-bold text-purple-600">{reviews.length}</span>
                 </div>
               </div>
             </CardContent>
@@ -704,25 +782,27 @@ export default function SuperAdminReports() {
           </CardContent>
         </Card>
 
-        {/* Top Performers */}
+        {/* Top Performers & Detailed Lists */}
         <div className="grid lg:grid-cols-2 gap-4" data-section="top-performers">
           <Card>
             <CardHeader>
-              <CardTitle>Top 5 Restaurants</CardTitle>
+              <CardTitle>Top 10 Restaurants by Revenue</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {restaurants
-                  .map(r => ({
-                    ...r,
-                    revenue: orders.filter(o => o.restaurant_id === r.id).reduce((sum, o) => sum + (o.total || 0), 0),
-                  }))
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {restaurantWithStats
                   .sort((a, b) => b.revenue - a.revenue)
-                  .slice(0, 5)
+                  .slice(0, 10)
                   .map((r, idx) => (
-                    <div key={r.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium">{idx + 1}. {r.name}</span>
-                      <span className="text-sm font-bold text-green-600">₦{r.revenue.toLocaleString()}</span>
+                    <div key={r.id} className="flex items-center justify-between p-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg text-xs">
+                      <div>
+                        <span className="font-bold text-gray-900">{idx + 1}. {r.name}</span>
+                        <p className="text-gray-600">{r.orderCount} orders • {r.city}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-green-600">₦{r.revenue.toLocaleString()}</span>
+                        <p className="text-gray-600">{r.avgRating}★</p>
+                      </div>
                     </div>
                   ))}
               </div>
@@ -731,22 +811,51 @@ export default function SuperAdminReports() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Top 5 Riders</CardTitle>
+              <CardTitle>Top 10 Riders by Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-2 max-h-96 overflow-y-auto">
                 {riders
                   .sort((a, b) => (b.total_deliveries || 0) - (a.total_deliveries || 0))
-                  .slice(0, 5)
+                  .slice(0, 10)
                   .map((r, idx) => (
-                    <div key={r.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium">{idx + 1}. {r.full_name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-amber-600">{r.rating}★</span>
-                        <span className="text-sm font-bold text-blue-600">{r.total_deliveries || 0} deliveries</span>
+                    <div key={r.id} className="flex items-center justify-between p-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg text-xs">
+                      <div>
+                        <span className="font-bold text-gray-900">{idx + 1}. {r.full_name}</span>
+                        <p className="text-gray-600">{r.vehicle_type} • {r.phone}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-blue-600">{r.total_deliveries || 0} deliveries</span>
+                        <p className="text-amber-600">{r.rating}★</p>
                       </div>
                     </div>
                   ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>All Restaurants Overview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {restaurantWithStats
+                  .map((r, idx) => (
+                    <div key={r.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-xs border-l-4 border-orange-500">
+                      <div className="flex-1">
+                        <span className="font-semibold text-gray-900">{r.name}</span>
+                        <p className="text-gray-600">{r.city} • {r.owner_name}</p>
+                        <p className="text-gray-500">Status: {r.is_approved ? '✓ Approved' : '⏳ Pending'} | {r.is_open ? '🟢 Open' : '🔴 Closed'}</p>
+                      </div>
+                      <div className="text-right whitespace-nowrap">
+                        <div className="font-bold text-green-600">₦{r.revenue.toLocaleString()}</div>
+                        <div className="text-gray-600">{r.orderCount} orders</div>
+                        <div className="text-amber-600">{r.avgRating}★</div>
+                      </div>
+                    </div>
+                  ))
+                }
               </div>
             </CardContent>
           </Card>
