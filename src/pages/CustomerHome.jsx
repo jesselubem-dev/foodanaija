@@ -56,6 +56,36 @@ export default function CustomerHome() {
     }
   }, []);
 
+  // Check for delivered orders and show rating modal
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const checkDeliveredOrders = async () => {
+      try {
+        const userOrders = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date', 5);
+        const deliveredOrder = userOrders.find(o => o.delivery_status === 'delivered');
+        
+        if (deliveredOrder && deliveredOrder.rider_id) {
+          // Check if already rated
+          const existingRating = await base44.entities.RiderRating.filter({ 
+            order_id: deliveredOrder.id,
+            customer_email: user.email 
+          });
+          
+          if (existingRating.length === 0) {
+            setRiderRatingOrder(deliveredOrder);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking delivered orders:', error);
+      }
+    };
+
+    checkDeliveredOrders();
+    const interval = setInterval(checkDeliveredOrders, 10000);
+    return () => clearInterval(interval);
+  }, [user?.email]);
+
   // Poll for new notifications and show as browser notifications
   useEffect(() => {
     if (!user?.email) return;
