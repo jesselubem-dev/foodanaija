@@ -21,6 +21,7 @@ import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminUsers from './pages/SuperAdminUsers';
+import Promos from './pages/Promos';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "SuperAdminRestaurants": SuperAdminRestaurants,
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminUsers": SuperAdminUsers,
+    "Promos": Promos,
 }
 
 export const pagesConfig = {
