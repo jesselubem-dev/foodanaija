@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, MessageCircle, User } from 'lucide-react';
+import { ArrowLeft, Send, MessageCircle, User, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -122,6 +122,30 @@ export default function LiveChat() {
     });
   };
 
+  const startNewChat = async () => {
+    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(`chat_id_${user.email}`, newChatId);
+    setChatId(newChatId);
+    
+    // Send welcome message from AI
+    setTimeout(async () => {
+      try {
+        await base44.entities.ChatMessage.create({
+          chat_id: newChatId,
+          customer_email: user.email,
+          customer_name: user.full_name,
+          sender_type: 'ai',
+          sender_name: 'Fooda AI',
+          message: `Hello ${user.full_name.split(' ')[0]}! 👋 Welcome back to Fooda Support. How can I assist you today?`,
+        });
+        queryClient.invalidateQueries({ queryKey: ['chat-messages', newChatId] });
+        toast.success('New chat started');
+      } catch (error) {
+        console.error('Failed to send welcome message:', error);
+      }
+    }, 500);
+  };
+
   if (!user || !chatId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -135,19 +159,30 @@ export default function LiveChat() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-6 h-6 text-orange-600" />
-              <div>
-                <h1 className="text-lg font-bold">Fooda Support</h1>
-                <p className="text-xs text-green-600">● AI Assistant Active</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link to={createPageUrl('CustomerHome')}>
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-6 h-6 text-orange-600" />
+                <div>
+                  <h1 className="text-lg font-bold">Fooda Support</h1>
+                  <p className="text-xs text-green-600">● AI Assistant Active</p>
+                </div>
               </div>
             </div>
+            <Button 
+              onClick={startNewChat}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 border-orange-200 hover:bg-orange-50 text-orange-600"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">New Chat</span>
+            </Button>
           </div>
         </div>
       </header>
