@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, Mic
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import FloatingMenu from '../components/customer/FloatingMenu';
 import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
 import BannerCarousel from '../components/customer/BannerCarousel';
+import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,6 +29,7 @@ export default function CustomerHome() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showPromo, setShowPromo] = useState(false);
+  const [showVoiceOrder, setShowVoiceOrder] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -120,6 +122,12 @@ export default function CustomerHome() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowVoiceOrder(true)}
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-lg"
+              >
+                <Mic className="w-5 h-5" />
+              </Button>
               <NotificationBell userEmail={user?.email} />
             </div>
           </div>
@@ -285,6 +293,17 @@ export default function CustomerHome() {
           onClose={() => setShowPromo(false)} 
         />
       )}
+
+      {/* Voice Order Modal */}
+      <VoiceOrderModal
+        isOpen={showVoiceOrder}
+        onClose={() => setShowVoiceOrder(false)}
+        restaurants={restaurants}
+        onAddToCart={(items) => {
+          // Handle adding items to cart
+          console.log('Add to cart:', items);
+        }}
+      />
     </div>
   );
 }
