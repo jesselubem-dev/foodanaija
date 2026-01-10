@@ -71,10 +71,22 @@ export default function LiveChat() {
 
   const sendMessageMutation = useMutation({
     mutationFn: (data) => base44.entities.ChatMessage.create(data),
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
       setMessage('');
       scrollToBottom();
+      
+      // Trigger AI response
+      try {
+        await base44.functions.invoke('aiChatResponse', {
+          chat_id: chatId,
+          customer_message: variables.message,
+          customer_name: user.full_name,
+        });
+        queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
+      } catch (error) {
+        console.error('Failed to get AI response:', error);
+      }
     },
   });
 
@@ -87,6 +99,7 @@ export default function LiveChat() {
       customer_email: user.email,
       customer_name: user.full_name,
       sender_type: 'customer',
+      sender_name: user.full_name,
       message: message.trim(),
     });
   };
@@ -113,8 +126,8 @@ export default function LiveChat() {
             <div className="flex items-center gap-2">
               <MessageCircle className="w-6 h-6 text-orange-600" />
               <div>
-                <h1 className="text-lg font-bold">Live Chat Support</h1>
-                <p className="text-xs text-green-600">● Online</p>
+                <h1 className="text-lg font-bold">Fooda Support</h1>
+                <p className="text-xs text-green-600">● AI Assistant Active</p>
               </div>
             </div>
           </div>
@@ -144,18 +157,29 @@ export default function LiveChat() {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     msg.sender_type === 'customer' 
                       ? 'bg-orange-100' 
+                      : msg.sender_type === 'ai'
+                      ? 'bg-purple-100'
                       : 'bg-blue-100'
                   }`}>
                     <User className={`w-4 h-4 ${
                       msg.sender_type === 'customer' 
                         ? 'text-orange-600' 
+                        : msg.sender_type === 'ai'
+                        ? 'text-purple-600'
                         : 'text-blue-600'
                     }`} />
                   </div>
                   <div>
+                    {(msg.sender_type === 'ai' || msg.sender_type === 'admin') && (
+                      <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
+                        {msg.sender_name || (msg.sender_type === 'ai' ? 'Fooda AI' : 'Support Team')}
+                      </p>
+                    )}
                     <div className={`rounded-2xl px-4 py-2 ${
                       msg.sender_type === 'customer'
                         ? 'bg-orange-500 text-white'
+                        : msg.sender_type === 'ai'
+                        ? 'bg-purple-50 border border-purple-200 text-gray-900'
                         : 'bg-white border border-gray-200 text-gray-900'
                     }`}>
                       <p className="text-sm">{msg.message}</p>

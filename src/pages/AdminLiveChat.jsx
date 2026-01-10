@@ -104,7 +104,9 @@ export default function AdminLiveChat() {
       customer_email: selectedChat.customer_email,
       customer_name: selectedChat.customer_name,
       sender_type: 'admin',
+      sender_name: user.full_name,
       message: message.trim(),
+      human_takeover: true,
     });
   };
 
@@ -205,18 +207,29 @@ export default function AdminLiveChat() {
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                           msg.sender_type === 'admin' 
                             ? 'bg-blue-100' 
+                            : msg.sender_type === 'ai'
+                            ? 'bg-purple-100'
                             : 'bg-orange-100'
                         }`}>
                           <User className={`w-4 h-4 ${
                             msg.sender_type === 'admin' 
                               ? 'text-blue-600' 
+                              : msg.sender_type === 'ai'
+                              ? 'text-purple-600'
                               : 'text-orange-600'
                           }`} />
                         </div>
                         <div>
+                          {(msg.sender_type !== 'customer') && (
+                            <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
+                              {msg.sender_name || (msg.sender_type === 'ai' ? 'Fooda AI' : 'Admin')}
+                            </p>
+                          )}
                           <div className={`rounded-2xl px-4 py-2 ${
                             msg.sender_type === 'admin'
                               ? 'bg-blue-500 text-white'
+                              : msg.sender_type === 'ai'
+                              ? 'bg-purple-50 border border-purple-200 text-gray-900'
                               : 'bg-white border border-gray-200 text-gray-900'
                           }`}>
                             <p className="text-sm">{msg.message}</p>
