@@ -7,14 +7,17 @@ import { Home, ShoppingBag, History, User, LogOut, Moon, Sun, Bell, Sparkles } f
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function FloatingMenu({ cartCount = 0, userEmail }) {
   const [darkMode, setDarkMode] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -23,6 +26,17 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
     if (isDark) {
       document.documentElement.classList.add('dark');
     }
+    
+    // Load user data
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {
+        console.error('Failed to load user:', e);
+      }
+    };
+    loadUser();
   }, []);
 
   const { data: notifications = [] } = useQuery({
@@ -100,8 +114,8 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </Button>
         </Link>
 
-        <Popover open={profileOpen} onOpenChange={setProfileOpen}>
-          <PopoverTrigger asChild>
+        <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+          <SheetTrigger asChild>
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 rounded-xl"
@@ -109,89 +123,146 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               <User className="w-6 h-6 text-gray-700" />
               <span className="text-xs text-gray-600 font-medium">Profile</span>
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-0 mb-2" align="end">
-            <div className="max-h-96 overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b p-3">
-                <h3 className="font-semibold text-gray-900">Menu</h3>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-full sm:w-[400px] p-0">
+            <div className="h-full flex flex-col">
+              {/* Header with User Info */}
+              <div className="bg-gradient-to-br from-orange-500 to-amber-600 p-6 text-white">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30">
+                    <User className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">{user?.full_name || 'Guest'}</h2>
+                    <p className="text-sm text-white/80">{user?.email}</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-2 space-y-1">
-                <button
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-orange-50 transition-colors text-left"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  <User className="w-4 h-4 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">My Profile</span>
-                </button>
-
-                <div className="border-t my-2"></div>
-
-                <div className="px-3 py-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm font-medium text-gray-700">Notifications</span>
+              {/* Notifications Section */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-5 h-5 text-orange-600" />
+                        <h3 className="font-bold text-gray-900">Notifications</h3>
+                      </div>
+                      {unreadCount > 0 && (
+                        <Badge className="bg-orange-500 text-white">{unreadCount}</Badge>
+                      )}
                     </div>
-                    {unreadCount > 0 && (
-                      <Badge className="bg-orange-500 text-white">{unreadCount}</Badge>
+
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-xl">
+                        <Bell className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">No notifications yet</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {notifications.slice(0, 10).map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-3 rounded-xl cursor-pointer transition-all border ${
+                              notification.is_read 
+                                ? 'bg-gray-50 border-gray-100' 
+                                : 'bg-orange-50 border-orange-200 shadow-sm'
+                            }`}
+                            onClick={() => {
+                              if (!notification.is_read) {
+                                markAsReadMutation.mutate(notification.id);
+                              }
+                            }}
+                          >
+                            <p className="text-sm font-semibold text-gray-900">{notification.title}</p>
+                            <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              {new Date(notification.created_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
 
-                  {notifications.length === 0 ? (
-                    <p className="text-xs text-gray-500 py-2">No notifications</p>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {notifications.slice(0, 5).map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                            notification.is_read ? 'bg-gray-50' : 'bg-orange-50'
-                          }`}
-                          onClick={() => {
-                            if (!notification.is_read) {
-                              markAsReadMutation.mutate(notification.id);
-                            }
-                          }}
+                  {/* Quick Actions */}
+                  <div className="pt-4 border-t">
+                    <h3 className="font-bold text-gray-900 mb-3">Quick Actions</h3>
+                    <div className="space-y-2">
+                      <Link to={createPageUrl('OrderHistory')}>
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 transition-colors text-left border border-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
-                          <p className="text-xs font-semibold text-gray-900">{notification.title}</p>
-                          <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(notification.created_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      ))}
+                          <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                            <History className="w-5 h-5 text-orange-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">Order History</p>
+                            <p className="text-xs text-gray-500">View past orders</p>
+                          </div>
+                        </button>
+                      </Link>
+
+                      <Link to={createPageUrl('Cart')}>
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 transition-colors text-left border border-gray-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <ShoppingBag className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">My Cart</p>
+                            <p className="text-xs text-gray-500">{cartCount} items</p>
+                          </div>
+                        </button>
+                      </Link>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Settings */}
+                  <div className="pt-4 border-t">
+                    <h3 className="font-bold text-gray-900 mb-3">Settings</h3>
+                    <button
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
+                      onClick={toggleDarkMode}
+                    >
+                      <div className="flex items-center gap-3">
+                        {darkMode ? (
+                          <Sun className="w-5 h-5 text-gray-600" />
+                        ) : (
+                          <Moon className="w-5 h-5 text-gray-600" />
+                        )}
+                        <span className="text-sm font-medium text-gray-700">
+                          {darkMode ? 'Light Mode' : 'Dark Mode'}
+                        </span>
+                      </div>
+                      <div className={`w-10 h-6 rounded-full transition-colors ${
+                        darkMode ? 'bg-orange-500' : 'bg-gray-300'
+                      }`}>
+                        <div className={`w-5 h-5 bg-white rounded-full shadow-sm mt-0.5 transition-transform ${
+                          darkMode ? 'translate-x-5' : 'translate-x-0.5'
+                        }`} />
+                      </div>
+                    </button>
+                  </div>
                 </div>
+              </div>
 
-                <div className="border-t my-2"></div>
-
+              {/* Footer with Logout */}
+              <div className="p-4 border-t bg-gray-50">
                 <button
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                  onClick={toggleDarkMode}
-                >
-                  {darkMode ? (
-                    <Sun className="w-4 h-4 text-gray-600" />
-                  ) : (
-                    <Moon className="w-4 h-4 text-gray-600" />
-                  )}
-                  <span className="text-sm font-medium text-gray-700">
-                    {darkMode ? 'Light Mode' : 'Dark Mode'}
-                  </span>
-                </button>
-
-                <button
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-50 transition-colors text-left"
+                  className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 transition-colors text-white font-medium"
                   onClick={() => base44.auth.logout()}
                 >
-                  <LogOut className="w-4 h-4 text-red-600" />
-                  <span className="text-sm font-medium text-red-600">Logout</span>
+                  <LogOut className="w-5 h-5" />
+                  Logout
                 </button>
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );
