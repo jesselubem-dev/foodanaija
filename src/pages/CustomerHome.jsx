@@ -33,6 +33,7 @@ export default function CustomerHome() {
   const [user, setUser] = useState(null);
   const [showPromo, setShowPromo] = useState(false);
   const [showVoiceOrder, setShowVoiceOrder] = useState(false);
+  const [riderRatingOrder, setRiderRatingOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
