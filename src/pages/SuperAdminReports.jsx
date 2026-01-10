@@ -69,6 +69,10 @@ export default function SuperAdminReports() {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         return { start: startOfMonth, end: now, label: 'This Month' };
       }
+      case 'yearly': {
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        return { start: startOfYear, end: now, label: 'This Year' };
+      }
       default:
         return { start: startOfToday, end: now, label: 'Today' };
     }
@@ -578,7 +582,7 @@ export default function SuperAdminReports() {
           {/* Filters */}
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex gap-2">
-              {['daily', 'weekly', 'monthly'].map((p) => (
+              {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
