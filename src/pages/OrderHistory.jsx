@@ -162,21 +162,38 @@ export default function OrderHistory() {
                       )}
                     </div>
 
-                    <div className="border-t pt-4 flex items-center justify-between">
+                    <div className="border-t pt-4 flex items-center justify-between gap-2">
                       <div>
                         <p className="text-sm text-gray-500">Total Amount</p>
                         <p className="text-xl font-bold text-orange-600">
                           ₦{order.total?.toLocaleString()}
                         </p>
                       </div>
-                      <Button
-                        onClick={() => handleReorder(order)}
-                        variant="outline"
-                        className="gap-2"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        Reorder
-                      </Button>
+                      <div className="flex gap-2">
+                        {order.status === 'pending' && (
+                          <Button
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to cancel this order?')) {
+                                cancelOrderMutation.mutate(order.id);
+                              }
+                            }}
+                            variant="outline"
+                            className="gap-2 border-red-200 text-red-600 hover:bg-red-50"
+                            disabled={cancelOrderMutation.isPending}
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Cancel
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => handleReorder(order)}
+                          variant="outline"
+                          className="gap-2"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          Reorder
+                        </Button>
+                      </div>
                     </div>
 
                     {order.delivery_address && (
