@@ -16,6 +16,7 @@ import CancelOrderModal from '../components/customer/CancelOrderModal';
 
 export default function OrderHistory() {
   const [user, setUser] = useState(null);
+  const [cancelOrderId, setCancelOrderId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
