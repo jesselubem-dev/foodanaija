@@ -18,17 +18,13 @@ export default function PromoModal({ promoItems, onClose }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (activePromos.length === 0) {
-      onClose();
-      return;
-    }
     if (activePromos.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % activePromos.length);
       }, 4000);
       return () => clearInterval(interval);
     }
-  }, [activePromos.length, onClose]);
+  }, [activePromos.length]);
 
   if (!isVisible || activePromos.length === 0) return null;
 
