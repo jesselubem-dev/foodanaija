@@ -479,6 +479,205 @@ export default function SuperAdminReports() {
     </div>
   );
 
+  const renderOverallReport = () => {
+    const totalRevenue = orders
+      .filter(o => {
+        const orderDate = new Date(o.created_date);
+        const { start, end } = getDateRange();
+        return orderDate >= start && orderDate <= end;
+      })
+      .reduce((sum, o) => sum + (o.total || 0), 0);
+
+    const monthlyRevenue = Array.from({ length: 12 }, (_, i) => {
+      const month = new Date(new Date().getFullYear(), i, 1);
+      const monthOrders = orders.filter(o => {
+        const orderDate = new Date(o.created_date);
+        return orderDate.getMonth() === i && orderDate.getFullYear() === new Date().getFullYear();
+      });
+      return {
+        month: month.toLocaleString('default', { month: 'short' }),
+        revenue: monthOrders.reduce((sum, o) => sum + (o.total || 0), 0),
+        orders: monthOrders.length,
+      };
+    }).filter(d => d.revenue > 0 || d.orders > 0);
+
+    return (
+      <div className="space-y-6" ref={reportContentRef}>
+        {/* Summary Cards */}
+        <div className="grid md:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Restaurants"
+            value={restaurants.length}
+            icon={<Users className="w-6 h-6" />}
+            color="blue"
+          />
+          <StatCard
+            title="Total Orders"
+            value={orders.filter(o => {
+              const orderDate = new Date(o.created_date);
+              const { start, end } = getDateRange();
+              return orderDate >= start && orderDate <= end;
+            }).length}
+            icon={<ShoppingCart className="w-6 h-6" />}
+            color="orange"
+          />
+          <StatCard
+            title="Active Riders"
+            value={riders.filter(r => r.is_active).length}
+            icon={<Bike className="w-6 h-6" />}
+            color="green"
+          />
+          <StatCard
+            title="Platform Revenue"
+            value={`₦${totalRevenue.toLocaleString()}`}
+            icon={<TrendingUp className="w-6 h-6" />}
+            color="purple"
+          />
+        </div>
+
+        {/* Key Metrics Grid */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Restaurant Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Approved</span>
+                  <span className="font-bold text-green-600">{restaurants.filter(r => r.is_approved).length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Pending</span>
+                  <span className="font-bold text-amber-600">{restaurants.filter(r => !r.is_approved).length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Open Now</span>
+                  <span className="font-bold text-blue-600">{restaurants.filter(r => r.is_open).length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Order Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Delivered</span>
+                  <span className="font-bold text-green-600">{orders.filter(o => o.status === 'delivered').length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Pending</span>
+                  <span className="font-bold text-amber-600">{orders.filter(o => o.status === 'pending').length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Declined</span>
+                  <span className="font-bold text-red-600">{orders.filter(o => o.status === 'declined').length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Rider Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Deliveries</span>
+                  <span className="font-bold text-blue-600">{riders.reduce((sum, r) => sum + (r.total_deliveries || 0), 0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Avg Rating</span>
+                  <span className="font-bold text-yellow-600">
+                    {(riders.reduce((sum, r) => sum + (r.rating || 0), 0) / riders.length).toFixed(2)}★
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Available</span>
+                  <span className="font-bold text-green-600">{riders.filter(r => r.is_available).length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Revenue Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Revenue Trend</CardTitle>
+          </CardHeader>
+          <CardContent data-chart="main">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip formatter={(value) => `₦${value.toLocaleString()}`} />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#f97316" name="Revenue" strokeWidth={2} />
+                <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#3b82f6" name="Orders" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Top Performers */}
+        <div className="grid lg:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 5 Restaurants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {restaurants
+                  .map(r => ({
+                    ...r,
+                    revenue: orders.filter(o => o.restaurant_id === r.id).reduce((sum, o) => sum + (o.total || 0), 0),
+                  }))
+                  .sort((a, b) => b.revenue - a.revenue)
+                  .slice(0, 5)
+                  .map((r, idx) => (
+                    <div key={r.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium">{idx + 1}. {r.name}</span>
+                      <span className="text-sm font-bold text-green-600">₦{r.revenue.toLocaleString()}</span>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 5 Riders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {riders
+                  .sort((a, b) => (b.total_deliveries || 0) - (a.total_deliveries || 0))
+                  .slice(0, 5)
+                  .map((r, idx) => (
+                    <div key={r.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium">{idx + 1}. {r.full_name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-amber-600">{r.rating}★</span>
+                        <span className="text-sm font-bold text-blue-600">{r.total_deliveries || 0} deliveries</span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   const renderRiderReport = () => (
     <div className="space-y-6" ref={reportContentRef}>
       <div className="grid md:grid-cols-5 gap-4">
@@ -599,6 +798,7 @@ export default function SuperAdminReports() {
 
             <div className="flex gap-2">
               {[
+                { id: 'overall', label: 'Overall', icon: BarChart3 },
                 { id: 'restaurants', label: 'Restaurants', icon: Users },
                 { id: 'orders', label: 'Orders', icon: ShoppingCart },
                 { id: 'riders', label: 'Riders', icon: Bike },
@@ -623,6 +823,7 @@ export default function SuperAdminReports() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {reportType === 'overall' && renderOverallReport()}
         {reportType === 'restaurants' && renderRestaurantReport()}
         {reportType === 'orders' && renderOrderReport()}
         {reportType === 'riders' && renderRiderReport()}
