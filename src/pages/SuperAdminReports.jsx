@@ -197,173 +197,72 @@ export default function SuperAdminReports() {
   const handleExportReport = async () => {
     setIsGenerating(true);
     try {
+      const reportElement = reportContentRef.current;
+      if (!reportElement) {
+        alert('Report content not found. Please try again.');
+        return;
+      }
+
+      // Capture the entire report as displayed on screen
+      const canvas = await html2canvas(reportElement, { 
+        scale: 2, 
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
       const pdf = new jsPDF({
-        orientation: 'portrait',
+        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15;
+      const margin = 10;
       let yPosition = margin;
 
-      // Helper function to check and add new page
-      const checkNewPage = (neededHeight) => {
-        if (yPosition + neededHeight > pageHeight - margin) {
+      // Add title
+      pdf.setFontSize(16);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report`, margin, yPosition);
+      yPosition += 12;
+
+      pdf.setFontSize(10);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)} | Generated: ${new Date().toLocaleString()}`, margin, yPosition);
+      yPosition += 15;
+
+      // Add report content
+      const contentWidth = imgWidth - 2 * margin;
+      let currentHeight = imgHeight;
+
+      while (currentHeight > 0) {
+        if (yPosition + contentHeight > pageHeight - margin) {
           pdf.addPage();
           yPosition = margin;
-          return true;
-        }
-        return false;
-      };
-
-      // Title and Header
-      pdf.setFillColor(31, 41, 55);
-      pdf.rect(0, 0, pageWidth, 30, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(20);
-      pdf.text('FOODA NAIJA', margin, 12);
-      pdf.setFontSize(10);
-      pdf.text(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report - ${period.charAt(0).toUpperCase() + period.slice(1)}`, margin, 20);
-
-      yPosition = 35;
-
-      // Report Info
-      pdf.setTextColor(100, 116, 139);
-      pdf.setFontSize(9);
-      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, yPosition);
-      yPosition += 8;
-
-      // Stats Section
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(12);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Key Metrics', margin, yPosition);
-      yPosition += 8;
-      pdf.setFont(undefined, 'normal');
-      pdf.setFontSize(10);
-
-      const statColWidth = (pageWidth - 2 * margin) / 4;
-      const stats = reportType === 'restaurants' 
-        ? [
-            { label: 'Total Restaurants', value: restaurantReportData.total },
-            { label: 'Approved', value: restaurantReportData.approved },
-            { label: 'Open Now', value: restaurantReportData.open },
-            { label: 'Revenue', value: `₦${restaurantReportData.totalRevenue.toLocaleString()}` },
-          ]
-        : reportType === 'orders'
-        ? [
-            { label: 'Total Orders', value: orderReportData.total },
-            { label: 'Delivered', value: orderReportData.delivered },
-            { label: 'Pending', value: orderReportData.pending },
-            { label: 'Revenue', value: `₦${orderReportData.totalRevenue.toLocaleString()}` },
-          ]
-        : [
-            { label: 'Total Riders', value: riderReportData.total },
-            { label: 'Active', value: riderReportData.active },
-            { label: 'Available', value: riderReportData.available },
-            { label: 'Deliveries', value: riderReportData.totalDeliveries },
-          ];
-
-      stats.forEach((stat, idx) => {
-        const x = margin + idx * statColWidth;
-        pdf.setFillColor(243, 244, 246);
-        pdf.rect(x, yPosition, statColWidth - 5, 20, 'F');
-        pdf.setFont(undefined, 'normal');
-        pdf.setFontSize(8);
-        pdf.text(stat.label, x + 5, yPosition + 6);
-        pdf.setFont(undefined, 'bold');
-        pdf.setFontSize(11);
-        pdf.text(stat.value.toString(), x + 5, yPosition + 15);
-      });
-
-      yPosition += 30;
-
-      // Charts Section
-      checkNewPage(120);
-      pdf.setFont(undefined, 'bold');
-      pdf.setFontSize(12);
-      pdf.text('Analytics', margin, yPosition);
-      yPosition += 10;
-
-      // For overall report, capture all charts
-      if (reportType === 'overall') {
-        // Main revenue trend chart
-        const mainChart = document.querySelector('[data-chart="main"]');
-        if (mainChart) {
-          const canvas = await html2canvas(mainChart, { scale: 2, backgroundColor: '#ffffff' });
-          const imgData = canvas.toDataURL('image/png');
-          const chartWidth = pageWidth - 2 * margin;
-          const chartHeight = (chartWidth * canvas.height) / canvas.width;
-
-          if (checkNewPage(chartHeight + 10)) {
-            yPosition += 5;
-          }
-
-          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-          yPosition += chartHeight + 15;
-        }
-      } else {
-        // Capture and add chart for other report types
-        const chartElement = document.querySelector('[data-chart="main"]');
-        if (chartElement) {
-          const canvas = await html2canvas(chartElement, { scale: 2, backgroundColor: '#ffffff' });
-          const imgData = canvas.toDataURL('image/png');
-          const chartWidth = pageWidth - 2 * margin;
-          const chartHeight = (chartWidth * canvas.height) / canvas.width;
-
-          if (checkNewPage(chartHeight + 5)) {
-            yPosition += 5;
-          }
-
-          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-          yPosition += chartHeight + 10;
         }
 
-        // Status chart if available
-        const statusChart = document.querySelector('[data-chart="status"]');
-        if (statusChart) {
-          checkNewPage(100);
-          const canvas = await html2canvas(statusChart, { scale: 2, backgroundColor: '#ffffff' });
-          const imgData = canvas.toDataURL('image/png');
-          const chartWidth = (pageWidth - 3 * margin) / 2;
-          const chartHeight = (chartWidth * canvas.height) / canvas.width;
-          
-          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-          yPosition += chartHeight + 10;
+        const contentHeight = Math.min(currentHeight, pageHeight - yPosition - margin);
+        pdf.addImage(
+          imgData,
+          'PNG',
+          margin,
+          yPosition,
+          contentWidth,
+          contentHeight
+        );
+
+        yPosition += contentHeight + margin;
+        currentHeight -= contentHeight;
+
+        if (currentHeight > 0) {
+          pdf.addPage();
+          yPosition = margin;
         }
-      }
-
-      // Summary
-      checkNewPage(30);
-      pdf.setFont(undefined, 'bold');
-      pdf.setFontSize(12);
-      pdf.text('Report Summary', margin, yPosition);
-      yPosition += 8;
-      pdf.setFont(undefined, 'normal');
-      pdf.setFontSize(9);
-      
-      let summaryText = '';
-      if (reportType === 'overall') {
-        summaryText = `Platform Summary: ${restaurants.length} restaurants, ${orders.filter(o => new Date(o.created_date) >= getDateRange().start && new Date(o.created_date) <= getDateRange().end).length} orders processed, ${riders.filter(r => r.is_active).length} active riders. Overall platform revenue: ₦${orders.filter(o => new Date(o.created_date) >= getDateRange().start && new Date(o.created_date) <= getDateRange().end).reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString()}.`;
-      } else if (reportType === 'restaurants') {
-        summaryText = `Total of ${restaurantReportData.total} restaurants with ${restaurantReportData.approved} approved. Platform generated ₦${restaurantReportData.totalRevenue.toLocaleString()} revenue.`;
-      } else if (reportType === 'orders') {
-        summaryText = `Total of ${orderReportData.total} orders processed. ${orderReportData.delivered} successfully delivered. Average order value: ₦${Math.round(orderReportData.avgOrderValue).toLocaleString()}.`;
-      } else {
-        summaryText = `Total of ${riderReportData.total} active riders completed ${riderReportData.totalDeliveries} deliveries. Average rating: ${riderReportData.avgRating}/5.`;
-      }
-
-      pdf.text(summaryText, margin, yPosition, { maxWidth: pageWidth - 2 * margin, align: 'left' });
-
-      // Footer
-      const totalPages = pdf.internal.pages.length;
-      for (let i = 1; i < totalPages; i++) {
-        pdf.setPage(i);
-        pdf.setTextColor(160, 174, 192);
-        pdf.setFontSize(8);
-        pdf.text(`Page ${i} of ${totalPages - 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
       }
 
       pdf.save(`fooda_report_${reportType}_${period}_${Date.now()}.pdf`);
