@@ -15,6 +15,7 @@ import FloatingMenu from '../components/customer/FloatingMenu';
 
 export default function OrderHistory() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
@@ -37,6 +38,19 @@ export default function OrderHistory() {
     },
     enabled: !!user,
     refetchInterval: 5000,
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: async (orderId) => {
+      await base44.entities.Order.update(orderId, { status: 'cancelled' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-orders', user?.email] });
+      toast.success('Order cancelled successfully');
+    },
+    onError: () => {
+      toast.error('Failed to cancel order');
+    },
   });
 
   const handleReorder = (order) => {
