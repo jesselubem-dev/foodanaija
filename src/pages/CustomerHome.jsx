@@ -62,13 +62,22 @@ export default function CustomerHome() {
           return (now - notifTime) < 30000; // 30 seconds
         });
 
-        recentNotifications.forEach(notification => {
-          // Show browser notification
+        recentNotifications.forEach(async notification => {
+          // Show browser notification with appealing image
           if ('Notification' in window && Notification.permission === 'granted') {
+            // Try to extract restaurant info from notification metadata or fetch a random promo image
+            let notificationImage = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'; // Default food image
+            
+            // If notification has metadata with restaurant/item info, use that image
+            if (notification.metadata?.image_url) {
+              notificationImage = notification.metadata.image_url;
+            }
+            
             new Notification(notification.title, {
               body: notification.message,
               icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
               badge: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg',
+              image: notificationImage,
               tag: notification.id,
               requireInteraction: false,
             });
