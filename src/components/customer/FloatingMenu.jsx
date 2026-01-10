@@ -80,7 +80,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={{ y: [0, -3, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Home className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <Home className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Home</span>
             </Button>
@@ -114,7 +114,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
               >
-                <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Cart</span>
               {cartCount > 0 && (
@@ -137,7 +137,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               variant="ghost"
               className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
             >
-              <History className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <History className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Orders</span>
             </Button>
           </motion.div>
@@ -153,7 +153,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 animate={{ rotate: [0, -5, 5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <MessageSquare className="w-5 h-5 text-green-600 dark:text-green-400" />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Chat</span>
             </Button>
@@ -167,7 +167,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 variant="ghost"
                 className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
-                <User className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <User className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Profile</span>
               </Button>
             </motion.div>
