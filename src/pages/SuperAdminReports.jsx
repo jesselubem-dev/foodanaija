@@ -277,33 +277,99 @@ export default function SuperAdminReports() {
       pdf.text('Analytics', margin, yPosition);
       yPosition += 10;
 
-      // Capture and add chart
-      const chartElement = document.querySelector('[data-chart="main"]');
-      if (chartElement) {
-        const canvas = await html2canvas(chartElement, { scale: 2, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        const chartWidth = pageWidth - 2 * margin;
-        const chartHeight = (chartWidth * canvas.height) / canvas.width;
+      // For overall report, capture all charts
+      if (reportType === 'overall') {
+        // Main revenue trend chart
+        const mainChart = document.querySelector('[data-chart="main"]');
+        if (mainChart) {
+          const canvas = await html2canvas(mainChart, { scale: 2, backgroundColor: '#ffffff' });
+          const imgData = canvas.toDataURL('image/png');
+          const chartWidth = pageWidth - 2 * margin;
+          const chartHeight = (chartWidth * canvas.height) / canvas.width;
 
-        if (checkNewPage(chartHeight + 5)) {
-          yPosition += 5;
+          if (checkNewPage(chartHeight + 10)) {
+            yPosition += 5;
+          }
+
+          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+          yPosition += chartHeight + 15;
         }
 
-        pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-        yPosition += chartHeight + 10;
-      }
+        // Add metrics sections
+        const metricsCards = document.querySelectorAll('[data-section="metrics-card"]');
+        if (metricsCards.length > 0) {
+          checkNewPage(80);
+          pdf.setFont(undefined, 'bold');
+          pdf.setFontSize(11);
+          pdf.text('Key Metrics Breakdown', margin, yPosition);
+          yPosition += 8;
 
-      // Status chart if available
-      const statusChart = document.querySelector('[data-chart="status"]');
-      if (statusChart) {
-        checkNewPage(100);
-        const canvas = await html2canvas(statusChart, { scale: 2, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        const chartWidth = (pageWidth - 3 * margin) / 2;
-        const chartHeight = (chartWidth * canvas.height) / canvas.width;
-        
-        pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
-        yPosition += chartHeight + 10;
+          metricsCards.forEach((card, idx) => {
+            const canvas = html2CanvasSync(card);
+            if (canvas) {
+              const imgData = canvas.toDataURL('image/png');
+              const cardWidth = (pageWidth - 3 * margin) / 3;
+              const cardHeight = (cardWidth * canvas.height) / canvas.width;
+              
+              const xPos = margin + (idx % 3) * (cardWidth + margin / 2);
+              if (idx % 3 === 0) {
+                checkNewPage(cardHeight + 5);
+                if (idx > 0) yPosition += cardHeight + 5;
+              }
+
+              pdf.addImage(imgData, 'PNG', xPos, yPosition, cardWidth, cardHeight);
+            }
+          });
+          if (metricsCards.length > 0) yPosition += Math.ceil(metricsCards.length / 3) * 60;
+        }
+
+        // Top performers section
+        const topPerformers = document.querySelectorAll('[data-section="top-performers"]');
+        if (topPerformers.length > 0) {
+          checkNewPage(100);
+          topPerformers.forEach(async (section) => {
+            const canvas = await html2canvas(section, { scale: 2, backgroundColor: '#ffffff' });
+            const imgData = canvas.toDataURL('image/png');
+            const chartWidth = (pageWidth - 3 * margin) / 2;
+            const chartHeight = (chartWidth * canvas.height) / canvas.width;
+
+            if (checkNewPage(chartHeight + 5)) {
+              yPosition += 5;
+            }
+
+            pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+            yPosition += chartHeight + 10;
+          });
+        }
+      } else {
+        // Capture and add chart for other report types
+        const chartElement = document.querySelector('[data-chart="main"]');
+        if (chartElement) {
+          const canvas = await html2canvas(chartElement, { scale: 2, backgroundColor: '#ffffff' });
+          const imgData = canvas.toDataURL('image/png');
+          const chartWidth = pageWidth - 2 * margin;
+          const chartHeight = (chartWidth * canvas.height) / canvas.width;
+
+          if (checkNewPage(chartHeight + 5)) {
+            yPosition += 5;
+          }
+
+          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+          yPosition += chartHeight + 10;
+        }
+
+        // Status chart if available
+        const statusChart = document.querySelector('[data-chart="status"]');
+        if (statusChart) {
+          checkNewPage(100);
+          const canvas = await html2canvas(statusChart, { scale: 2, backgroundColor: '#ffffff' });
+          const imgData = canvas.toDataURL('image/png');
+          const chartWidth = (pageWidth - 3 * margin) / 2;
+          const chartHeight = (chartWidth * canvas.height) / canvas.width;
+          
+          pdf.addImage(imgData, 'PNG', margin, yPosition, chartWidth, chartHeight);
+          yPosition += chartHeight + 10;
+        }
       }
 
       // Summary
@@ -315,11 +381,16 @@ export default function SuperAdminReports() {
       pdf.setFont(undefined, 'normal');
       pdf.setFontSize(9);
       
-      const summaryText = reportType === 'restaurants'
-        ? `Total of ${restaurantReportData.total} restaurants with ${restaurantReportData.approved} approved. Platform generated ₦${restaurantReportData.totalRevenue.toLocaleString()} revenue.`
-        : reportType === 'orders'
-        ? `Total of ${orderReportData.total} orders processed. ${orderReportData.delivered} successfully delivered. Average order value: ₦${Math.round(orderReportData.avgOrderValue).toLocaleString()}.`
-        : `Total of ${riderReportData.total} active riders completed ${riderReportData.totalDeliveries} deliveries. Average rating: ${riderReportData.avgRating}/5.`;
+      let summaryText = '';
+      if (reportType === 'overall') {
+        summaryText = `Platform Summary: ${restaurants.length} restaurants, ${orders.filter(o => new Date(o.created_date) >= getDateRange().start && new Date(o.created_date) <= getDateRange().end).length} orders processed, ${riders.filter(r => r.is_active).length} active riders. Overall platform revenue: ₦${orders.filter(o => new Date(o.created_date) >= getDateRange().start && new Date(o.created_date) <= getDateRange().end).reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString()}.`;
+      } else if (reportType === 'restaurants') {
+        summaryText = `Total of ${restaurantReportData.total} restaurants with ${restaurantReportData.approved} approved. Platform generated ₦${restaurantReportData.totalRevenue.toLocaleString()} revenue.`;
+      } else if (reportType === 'orders') {
+        summaryText = `Total of ${orderReportData.total} orders processed. ${orderReportData.delivered} successfully delivered. Average order value: ₦${Math.round(orderReportData.avgOrderValue).toLocaleString()}.`;
+      } else {
+        summaryText = `Total of ${riderReportData.total} active riders completed ${riderReportData.totalDeliveries} deliveries. Average rating: ${riderReportData.avgRating}/5.`;
+      }
 
       pdf.text(summaryText, margin, yPosition, { maxWidth: pageWidth - 2 * margin, align: 'left' });
 
@@ -537,6 +608,7 @@ export default function SuperAdminReports() {
 
         {/* Key Metrics Grid */}
         <div className="grid md:grid-cols-3 gap-4">
+          <div data-section="metrics-card">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Restaurant Status</CardTitle>
@@ -558,7 +630,9 @@ export default function SuperAdminReports() {
               </div>
             </CardContent>
           </Card>
+          </div>
 
+          <div data-section="metrics-card">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Order Status</CardTitle>
@@ -580,7 +654,9 @@ export default function SuperAdminReports() {
               </div>
             </CardContent>
           </Card>
+          </div>
 
+          <div data-section="metrics-card">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Rider Performance</CardTitle>
@@ -604,6 +680,7 @@ export default function SuperAdminReports() {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
 
         {/* Revenue Trend */}
@@ -628,7 +705,7 @@ export default function SuperAdminReports() {
         </Card>
 
         {/* Top Performers */}
-        <div className="grid lg:grid-cols-2 gap-4">
+        <div className="grid lg:grid-cols-2 gap-4" data-section="top-performers">
           <Card>
             <CardHeader>
               <CardTitle>Top 5 Restaurants</CardTitle>
