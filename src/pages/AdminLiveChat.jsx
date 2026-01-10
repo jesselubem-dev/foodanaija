@@ -104,7 +104,7 @@ export default function AdminLiveChat() {
       customer_email: selectedChat.customer_email,
       customer_name: selectedChat.customer_name,
       sender_type: 'admin',
-      sender_name: user.full_name,
+      sender_name: 'Fooda',
       message: message.trim(),
       human_takeover: true,
     });
@@ -222,7 +222,7 @@ export default function AdminLiveChat() {
                         <div>
                           {(msg.sender_type !== 'customer') && (
                             <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
-                              {msg.sender_name || (msg.sender_type === 'ai' ? 'Fooda AI' : 'Admin')}
+                              {msg.sender_type === 'ai' ? 'Fooda AI' : 'Fooda'}
                             </p>
                           )}
                           <div className={`rounded-2xl px-4 py-2 ${

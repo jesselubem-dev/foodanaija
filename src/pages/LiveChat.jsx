@@ -172,7 +172,7 @@ export default function LiveChat() {
                   <div>
                     {(msg.sender_type === 'ai' || msg.sender_type === 'admin') && (
                       <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
-                        {msg.sender_name || (msg.sender_type === 'ai' ? 'Fooda AI' : 'Support Team')}
+                        {msg.sender_type === 'ai' ? 'Fooda AI' : 'Fooda'}
                       </p>
                     )}
                     <div className={`rounded-2xl px-4 py-2 ${
