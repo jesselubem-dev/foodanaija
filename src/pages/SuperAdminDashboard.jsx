@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -174,7 +174,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-5 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
           <Link to={createPageUrl('SuperAdminRestaurants')}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -251,6 +251,22 @@ export default function SuperAdminDashboard() {
                 <div className="text-2xl font-bold">Manage</div>
                 <p className="text-xs text-muted-foreground">Delivery fleet</p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-cyan-600">
+                  View All <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl('SuperAdminSupport')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Customer Support</CardTitle>
+                <Headset className="w-4 h-4 text-pink-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Messages</div>
+                <p className="text-xs text-muted-foreground">View complaints</p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-pink-600">
                   View All <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
