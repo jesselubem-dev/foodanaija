@@ -77,6 +77,16 @@ export default function DashboardOrders() {
           type: 'order_accepted',
           order_id: id,
         });
+
+        // Automatically assign rider to accepted order
+        try {
+          const result = await base44.functions.invoke('assignRiderToOrder', { orderId: id });
+          if (result.data.success) {
+            toast.success('Rider assigned successfully');
+          }
+        } catch (error) {
+          console.error('Failed to assign rider:', error);
+        }
       } else if (status === 'declined') {
         await base44.entities.Notification.create({
           user_email: customerEmail,
