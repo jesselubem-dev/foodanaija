@@ -108,7 +108,11 @@ export default function RiderDashboard() {
 
   const { data: orders = [] } = useQuery({
     queryKey: ['all-orders'],
-    queryFn: () => base44.entities.Order.filter({ status: 'accepted' }),
+    queryFn: async () => {
+      // Get all accepted orders that haven't been delivered or cancelled
+      const acceptedOrders = await base44.entities.Order.filter({ status: 'accepted' }, '-created_date');
+      return acceptedOrders.filter(o => o.delivery_status !== 'delivered');
+    },
     enabled: !!rider,
     refetchInterval: 5000,
   });
@@ -126,8 +130,8 @@ export default function RiderDashboard() {
     setRider({ ...rider, is_available: !rider.is_available });
   };
 
-  const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
-  const unassignedOrders = orders.filter(o => o.delivery_status === 'unassigned');
+  const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['assigned', 'picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
+  const unassignedOrders = orders.filter(o => !o.rider_id || o.delivery_status === 'unassigned');
   const todayCompleted = deliveredOrders.filter(o => {
     const orderDate = new Date(o.updated_date);
     const today = new Date();
