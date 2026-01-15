@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
 import confetti from 'canvas-confetti';
-import { initializePaystackPayment } from '../../utils/paystack';
+
+const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
@@ -18,15 +19,17 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         // Initialize Paystack inline payment
         const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
         
-        initializePaystackPayment({
+        const handler = window.PaystackPop.setup({
+          key: PAYSTACK_PUBLIC_KEY,
           email: orderData[0].customer_email,
-          amount: totalAmount,
+          amount: totalAmount * 100,
+          currency: 'NGN',
           metadata: {
             order_data: orderData,
             customer_name: orderData[0].customer_name,
             customer_phone: orderData[0].customer_phone
           },
-          onSuccess: async (response) => {
+          callback: async (response) => {
             // Verify payment and create orders
             const verifyResult = await base44.functions.invoke('verifyPayment', { 
               reference: response.reference 
@@ -50,6 +53,8 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
             setProcessing(false);
           }
         });
+        
+        handler.openIframe();
       } else {
         // Cash on delivery
         await new Promise(resolve => setTimeout(resolve, 1500));

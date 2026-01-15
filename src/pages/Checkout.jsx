@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import confetti from 'canvas-confetti';
-import { initializePaystackPayment } from '../utils/paystack';
+
+const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 import {
   Dialog,
   DialogContent,
@@ -175,15 +176,17 @@ export default function Checkout() {
 
     if (formData.payment_method === 'card') {
       // Initialize Paystack payment
-      initializePaystackPayment({
+      const handler = window.PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
         email: formData.customer_email,
-        amount: total,
+        amount: total * 100,
+        currency: 'NGN',
         metadata: {
           order_data: ordersData,
           customer_name: formData.customer_name,
           customer_phone: formData.customer_phone
         },
-        onSuccess: async (response) => {
+        callback: async (response) => {
           // Verify payment and create orders
           const verifyResult = await base44.functions.invoke('verifyPayment', { 
             reference: response.reference 
@@ -230,6 +233,8 @@ export default function Checkout() {
           toast.error('Payment cancelled');
         }
       });
+      
+      handler.openIframe();
     } else {
       createOrderMutation.mutate({ ordersData, paymentMethod: formData.payment_method });
     }
