@@ -380,9 +380,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
-                  disabled={createOrderMutation.isPending}
+                  disabled={createOrderMutation.isPending || !paystackLoaded}
                 >
-                  {createOrderMutation.isPending ? 'Redirecting to payment...' : 'Proceed to Payment'}
+                  {!paystackLoaded ? 'Loading payment system...' : createOrderMutation.isPending ? 'Redirecting to payment...' : 'Proceed to Payment'}
                 </Button>
               </CardContent>
             </Card>
