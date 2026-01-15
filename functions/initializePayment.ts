@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
@@ -22,13 +22,14 @@ Deno.serve(async (req) => {
         email: email,
         amount: amount * 100, // Paystack expects amount in kobo
         currency: 'NGN',
+        callback_url: `${req.headers.get('origin')}/PaymentVerification`,
         metadata: {
           order_data: JSON.stringify(orderData),
           custom_fields: [
             {
               display_name: "Customer Name",
               variable_name: "customer_name",
-              value: orderData.customer_name
+              value: orderData[0]?.customer_name || 'Customer'
             }
           ]
         }

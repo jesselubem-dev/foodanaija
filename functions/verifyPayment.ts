@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
@@ -32,20 +32,24 @@ Deno.serve(async (req) => {
     }
 
     // Extract order data from metadata
-    const orderData = JSON.parse(paymentData.metadata.order_data);
+    const ordersData = JSON.parse(paymentData.metadata.order_data);
 
-    // Create the order with payment confirmed
-    const order = await base44.asServiceRole.entities.Order.create({
-      ...orderData,
-      payment_status: 'paid',
-      payment_method: 'card',
-      payment_reference: reference,
-      amount_paid: paymentData.amount / 100 // Convert from kobo to naira
-    });
+    // Create multiple orders if from different restaurants
+    const orders = await Promise.all(
+      ordersData.map(orderData => 
+        base44.asServiceRole.entities.Order.create({
+          ...orderData,
+          payment_status: 'paid',
+          payment_method: 'card',
+          payment_reference: reference,
+          amount_paid: orderData.total
+        })
+      )
+    );
 
     return Response.json({
       success: true,
-      order: order,
+      orders: orders,
       payment: {
         reference: paymentData.reference,
         amount: paymentData.amount / 100,
