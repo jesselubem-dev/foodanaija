@@ -81,7 +81,8 @@ export default function LiveChat() {
       'created_date'
     ),
     enabled: !!chatId,
-    refetchInterval: 2000, // Poll every 2 seconds for new messages
+    refetchInterval: 5000, // Poll every 5 seconds
+    staleTime: 3000,
   });
 
   useEffect(() => {

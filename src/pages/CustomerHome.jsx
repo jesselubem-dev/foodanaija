@@ -182,6 +182,8 @@ export default function CustomerHome() {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
       return results;
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   const { data: promoItems = [] } = useQuery({
@@ -197,6 +199,7 @@ export default function CustomerHome() {
       return itemsWithRestaurants.filter(item => item.restaurant?.is_approved && item.restaurant?.is_open);
     },
     enabled: restaurants.length > 0,
+    staleTime: 3 * 60 * 1000, // 3 minutes
   });
 
   // Fetch unread chat messages
@@ -206,10 +209,11 @@ export default function CustomerHome() {
       if (!user?.email) return [];
       const chatId = localStorage.getItem(`chat_id_${user.email}`);
       if (!chatId) return [];
-      return await base44.entities.ChatMessage.filter({ chat_id: chatId }, '-created_date');
+      return await base44.entities.ChatMessage.filter({ chat_id: chatId, is_read: false }, '-created_date', 10);
     },
     enabled: !!user?.email,
-    refetchInterval: 5000,
+    refetchInterval: 15000, // 15 seconds instead of 5
+    staleTime: 10000,
   });
 
   // Count unread messages from admin/AI
