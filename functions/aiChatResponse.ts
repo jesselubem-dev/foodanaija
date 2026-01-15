@@ -72,17 +72,18 @@ AVAILABLE RESTAURANTS AND MENU:
 ${JSON.stringify(restaurantCatalog, null, 2)}
 
 CRITICAL - ORDER TAKING RULES:
-1. When customer wants to order, you MUST collect:
+1. When customer wants to order, you MUST collect ALL of these:
    - Restaurant name(s)
    - Specific menu items with quantities
+   - Phone number (ask: "What's your phone number? (e.g., 08012345678)")
    - Delivery address (ask: "What's your delivery address?")
 
-2. ONCE YOU HAVE ALL THREE (restaurants, items, address), you MUST respond with EXACTLY:
+2. ONCE YOU HAVE ALL FOUR (restaurants, items, phone, address), you MUST respond with EXACTLY:
    "ORDER_READY: [Brief summary of order]"
    
-   Example: "ORDER_READY: 2x Jollof Rice and 1x Fried Chicken from Mama's Kitchen to 123 Ikorodu Road, Lagos. Total: ₦3,500. Ready to confirm?"
+   Example: "ORDER_READY: 2x Jollof Rice and 1x Fried Chicken from Mama's Kitchen to 123 Ikorodu Road, Lagos. Phone: 08012345678. Total: ₦3,500. Ready to confirm?"
 
-3. DO NOT ask any more questions after you have restaurant, items, and address - just say ORDER_READY
+3. DO NOT ask any more questions after you have all four details - just say ORDER_READY
 
 4. For general questions, provide helpful recommendations about restaurants and menu items.
 
@@ -109,6 +110,7 @@ And this AI response: ${aiResponse}
 
 Extract the order details and return a JSON with this structure:
 {
+  "customer_phone": "phone number with country code",
   "delivery_address": "full address",
   "orders": [
     {
@@ -126,6 +128,7 @@ Extract the order details and return a JSON with this structure:
         response_json_schema: {
           type: "object",
           properties: {
+            customer_phone: { type: "string" },
             delivery_address: { type: "string" },
             orders: {
               type: "array",
@@ -172,7 +175,7 @@ Extract the order details and return a JSON with this structure:
             restaurant_name: restaurant.name,
             customer_email: customer_email,
             customer_name: customer_name,
-            customer_phone: '',
+            customer_phone: orderDetails.customer_phone,
             delivery_address: orderDetails.delivery_address,
             items: order.items.map(item => ({
               item_id: Math.random().toString(36),
@@ -186,7 +189,7 @@ Extract the order details and return a JSON with this structure:
             total,
             status: 'pending',
             payment_status: 'pending',
-            payment_method: 'cash',
+            payment_method: 'card',
             batch_order_id: orderDetails.orders.length > 1 ? batchOrderId : null,
             total_restaurants_in_batch: orderDetails.orders.length
           });
