@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { CheckCircle, Loader2, ShoppingBag } from 'lucide-react';
+import { CheckCircle, Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
+import { createPageUrl } from '../../utils';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 
