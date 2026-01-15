@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2 } from 'lucide-react';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_live_c6efada09ec996edb84dabd7f6748b04f8f4fc40';
+const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
 export default function Checkout() {
   const [cart, setCart] = useState([]);
