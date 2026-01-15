@@ -96,37 +96,13 @@ export default function Checkout() {
       currency: 'NGN',
       ref: reference,
       onClose: function() {
+        console.log('❌ Payment cancelled');
         setProcessing(false);
         toast.info('Payment cancelled');
       },
-      callback: async function(response) {
-        try {
-          const result = await base44.functions.invoke('verifyPayment', {
-            reference: response.reference,
-            ordersData: ordersData
-          });
-
-          if (result.data.success) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 }
-            });
-
-            localStorage.removeItem('cart');
-            setShowSuccess(true);
-
-            setTimeout(() => {
-              window.location.href = createPageUrl('OrderHistory');
-            }, 3000);
-          } else {
-            toast.error('Payment verification failed');
-            setProcessing(false);
-          }
-        } catch (error) {
-          toast.error('Payment verification failed');
-          setProcessing(false);
-        }
+      callback: function(response) {
+        console.log('✅ Payment successful:', response.reference);
+        verifyPaymentAsync(response.reference, ordersData);
       }
     });
 
