@@ -128,13 +128,18 @@ export default function Checkout() {
     });
 
     // Initialize Paystack payment
+      if (!window.PaystackPop) {
+        toast.error('Payment system not loaded. Please refresh the page.');
+        return;
+      }
+
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
         email: formData.customer_email,
         amount: total * 100,
         currency: 'NGN',
         metadata: {
-          order_data: ordersData,
+          order_data: JSON.stringify(ordersData),
           customer_name: formData.customer_name,
           customer_phone: formData.customer_phone
         },
@@ -182,11 +187,16 @@ export default function Checkout() {
           }
         },
         onClose: () => {
-          toast.error('Payment cancelled');
+          toast.info('Payment window closed');
         }
       });
       
-      handler.openIframe();
+      try {
+        handler.openIframe();
+      } catch (error) {
+        console.error('Paystack error:', error);
+        toast.error('Failed to open payment window. Please try again.');
+      }
   };
 
   // Group by restaurant to calculate totals

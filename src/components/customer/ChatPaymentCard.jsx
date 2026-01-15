@@ -14,6 +14,12 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
   const handlePayment = async () => {
     setProcessing(true);
     try {
+      if (!window.PaystackPop) {
+        alert('Payment system not loaded. Please refresh the page.');
+        setProcessing(false);
+        return;
+      }
+
       // Initialize Paystack inline payment
       const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
       
@@ -23,7 +29,7 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         amount: totalAmount * 100,
         currency: 'NGN',
         metadata: {
-          order_data: orderData,
+          order_data: JSON.stringify(orderData),
           customer_name: orderData[0].customer_name,
           customer_phone: orderData[0].customer_phone
         },
