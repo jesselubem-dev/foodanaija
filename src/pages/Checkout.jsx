@@ -29,6 +29,7 @@ export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [paystackLoaded, setPaystackLoaded] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -39,6 +40,17 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
+    
+    // Load Paystack script
+    if (!window.PaystackPop) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.onload = () => setPaystackLoaded(true);
+      document.body.appendChild(script);
+    } else {
+      setPaystackLoaded(true);
+    }
   }, []);
 
   const checkAuth = async () => {
