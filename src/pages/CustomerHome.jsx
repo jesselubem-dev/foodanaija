@@ -190,13 +190,20 @@ export default function CustomerHome() {
     queryKey: ['promo-items'],
     queryFn: async () => {
       const items = await base44.entities.MenuItem.filter({ is_promo: true, is_available: true });
+      const now = new Date();
+      
       const itemsWithRestaurants = await Promise.all(
         items.map(async (item) => {
           const restaurant = restaurants.find(r => r.id === item.restaurant_id);
           return { ...item, restaurant };
         })
       );
-      return itemsWithRestaurants.filter(item => item.restaurant?.is_approved && item.restaurant?.is_open);
+      
+      return itemsWithRestaurants.filter(item => {
+        if (!item.restaurant?.is_approved || !item.restaurant?.is_open) return false;
+        if (!item.promo_end_date) return true;
+        return now <= new Date(item.promo_end_date);
+      });
     },
     enabled: restaurants.length > 0,
     staleTime: 3 * 60 * 1000, // 3 minutes
