@@ -10,73 +10,49 @@ const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('card');
 
   const handlePayment = async () => {
     setProcessing(true);
     try {
-      if (paymentMethod === 'card') {
-        // Initialize Paystack inline payment
-        const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
-        
-        const handler = window.PaystackPop.setup({
-          key: PAYSTACK_PUBLIC_KEY,
-          email: orderData[0].customer_email,
-          amount: totalAmount * 100,
-          currency: 'NGN',
-          metadata: {
-            order_data: orderData,
-            customer_name: orderData[0].customer_name,
-            customer_phone: orderData[0].customer_phone
-          },
-          callback: async (response) => {
-            // Verify payment and create orders
-            const verifyResult = await base44.functions.invoke('verifyPayment', { 
-              reference: response.reference 
+      // Initialize Paystack inline payment
+      const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
+      
+      const handler = window.PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: orderData[0].customer_email,
+        amount: totalAmount * 100,
+        currency: 'NGN',
+        metadata: {
+          order_data: orderData,
+          customer_name: orderData[0].customer_name,
+          customer_phone: orderData[0].customer_phone
+        },
+        callback: async (response) => {
+          // Verify payment and create orders
+          const verifyResult = await base44.functions.invoke('verifyPayment', { 
+            reference: response.reference 
+          });
+          
+          if (verifyResult.data.success) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
             });
+
+            setSuccess(true);
             
-            if (verifyResult.data.success) {
-              confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-              });
-
-              setSuccess(true);
-              
-              setTimeout(() => {
-                onPaymentSuccess(verifyResult.data.orders);
-              }, 1500);
-            }
-          },
-          onClose: () => {
-            setProcessing(false);
+            setTimeout(() => {
+              onPaymentSuccess(verifyResult.data.orders);
+            }, 1500);
           }
-        });
-        
-        handler.openIframe();
-      } else {
-        // Cash on delivery
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Create orders for each restaurant
-        const orders = await Promise.all(
-          orderData.map(order => base44.entities.Order.create(order))
-        );
-
-        // Trigger confetti
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-
-        setSuccess(true);
-        
-        setTimeout(() => {
-          onPaymentSuccess(orders);
-        }, 1500);
-      }
+        },
+        onClose: () => {
+          setProcessing(false);
+        }
+      });
+      
+      handler.openIframe();
     } catch (error) {
       console.error('Payment failed:', error);
       alert('Payment failed. Please try again.');
@@ -143,55 +119,6 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
           </div>
         </div>
 
-        {/* Payment Method */}
-        <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">Payment Method</p>
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('card')}
-              className={`w-full p-3 rounded-lg border-2 transition-all ${
-                paymentMethod === 'card' 
-                  ? 'border-orange-500 bg-orange-50' 
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <CreditCard className={`w-5 h-5 ${paymentMethod === 'card' ? 'text-orange-600' : 'text-gray-600'}`} />
-                <div className="text-left">
-                  <p className={`text-sm font-semibold ${paymentMethod === 'card' ? 'text-orange-800' : 'text-gray-800'}`}>
-                    Pay with Card
-                  </p>
-                  <p className={`text-xs ${paymentMethod === 'card' ? 'text-orange-700' : 'text-gray-600'}`}>
-                    Secure payment via Paystack
-                  </p>
-                </div>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('cash')}
-              className={`w-full p-3 rounded-lg border-2 transition-all ${
-                paymentMethod === 'cash' 
-                  ? 'border-green-500 bg-green-50' 
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">💵</span>
-                <div className="text-left">
-                  <p className={`text-sm font-semibold ${paymentMethod === 'cash' ? 'text-green-800' : 'text-gray-800'}`}>
-                    Cash on Delivery
-                  </p>
-                  <p className={`text-xs ${paymentMethod === 'cash' ? 'text-green-700' : 'text-gray-600'}`}>
-                    Pay when your order arrives
-                  </p>
-                </div>
-              </div>
-            </button>
-          </div>
-        </div>
-
         {/* Delivery Info */}
         <div className="bg-gray-50 rounded-lg p-3 mb-4">
           <p className="text-sm text-gray-700">
@@ -217,12 +144,12 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
             {processing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {paymentMethod === 'card' ? 'Redirecting...' : 'Processing...'}
+                Redirecting...
               </>
             ) : (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                {paymentMethod === 'card' ? 'Proceed to Payment' : 'Confirm Order'}
+                Proceed to Payment
               </>
             )}
           </Button>
