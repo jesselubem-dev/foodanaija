@@ -62,8 +62,8 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h3>
-          <p className="text-sm text-gray-600">Your order has been sent to the restaurant</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Order Added to Cart! 🛒</h3>
+          <p className="text-sm text-gray-600">Redirecting to checkout...</p>
         </div>
       </div>
     );
