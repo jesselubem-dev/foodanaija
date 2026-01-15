@@ -7,95 +7,48 @@ import { createPageUrl } from '../../utils';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
-
-// Ensure Paystack is loaded globally
-if (typeof window !== 'undefined' && !window.paystackScriptLoaded) {
-  const script = document.createElement('script');
-  script.src = 'https://js.paystack.co/v1/inline.js';
-  script.async = false;
-  document.head.appendChild(script);
-  window.paystackScriptLoaded = true;
-}
-
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [paystackLoaded, setPaystackLoaded] = useState(false);
 
-  React.useEffect(() => {
-    if (window.PaystackPop) {
-      setPaystackLoaded(true);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
-    script.onload = () => setPaystackLoaded(true);
-    document.body.appendChild(script);
-  }, []);
-
-  const handlePayment = async () => {
-    if (!paystackLoaded || !window.PaystackPop) {
-      toast.error('Payment system is loading. Please wait...');
-      return;
-    }
-    
+  const handleAddToCart = () => {
     setProcessing(true);
     
-    const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
-    
-    const handler = window.PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: orderData[0].customer_email,
-      amount: totalAmount * 100,
-      currency: 'NGN',
-      ref: `${Date.now()}`,
-      metadata: {
-        custom_fields: [
-          {
-            display_name: "Customer Name",
-            variable_name: "customer_name",
-            value: orderData[0].customer_name
-          }
-        ],
-        order_data: orderData
-      },
-      callback: async function(response) {
-        try {
-          const verifyResult = await base44.functions.invoke('verifyPayment', { 
-            reference: response.reference 
-          });
-          
-          if (verifyResult.data.success) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 }
-            });
+    try {
+      // Get existing cart from localStorage
+      const savedCart = localStorage.getItem('cart');
+      const cart = savedCart ? JSON.parse(savedCart) : [];
 
-            setSuccess(true);
-            
-            setTimeout(() => {
-              onPaymentSuccess(verifyResult.data.orders);
-            }, 1500);
-          } else {
-            toast.error('Payment verification failed');
-            setProcessing(false);
-          }
-        } catch (error) {
-          toast.error('Payment verification failed');
-          setProcessing(false);
-        }
-      },
-      onClose: function() {
-        setProcessing(false);
-        toast.info('Payment cancelled');
-      }
-    });
-    
-    handler.openIframe();
+      // Add all items from all orders to cart
+      orderData.forEach(order => {
+        order.items.forEach(item => {
+          cart.push({
+            ...item,
+            restaurant_id: order.restaurant_id,
+            restaurant_name: order.restaurant_name
+          });
+        });
+      });
+
+      // Save updated cart
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      toast.success('Items added to cart! Redirecting to checkout...');
+      setSuccess(true);
+      
+      setTimeout(() => {
+        window.location.href = createPageUrl('Checkout');
+      }, 1500);
+    } catch (error) {
+      toast.error('Failed to add items to cart');
+      setProcessing(false);
+    }
   };
 
   const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
