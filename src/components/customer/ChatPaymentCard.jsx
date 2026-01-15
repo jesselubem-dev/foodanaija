@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
 import confetti from 'canvas-confetti';
+import { initializePaystackPayment } from '../../utils/paystack';
 
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
@@ -14,18 +15,41 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
     setProcessing(true);
     try {
       if (paymentMethod === 'card') {
-        // Initialize Paystack payment
+        // Initialize Paystack inline payment
         const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
-        const paymentData = {
+        
+        initializePaystackPayment({
           email: orderData[0].customer_email,
           amount: totalAmount,
-          orderData: orderData
-        };
-        
-        const response = await base44.functions.invoke('initializePayment', paymentData);
-        
-        // Redirect to Paystack payment page
-        window.location.href = response.data.authorization_url;
+          metadata: {
+            order_data: orderData,
+            customer_name: orderData[0].customer_name,
+            customer_phone: orderData[0].customer_phone
+          },
+          onSuccess: async (response) => {
+            // Verify payment and create orders
+            const verifyResult = await base44.functions.invoke('verifyPayment', { 
+              reference: response.reference 
+            });
+            
+            if (verifyResult.data.success) {
+              confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+              });
+
+              setSuccess(true);
+              
+              setTimeout(() => {
+                onPaymentSuccess(verifyResult.data.orders);
+              }, 1500);
+            }
+          },
+          onClose: () => {
+            setProcessing(false);
+          }
+        });
       } else {
         // Cash on delivery
         await new Promise(resolve => setTimeout(resolve, 1500));

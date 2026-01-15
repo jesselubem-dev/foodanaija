@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import confetti from 'canvas-confetti';
+import { initializePaystackPayment } from '../utils/paystack';
 import {
   Dialog,
   DialogContent,
@@ -62,18 +63,8 @@ export default function Checkout() {
   const createOrderMutation = useMutation({
     mutationFn: async ({ ordersData, paymentMethod }) => {
       if (paymentMethod === 'card') {
-        // Initialize Paystack payment
-        const paymentData = {
-          email: formData.customer_email,
-          amount: total,
-          orderData: ordersData
-        };
-        
-        const response = await base44.functions.invoke('initializePayment', paymentData);
-        
-        // Redirect to Paystack payment page
-        window.location.href = response.data.authorization_url;
-        return null;
+        // Paystack payment handled in handleSubmit
+        return { paymentRequired: true, ordersData };
       } else {
         // Cash on delivery - create orders directly
         const orders = await Promise.all(
@@ -82,9 +73,9 @@ export default function Checkout() {
         return orders;
       }
     },
-    onSuccess: (orders) => {
-      // Skip success flow for card payments (redirected to Paystack)
-      if (!orders) return;
+    onSuccess: (result) => {
+      // Skip success flow for card payments
+      if (result?.paymentRequired) return;
       
       // Trigger confetti celebration
       const duration = 3000;
@@ -182,7 +173,66 @@ export default function Checkout() {
       };
     });
 
-    createOrderMutation.mutate({ ordersData, paymentMethod: formData.payment_method });
+    if (formData.payment_method === 'card') {
+      // Initialize Paystack payment
+      initializePaystackPayment({
+        email: formData.customer_email,
+        amount: total,
+        metadata: {
+          order_data: ordersData,
+          customer_name: formData.customer_name,
+          customer_phone: formData.customer_phone
+        },
+        onSuccess: async (response) => {
+          // Verify payment and create orders
+          const verifyResult = await base44.functions.invoke('verifyPayment', { 
+            reference: response.reference 
+          });
+          
+          if (verifyResult.data.success) {
+            // Trigger confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+            const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+            
+            (function frame() {
+              confetti({
+                particleCount: 3,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+              });
+              confetti({
+                particleCount: 3,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+
+            localStorage.removeItem('cart');
+            setShowSuccess(true);
+            
+            setTimeout(() => {
+              window.location.href = createPageUrl('OrderHistory');
+            }, 3500);
+          } else {
+            toast.error('Payment verification failed');
+          }
+        },
+        onClose: () => {
+          toast.error('Payment cancelled');
+        }
+      });
+    } else {
+      createOrderMutation.mutate({ ordersData, paymentMethod: formData.payment_method });
+    }
   };
 
   // Group by restaurant to calculate totals
