@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Home, ShoppingBag, History, User, LogOut, Moon, Sun, Bell, Sparkles, MessageSquare } from 'lucide-react';
+import { Home, ShoppingBag, History, User, LogOut, Bell, Sparkles, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -16,19 +16,13 @@ import {
 } from "@/components/ui/sheet";
 
 export default function FloatingMenu({ cartCount = 0, userEmail }) {
-  const [darkMode, setDarkMode] = useState(false);
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('CustomerHome');
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    }
-    
     // Load user data
     const loadUser = async () => {
       try {
@@ -65,16 +59,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+
 
   return (
     <motion.div 
@@ -287,33 +272,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                     </div>
                   </div>
 
-                  {/* Settings */}
-                  <div className="pt-4 border-t">
-                    <h3 className="font-bold text-gray-900 mb-3">Settings</h3>
-                    <button
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100"
-                      onClick={toggleDarkMode}
-                    >
-                      <div className="flex items-center gap-3">
-                        {darkMode ? (
-                          <Sun className="w-5 h-5 text-gray-600" />
-                        ) : (
-                          <Moon className="w-5 h-5 text-gray-600" />
-                        )}
-                        <span className="text-sm font-medium text-gray-700">
-                          {darkMode ? 'Light Mode' : 'Dark Mode'}
-                        </span>
-                      </div>
-                      <div className={`w-10 h-6 rounded-full transition-colors ${
-                        darkMode ? 'bg-orange-500' : 'bg-gray-300'
-                      }`}>
-                        <div className={`w-5 h-5 bg-white rounded-full shadow-sm mt-0.5 transition-transform ${
-                          darkMode ? 'translate-x-5' : 'translate-x-0.5'
-                        }`} />
-                      </div>
-                    </button>
                   </div>
-                </div>
               </div>
 
               {/* Footer with Logout */}
