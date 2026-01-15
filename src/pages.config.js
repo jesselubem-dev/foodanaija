@@ -63,7 +63,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "RestaurantSetup",
+    mainPage: "CustomerHome",
     Pages: PAGES,
     Layout: __Layout,
 };
