@@ -146,19 +146,21 @@ export default function Checkout() {
     });
 
     // Initialize Paystack payment
-      if (!window.PaystackPop) {
-        toast.error('Payment system not loaded. Please refresh the page.');
-        return;
-      }
+    if (!window.PaystackPop) {
+      toast.error('Payment system not loaded. Please refresh the page.');
+      return;
+    }
 
-      // Calculate total amount for payment
-      const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
+    // Calculate total amount for payment
+    const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
 
+    try {
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
         email: formData.customer_email,
         amount: totalAmount * 100,
         currency: 'NGN',
+        ref: `FOODA_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         metadata: {
           order_data: JSON.stringify(ordersData),
           customer_name: formData.customer_name,
@@ -217,12 +219,11 @@ export default function Checkout() {
         }
       });
       
-      try {
-        handler.openIframe();
-      } catch (error) {
-        console.error('Paystack error:', error);
-        toast.error('Failed to open payment window. Please try again.');
-      }
+      handler.openIframe();
+    } catch (error) {
+      console.error('Paystack initialization error:', error);
+      toast.error('Failed to initialize payment. Please try again.');
+    }
   };
 
   // Group by restaurant to calculate totals

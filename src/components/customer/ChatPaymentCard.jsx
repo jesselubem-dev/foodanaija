@@ -41,29 +41,36 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         email: orderData[0].customer_email,
         amount: totalAmount * 100,
         currency: 'NGN',
+        ref: `FOODA_CHAT_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         metadata: {
           order_data: JSON.stringify(orderData),
           customer_name: orderData[0].customer_name,
           customer_phone: orderData[0].customer_phone
         },
         callback: async (response) => {
-          // Verify payment and create orders
-          const verifyResult = await base44.functions.invoke('verifyPayment', { 
-            reference: response.reference 
-          });
-          
-          if (verifyResult.data.success) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 }
+          try {
+            // Verify payment and create orders
+            const verifyResult = await base44.functions.invoke('verifyPayment', { 
+              reference: response.reference 
             });
-
-            setSuccess(true);
             
-            setTimeout(() => {
-              onPaymentSuccess(verifyResult.data.orders);
-            }, 1500);
+            if (verifyResult.data.success) {
+              confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+              });
+
+              setSuccess(true);
+              
+              setTimeout(() => {
+                onPaymentSuccess(verifyResult.data.orders);
+              }, 1500);
+            }
+          } catch (err) {
+            console.error('Payment verification failed:', err);
+            alert('Payment verification failed');
+            setProcessing(false);
           }
         },
         onClose: () => {
