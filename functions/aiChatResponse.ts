@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     });
 
     // Generate AI response with order detection
-    const prompt = `You are Fooda AI, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
+    const prompt = `You are Fooda, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
 
 Customer: ${customer_name}
 Customer Email: ${customer_email}
@@ -205,7 +205,7 @@ Extract the order details and return a JSON with this structure:
       customer_email: customer_email,
       customer_name: customer_name,
       sender_type: 'ai',
-      sender_name: 'Fooda AI',
+      sender_name: 'Fooda',
       message: displayMessage,
     });
 

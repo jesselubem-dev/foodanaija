@@ -61,7 +61,7 @@ export default function LiveChat() {
               customer_email: userData.email,
               customer_name: userData.full_name,
               sender_type: 'ai',
-              sender_name: 'Fooda AI',
+              sender_name: 'Fooda',
               message: `Hello ${userData.full_name.split(' ')[0]}! 👋 Welcome to Fooda Support. I'm here to help you with restaurant recommendations, orders, deliveries, and any questions you have. How can I assist you today?`,
             });
           } catch (error) {
@@ -149,7 +149,7 @@ export default function LiveChat() {
           customer_email: user.email,
           customer_name: user.full_name,
           sender_type: 'ai',
-          sender_name: 'Fooda AI',
+          sender_name: 'Fooda',
           message: `Hello ${user.full_name.split(' ')[0]}! 👋 Welcome back to Fooda Support. How can I assist you today?`,
         });
         queryClient.invalidateQueries({ queryKey: ['chat-messages', newChatId] });
@@ -204,12 +204,12 @@ export default function LiveChat() {
                   <User className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-gray-900">Fooda AI</p>
+                  <p className="font-semibold text-gray-900">Fooda</p>
                   <p className="text-xs text-gray-500">Online now</p>
                 </div>
               </div>
               <p className="text-gray-700 text-sm">
-                Hello! 👋 I'm Fooda AI, your personal food delivery assistant. How can I help you today?
+                Hello! 👋 I'm Fooda, your personal food delivery assistant. How can I help you today?
               </p>
             </div>
             <p className="text-sm text-gray-400">Send a message to get started</p>
@@ -240,7 +240,7 @@ export default function LiveChat() {
                   <div>
                     {(msg.sender_type === 'ai' || msg.sender_type === 'admin') && (
                       <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
-                        {msg.sender_type === 'ai' ? 'Fooda AI' : 'Fooda'}
+                        Fooda
                       </p>
                     )}
                     <div className={`rounded-2xl px-4 py-2 ${
@@ -271,7 +271,7 @@ export default function LiveChat() {
                     <User className="w-4 h-4 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-600 mb-1 px-2">Fooda AI</p>
+                    <p className="text-xs font-semibold text-gray-600 mb-1 px-2">Fooda</p>
                     <div className="bg-purple-50 border border-purple-200 rounded-2xl px-4 py-3">
                       <div className="flex gap-1">
                         <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -297,7 +297,7 @@ export default function LiveChat() {
                     customer_email: user.email,
                     customer_name: user.full_name,
                     sender_type: 'ai',
-                    sender_name: 'Fooda AI',
+                    sender_name: 'Fooda',
                     message: `Perfect! Your order has been confirmed and sent to ${orders.length} restaurant${orders.length > 1 ? 's' : ''}. A rider will be assigned shortly. You can track your order in Order History. 🎉`,
                   });
                   
