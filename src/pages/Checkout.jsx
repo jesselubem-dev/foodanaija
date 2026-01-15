@@ -41,16 +41,15 @@ export default function Checkout() {
   useEffect(() => {
     checkAuth();
     
-    // Load Paystack script
-    if (!window.PaystackPop) {
-      const script = document.createElement('script');
-      script.src = 'https://js.paystack.co/v1/inline.js';
-      script.async = true;
-      script.onload = () => setPaystackLoaded(true);
-      document.body.appendChild(script);
-    } else {
-      setPaystackLoaded(true);
-    }
+    // Check if Paystack is loaded
+    const checkPaystack = () => {
+      if (window.PaystackPop) {
+        setPaystackLoaded(true);
+      } else {
+        setTimeout(checkPaystack, 100);
+      }
+    };
+    checkPaystack();
   }, []);
 
   const checkAuth = async () => {
@@ -159,46 +158,51 @@ export default function Checkout() {
           customer_phone: formData.customer_phone
         },
         callback: async (response) => {
-          // Verify payment and create orders
-          const verifyResult = await base44.functions.invoke('verifyPayment', { 
-            reference: response.reference 
-          });
-          
-          if (verifyResult.data.success) {
-            // Trigger confetti
-            const duration = 3000;
-            const end = Date.now() + duration;
-            const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+          try {
+            // Verify payment and create orders
+            const verifyResult = await base44.functions.invoke('verifyPayment', { 
+              reference: response.reference 
+            });
             
-            (function frame() {
-              confetti({
-                particleCount: 3,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: colors
-              });
-              confetti({
-                particleCount: 3,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: colors
-              });
+            if (verifyResult.data.success) {
+              // Trigger confetti
+              const duration = 3000;
+              const end = Date.now() + duration;
+              const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+              
+              (function frame() {
+                confetti({
+                  particleCount: 3,
+                  angle: 60,
+                  spread: 55,
+                  origin: { x: 0 },
+                  colors: colors
+                });
+                confetti({
+                  particleCount: 3,
+                  angle: 120,
+                  spread: 55,
+                  origin: { x: 1 },
+                  colors: colors
+                });
 
-              if (Date.now() < end) {
-                requestAnimationFrame(frame);
-              }
-            }());
+                if (Date.now() < end) {
+                  requestAnimationFrame(frame);
+                }
+              }());
 
-            localStorage.removeItem('cart');
-            setShowSuccess(true);
-            
-            setTimeout(() => {
-              window.location.href = createPageUrl('OrderHistory');
-            }, 3500);
-          } else {
-            toast.error('Payment verification failed');
+              localStorage.removeItem('cart');
+              setShowSuccess(true);
+              
+              setTimeout(() => {
+                window.location.href = createPageUrl('OrderHistory');
+              }, 3500);
+            } else {
+              toast.error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            toast.error('Failed to verify payment');
           }
         },
         onClose: () => {
