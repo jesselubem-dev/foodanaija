@@ -132,7 +132,7 @@ export default function RiderDashboard() {
   };
 
   const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['assigned', 'picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
-  const unassignedOrders = orders.filter(o => !o.rider_id || o.delivery_status === 'unassigned');
+  const unassignedOrders = orders.filter(o => !o.rider_id && o.delivery_status === 'unassigned');
   const todayCompleted = deliveredOrders.filter(o => {
     const orderDate = new Date(o.updated_date);
     const today = new Date();
