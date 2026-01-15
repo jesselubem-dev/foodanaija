@@ -1,101 +1,43 @@
 import React, { useState } from 'react';
-import { CreditCard, CheckCircle, Loader2, ShoppingBag } from 'lucide-react';
+import { CheckCircle, Loader2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
 import confetti from 'canvas-confetti';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
-
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [paystackReady, setPaystackReady] = useState(false);
 
-  React.useEffect(() => {
-    // Load Paystack script if not already loaded
-    if (window.PaystackPop) {
-      setPaystackReady(true);
-      return;
-    }
-
-    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
-    if (existingScript) {
-      const checkPaystack = setInterval(() => {
-        if (window.PaystackPop) {
-          setPaystackReady(true);
-          clearInterval(checkPaystack);
-        }
-      }, 100);
-      return () => clearInterval(checkPaystack);
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => {
-      setPaystackReady(true);
-    };
-    document.body.appendChild(script);
-  }, []);
-
-  const handlePayment = async () => {
-    if (!window.PaystackPop) {
-      alert('Payment system not loaded. Please refresh the page.');
-      return;
-    }
-    
+  const handleOrderPlacement = async () => {
     setProcessing(true);
+    
     try {
-
-      // Initialize Paystack inline payment
-      const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
+      const createdOrders = [];
       
-      const handler = window.PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: orderData[0].customer_email,
-        amount: totalAmount * 100,
-        currency: 'NGN',
-        ref: `FOODA_CHAT_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        metadata: {
-          order_data: JSON.stringify(orderData),
-          customer_name: orderData[0].customer_name,
-          customer_phone: orderData[0].customer_phone
-        },
-        callback: async (response) => {
-          try {
-            // Verify payment and create orders
-            const verifyResult = await base44.functions.invoke('verifyPayment', { 
-              reference: response.reference 
-            });
-            
-            if (verifyResult.data.success) {
-              confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-              });
+      for (const order of orderData) {
+        const newOrder = await base44.entities.Order.create({
+          ...order,
+          payment_method: 'cash',
+          payment_status: 'pending'
+        });
+        createdOrders.push(newOrder);
+      }
 
-              setSuccess(true);
-              
-              setTimeout(() => {
-                onPaymentSuccess(verifyResult.data.orders);
-              }, 1500);
-            }
-          } catch (err) {
-            console.error('Payment verification failed:', err);
-            alert('Payment verification failed');
-            setProcessing(false);
-          }
-        },
-        onClose: () => {
-          setProcessing(false);
-        }
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
+
+      setSuccess(true);
       
-      handler.openIframe();
+      setTimeout(() => {
+        onPaymentSuccess(createdOrders);
+      }, 1500);
     } catch (error) {
-      console.error('Payment failed:', error);
-      alert('Payment failed. Please try again.');
+      console.error('Order placement failed:', error);
+      alert('Failed to place order. Please try again.');
       setProcessing(false);
     }
   };
@@ -177,19 +119,19 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
             Cancel
           </Button>
           <Button
-            onClick={handlePayment}
+            onClick={handleOrderPlacement}
             className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-            disabled={processing || !paystackReady}
+            disabled={processing}
           >
             {processing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Redirecting...
+                Placing order...
               </>
             ) : (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Proceed to Payment
+                Place Order
               </>
             )}
           </Button>
