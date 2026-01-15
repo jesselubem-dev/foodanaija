@@ -17,6 +17,7 @@ export default function LiveChat() {
   const [chatId, setChatId] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [pendingOrder, setPendingOrder] = useState(null);
+  const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -94,6 +95,9 @@ export default function LiveChat() {
       setMessage('');
       scrollToBottom();
       
+      // Show typing indicator
+      setAiTyping(true);
+      
       // Trigger AI response
       try {
         const response = await base44.functions.invoke('aiChatResponse', {
@@ -112,6 +116,8 @@ export default function LiveChat() {
       } catch (error) {
         console.error('Failed to get AI response:', error);
         toast.error('AI response failed, but your message was sent');
+      } finally {
+        setAiTyping(false);
       }
     },
   });
@@ -256,6 +262,27 @@ export default function LiveChat() {
                 </div>
               </div>
             ))}
+            
+            {/* AI Typing Indicator */}
+            {aiTyping && (
+              <div className="flex justify-start">
+                <div className="flex gap-2 max-w-[80%]">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-100">
+                    <User className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-600 mb-1 px-2">Fooda AI</p>
+                    <div className="bg-purple-50 border border-purple-200 rounded-2xl px-4 py-3">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Payment Card */}
             {pendingOrder && (
