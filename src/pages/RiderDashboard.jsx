@@ -25,6 +25,7 @@ export default function RiderDashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
   const [audioElement, setAudioElement] = useState(null);
+  const [showAlreadyTaken, setShowAlreadyTaken] = useState(false);
 
   useEffect(() => {
     checkRider();
@@ -434,8 +435,8 @@ export default function RiderDashboard() {
                             // Check if order is still unassigned
                             const currentOrder = await base44.entities.Order.filter({ id: order.id });
                             if (currentOrder[0].delivery_status !== 'unassigned') {
-                              alert('Sorry, this order has already been accepted by another rider.');
-                              window.location.reload();
+                              setShowAlreadyTaken(true);
+                              setTimeout(() => window.location.reload(), 2000);
                               return;
                             }
 
@@ -579,6 +580,46 @@ export default function RiderDashboard() {
             </button>
           </div>
         </div>
+
+      {/* Already Taken Modal */}
+      {showAlreadyTaken && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform animate-in zoom-in-95 duration-200">
+            {/* Header with gradient */}
+            <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cGF0aCBkPSJNLTEwIDMwaDYwdjJoLTYweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==')] opacity-30" />
+              <div className="relative">
+                <div className="w-20 h-20 mx-auto mb-4 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl">
+                    <span className="text-4xl">😔</span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-1">Order Already Taken</h3>
+                <p className="text-orange-100 text-sm">Another rider beat you to it!</p>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 text-center">
+              <div className="mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 rounded-full mb-4">
+                  <Package className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-700">This delivery has been assigned</span>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Don't worry! More orders are coming your way. Keep your status as <span className="font-semibold text-green-600">Available</span> to get the next one.
+                </p>
+              </div>
+              
+              {/* Refreshing indicator */}
+              <div className="flex items-center justify-center gap-2 text-gray-500">
+                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm">Refreshing orders...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
         </div>
         );
         }
