@@ -59,9 +59,12 @@ export default function Checkout() {
   };
 
   const createOrderMutation = useMutation({
-    mutationFn: async (orderData) => {
-      const order = await base44.entities.Order.create(orderData);
-      return order;
+    mutationFn: async (ordersData) => {
+      // Create multiple orders if from different restaurants
+      const orders = await Promise.all(
+        ordersData.map(orderData => base44.entities.Order.create(orderData))
+      );
+      return orders;
     },
     onSuccess: () => {
       // Trigger confetti celebration
@@ -117,35 +120,65 @@ export default function Checkout() {
       return;
     }
 
-    const restaurant = cart[0];
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = 500;
-    const valueAddedService = 300;
-    const total = subtotal + deliveryFee + valueAddedService;
+    // Group cart items by restaurant
+    const itemsByRestaurant = {};
+    cart.forEach(item => {
+      if (!itemsByRestaurant[item.restaurant_id]) {
+        itemsByRestaurant[item.restaurant_id] = {
+          restaurant_id: item.restaurant_id,
+          restaurant_name: item.restaurant_name,
+          items: []
+        };
+      }
+      itemsByRestaurant[item.restaurant_id].items.push(item);
+    });
 
-    const orderData = {
-      restaurant_id: restaurant.restaurant_id,
-      restaurant_name: restaurant.restaurant_name,
-      customer_email: formData.customer_email,
-      customer_name: formData.customer_name,
-      customer_phone: formData.customer_phone,
-      delivery_address: formData.delivery_address,
-      items: cart,
-      subtotal,
-      delivery_fee: deliveryFee,
-      total,
-      notes: formData.notes,
-      status: 'pending',
-      payment_status: 'pending',
-      payment_method: 'cash'
-    };
+    const restaurants = Object.values(itemsByRestaurant);
+    const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create separate order for each restaurant with fees per restaurant
+    const ordersData = restaurants.map(restaurant => {
+      const subtotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const deliveryFee = 500;
+      const valueAddedService = 300;
+      const total = subtotal + deliveryFee + valueAddedService;
 
-    createOrderMutation.mutate(orderData);
+      return {
+        restaurant_id: restaurant.restaurant_id,
+        restaurant_name: restaurant.restaurant_name,
+        customer_email: formData.customer_email,
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        delivery_address: formData.delivery_address,
+        items: restaurant.items,
+        subtotal,
+        delivery_fee: deliveryFee,
+        total,
+        notes: formData.notes,
+        status: 'pending',
+        payment_status: 'pending',
+        payment_method: 'cash',
+        batch_order_id: restaurants.length > 1 ? batchOrderId : null,
+        total_restaurants_in_batch: restaurants.length
+      };
+    });
+
+    createOrderMutation.mutate(ordersData);
   };
 
+  // Group by restaurant to calculate totals
+  const itemsByRestaurant = {};
+  cart.forEach(item => {
+    if (!itemsByRestaurant[item.restaurant_id]) {
+      itemsByRestaurant[item.restaurant_id] = [];
+    }
+    itemsByRestaurant[item.restaurant_id].push(item);
+  });
+  
+  const restaurantCount = Object.keys(itemsByRestaurant).length;
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = cart.length > 0 ? 500 : 0;
-  const valueAddedService = cart.length > 0 ? 300 : 0;
+  const deliveryFee = restaurantCount * 500;
+  const valueAddedService = restaurantCount * 300;
   const total = subtotal + deliveryFee + valueAddedService;
 
   if (cart.length === 0) {
@@ -290,11 +323,11 @@ export default function Checkout() {
                     <span>₦{subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Delivery Fee</span>
+                    <span>Delivery Fee {restaurantCount > 1 ? `(${restaurantCount} restaurants)` : ''}</span>
                     <span>₦{deliveryFee.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Value Added Service</span>
+                    <span>Value Added Service {restaurantCount > 1 ? `(${restaurantCount}x)` : ''}</span>
                     <span>₦{valueAddedService.toLocaleString()}</span>
                   </div>
                   <div className="border-t pt-2">
