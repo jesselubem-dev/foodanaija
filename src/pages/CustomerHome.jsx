@@ -426,11 +426,11 @@ export default function CustomerHome() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Clock className="w-4 h-4" />
-                        <span>{restaurant.delivery_time}</span>
+                        <span>5-15 mins</span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Bike className="w-4 h-4" />
-                        <span>₦{restaurant.delivery_fee?.toLocaleString()}</span>
+                        <span>₦500</span>
                       </div>
                       {restaurant.rating > 0 && (
                         <div className="flex items-center gap-1 text-amber-600">
