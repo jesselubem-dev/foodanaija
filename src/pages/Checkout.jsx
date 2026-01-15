@@ -135,17 +135,21 @@ export default function Checkout() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    console.log('📝 Form submitted');
+
     if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.delivery_address) {
+      console.log('❌ Missing form fields');
       toast.error('Please fill in all required fields');
       return;
     }
 
     if (cart.length === 0) {
+      console.log('❌ Cart is empty');
       toast.error('Your cart is empty');
       return;
     }
-    
+
+    console.log('✓ Form validation passed, starting payment process...');
     setProcessing(true);
 
     // Group cart items by restaurant
