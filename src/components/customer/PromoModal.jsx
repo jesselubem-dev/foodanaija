@@ -9,9 +9,8 @@ export default function PromoModal({ promoItems, onClose }) {
   const now = new Date();
   const activePromos = promoItems.filter(item => {
     if (!item.promo_start_date || !item.promo_end_date) return true;
-    const start = new Date(item.promo_start_date);
     const end = new Date(item.promo_end_date);
-    return now >= start && now <= end;
+    return now <= end;
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
