@@ -183,7 +183,7 @@ export default function LiveChat() {
               <MessageCircle className="w-6 h-6 text-orange-600" />
               <div>
                 <h1 className="text-lg font-bold">Fooda Support</h1>
-                <p className="text-xs text-green-600">● AI Assistant Active</p>
+                <p className="text-xs text-green-600">● Online</p>
               </div>
             </div>
           </div>
