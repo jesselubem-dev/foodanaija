@@ -34,9 +34,17 @@ export default function Checkout() {
     checkAuth();
     
     // Load Paystack script
-    if (!document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
+    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (!existingScript) {
       const script = document.createElement('script');
       script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Paystack loaded successfully');
+      };
+      script.onerror = () => {
+        toast.error('Failed to load payment system');
+      };
       document.head.appendChild(script);
     }
   }, []);
@@ -63,54 +71,54 @@ export default function Checkout() {
 
 
   const payWithPaystack = (email, amount, reference, ordersData) => {
-    try {
-      const handler = window.PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: email,
-        amount: amount * 100,
-        currency: 'NGN',
-        ref: reference,
-        onClose: function() {
-          setProcessing(false);
-          toast.info('Payment cancelled');
-        },
-        callback: async function(response) {
-          try {
-            const result = await base44.functions.invoke('verifyPayment', { 
-              reference: response.reference,
-              ordersData: ordersData
+    if (!window.PaystackPop) {
+      toast.error('Payment system not loaded. Refreshing...');
+      setTimeout(() => window.location.reload(), 1000);
+      return;
+    }
+
+    const handler = window.PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: email,
+      amount: amount * 100,
+      currency: 'NGN',
+      ref: reference,
+      onClose: function() {
+        setProcessing(false);
+        toast.info('Payment cancelled');
+      },
+      callback: async function(response) {
+        try {
+          const result = await base44.functions.invoke('verifyPayment', { 
+            reference: response.reference,
+            ordersData: ordersData
+          });
+          
+          if (result.data.success) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
             });
             
-            if (result.data.success) {
-              confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-              });
-              
-              localStorage.removeItem('cart');
-              setShowSuccess(true);
-              
-              setTimeout(() => {
-                window.location.href = createPageUrl('OrderHistory');
-              }, 3000);
-            } else {
-              toast.error('Payment verification failed');
-              setProcessing(false);
-            }
-          } catch (error) {
+            localStorage.removeItem('cart');
+            setShowSuccess(true);
+            
+            setTimeout(() => {
+              window.location.href = createPageUrl('OrderHistory');
+            }, 3000);
+          } else {
             toast.error('Payment verification failed');
             setProcessing(false);
           }
+        } catch (error) {
+          toast.error('Payment verification failed');
+          setProcessing(false);
         }
-      });
-      
-      handler.openIframe();
-    } catch (error) {
-      console.error('Paystack error:', error);
-      toast.error('Failed to initialize payment: ' + error.message);
-      setProcessing(false);
-    }
+      }
+    });
+    
+    handler.openIframe();
   };
 
   const handleSubmit = async (e) => {
@@ -126,12 +134,13 @@ export default function Checkout() {
       return;
     }
     
+    setProcessing(true);
+
     if (!window.PaystackPop) {
-      toast.error('Payment system loading, please try again in a moment');
+      toast.error('Payment system not ready. Please wait and try again.');
+      setProcessing(false);
       return;
     }
-    
-    setProcessing(true);
 
     // Group cart items by restaurant
     const itemsByRestaurant = {};

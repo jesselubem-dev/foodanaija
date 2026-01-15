@@ -1,5 +1,4 @@
 import AdminLiveChat from './pages/AdminLiveChat';
-import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CustomerHome from './pages/CustomerHome';
 import CustomerSupport from './pages/CustomerSupport';
@@ -27,12 +26,12 @@ import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
+import Cart from './pages/Cart';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminLiveChat": AdminLiveChat,
-    "Cart": Cart,
     "Checkout": Checkout,
     "CustomerHome": CustomerHome,
     "CustomerSupport": CustomerSupport,
@@ -60,6 +59,7 @@ export const PAGES = {
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
+    "Cart": Cart,
 }
 
 export const pagesConfig = {
