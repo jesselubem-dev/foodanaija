@@ -126,8 +126,8 @@ export default function Checkout() {
       return;
     }
     
-    if (!window.PaystackPop || !paystackReady) {
-      toast.error('Payment system not ready. Please wait...');
+    if (!window.PaystackPop) {
+      toast.error('Payment system loading, please try again in a moment');
       return;
     }
     
