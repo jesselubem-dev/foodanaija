@@ -40,32 +40,37 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
+    loadPaystack();
+  }, []);
+
+  const loadPaystack = () => {
+    // Remove any existing script first
+    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
     
-    // Check if Paystack is already loaded
+    // Check if already loaded
     if (window.PaystackPop) {
+      console.log('Paystack already available');
       setPaystackLoaded(true);
       return;
     }
     
-    // Load Paystack script
+    // Load fresh script
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
     script.onload = () => {
-      console.log('Paystack script loaded');
+      console.log('✅ Paystack loaded successfully');
       setPaystackLoaded(true);
+      toast.success('Payment system ready');
     };
-    script.onerror = () => {
-      console.error('Failed to load Paystack script');
-      toast.error('Failed to load payment system');
+    script.onerror = (error) => {
+      console.error('❌ Failed to load Paystack:', error);
+      toast.error('Failed to load payment system. Please refresh.');
     };
-    document.body.appendChild(script);
-    
-    return () => {
-      const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
-      if (existingScript) existingScript.remove();
-    };
-  }, []);
+    document.head.appendChild(script);
+  };
 
   const checkAuth = async () => {
     try {
@@ -413,11 +418,17 @@ export default function Checkout() {
                   </div>
                 </div>
 
+                {!paystackLoaded && (
+                  <div className="text-xs text-orange-600 mb-2 text-center">
+                    Loading payment system...
+                  </div>
+                )}
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
+                  disabled={!paystackLoaded}
                 >
-                  Proceed to Payment
+                  {paystackLoaded ? '🔒 Proceed to Payment' : 'Loading Payment System...'}
                 </Button>
               </CardContent>
             </Card>
