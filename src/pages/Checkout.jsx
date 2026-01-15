@@ -70,10 +70,17 @@ export default function Checkout() {
 
 
 
-  const payWithPaystack = (email, amount, reference, ordersData) => {
+  const payWithPaystack = async (email, amount, reference, ordersData) => {
+    // Wait for PaystackPop to be available
+    let attempts = 0;
+    while (!window.PaystackPop && attempts < 20) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+    }
+
     if (!window.PaystackPop) {
-      toast.error('Payment system not loaded. Refreshing...');
-      setTimeout(() => window.location.reload(), 1000);
+      toast.error('Payment system failed to load');
+      setProcessing(false);
       return;
     }
 
