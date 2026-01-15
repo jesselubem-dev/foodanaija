@@ -66,7 +66,6 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, orders: createdOrders });
   } catch (error) {
-    console.error('Payment verification error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Payment verification failed' }, { status: 500 });
   }
 });
