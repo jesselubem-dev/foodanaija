@@ -34,8 +34,7 @@ export default function Checkout() {
     customer_email: '',
     customer_phone: '',
     delivery_address: '',
-    notes: '',
-    payment_method: 'card'
+    notes: ''
   });
 
   useEffect(() => {
@@ -62,55 +61,9 @@ export default function Checkout() {
   };
 
   const createOrderMutation = useMutation({
-    mutationFn: async ({ ordersData, paymentMethod }) => {
-      if (paymentMethod === 'card') {
-        // Paystack payment handled in handleSubmit
-        return { paymentRequired: true, ordersData };
-      } else {
-        // Cash on delivery - create orders directly
-        const orders = await Promise.all(
-          ordersData.map(orderData => base44.entities.Order.create(orderData))
-        );
-        return orders;
-      }
-    },
-    onSuccess: (result) => {
-      // Skip success flow for card payments
-      if (result?.paymentRequired) return;
-      
-      // Trigger confetti celebration
-      const duration = 3000;
-      const end = Date.now() + duration;
-      
-      const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
-      
-      (function frame() {
-        confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      }());
-
-      localStorage.removeItem('cart');
-      setShowSuccess(true);
-      
-      setTimeout(() => {
-        window.location.href = createPageUrl('OrderHistory');
-      }, 3500);
+    mutationFn: async ({ ordersData }) => {
+      // Paystack payment handled in handleSubmit
+      return { paymentRequired: true, ordersData };
     },
     onError: (error) => {
       console.error('Order creation error:', error);
@@ -167,15 +120,14 @@ export default function Checkout() {
         total,
         notes: formData.notes,
         status: 'pending',
-        payment_status: formData.payment_method === 'card' ? 'pending' : 'pending',
-        payment_method: formData.payment_method,
+        payment_status: 'pending',
+        payment_method: 'card',
         batch_order_id: restaurants.length > 1 ? batchOrderId : null,
         total_restaurants_in_batch: restaurants.length
       };
     });
 
-    if (formData.payment_method === 'card') {
-      // Initialize Paystack payment
+    // Initialize Paystack payment
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
         email: formData.customer_email,
@@ -235,9 +187,6 @@ export default function Checkout() {
       });
       
       handler.openIframe();
-    } else {
-      createOrderMutation.mutate({ ordersData, paymentMethod: formData.payment_method });
-    }
   };
 
   // Group by restaurant to calculate totals
@@ -352,40 +301,6 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4" />
-                    Payment Method *
-                  </label>
-                  <Select
-                    value={formData.payment_method}
-                    onValueChange={(value) => setFormData({...formData, payment_method: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="card">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" />
-                          <span>Pay with Card (Paystack)</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="cash">
-                        <div className="flex items-center gap-2">
-                          <span>💵</span>
-                          <span>Cash on Delivery</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formData.payment_method === 'card' && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Secure payment via Paystack
-                    </p>
-                  )}
-                </div>
-
-                <div>
                   <label className="text-sm font-medium mb-2">Special Instructions (Optional)</label>
                   <Textarea
                     value={formData.notes}
@@ -442,9 +357,7 @@ export default function Checkout() {
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
                   disabled={createOrderMutation.isPending}
                 >
-                  {createOrderMutation.isPending 
-                    ? (formData.payment_method === 'card' ? 'Redirecting to payment...' : 'Placing Order...') 
-                    : (formData.payment_method === 'card' ? 'Proceed to Payment' : 'Place Order')}
+                  {createOrderMutation.isPending ? 'Redirecting to payment...' : 'Proceed to Payment'}
                 </Button>
               </CardContent>
             </Card>
