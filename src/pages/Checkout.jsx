@@ -41,15 +41,28 @@ export default function Checkout() {
   useEffect(() => {
     checkAuth();
     
-    // Check if Paystack is loaded
-    const checkPaystack = () => {
+    // Load Paystack script dynamically
+    const loadPaystack = () => {
       if (window.PaystackPop) {
         setPaystackLoaded(true);
-      } else {
-        setTimeout(checkPaystack, 100);
+        return;
       }
+
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Paystack loaded successfully');
+        setPaystackLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Paystack');
+        toast.error('Failed to load payment system');
+      };
+      document.body.appendChild(script);
     };
-    checkPaystack();
+
+    loadPaystack();
   }, []);
 
   const checkAuth = async () => {
