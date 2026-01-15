@@ -133,10 +133,13 @@ export default function Checkout() {
         return;
       }
 
+      // Calculate total amount for payment
+      const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
+
       const handler = window.PaystackPop.setup({
         key: PAYSTACK_PUBLIC_KEY,
         email: formData.customer_email,
-        amount: total * 100,
+        amount: totalAmount * 100,
         currency: 'NGN',
         metadata: {
           order_data: JSON.stringify(ordersData),
