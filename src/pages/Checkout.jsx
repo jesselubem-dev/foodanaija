@@ -36,16 +36,20 @@ export default function Checkout() {
   }, []);
 
   const loadPaystackScript = () => {
+    console.log('Loading Paystack script...');
     if (document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
-      console.log('Paystack script already loaded');
+      console.log('Paystack script already loaded, PaystackPop available:', !!window.PaystackPop);
       return;
     }
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
     script.async = true;
-    script.onload = () => console.log('Paystack script loaded successfully');
+    script.onload = () => {
+      console.log('✓ Paystack script loaded successfully');
+      console.log('PaystackPop available:', !!window.PaystackPop);
+    };
     script.onerror = () => {
-      console.error('Failed to load Paystack script');
+      console.error('✗ Failed to load Paystack script');
       toast.error('Payment system failed to load');
     };
     document.head.appendChild(script);
