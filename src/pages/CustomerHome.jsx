@@ -41,13 +41,19 @@ export default function CustomerHome() {
   }, []);
 
   useEffect(() => {
-    // Show loader for 2 seconds every time component mounts
-    setIsLoading(true);
-    const timer = setTimeout(() => {
+    // Show loader only on first visit
+    const hasSeenLoader = sessionStorage.getItem('home_loader_seen');
+    if (!hasSeenLoader) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        sessionStorage.setItem('home_loader_seen', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
       setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [window.location.pathname]);
+    }
+  }, []);
 
   // Request notification permission
   useEffect(() => {
