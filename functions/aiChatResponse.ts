@@ -60,10 +60,11 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Generate AI response
+    // Generate AI response with order detection
     const prompt = `You are Fooda AI, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
 
 Customer: ${customer_name}
+Customer Email: ${customer_email}
 Recent conversation:
 ${recentMessages}
 
@@ -76,6 +77,15 @@ You have complete knowledge of all open restaurants, their menus, prices, and de
 - Suggest popular items or current promotions
 - Answer questions about delivery fees, times, and minimum orders
 - Help customers find exactly what they're looking for
+- TAKE ORDERS: When a customer wants to order, help them place the order through chat
+
+IMPORTANT - ORDER TAKING PROCESS:
+1. When customer expresses intent to order (e.g., "I want to order", "Can I get...", "I'll have..."), gather:
+   - Which restaurant(s)
+   - Which items and quantities
+   - Delivery address
+2. Once you have all order details, respond with: "ORDER_READY" followed by the order summary
+3. The system will then show a payment card for the customer
 
 Provide helpful, warm, and professional responses. Keep it concise (2-3 sentences max unless giving detailed recommendations).
 
@@ -86,6 +96,112 @@ If the customer needs urgent help or complex issues (refunds, payment problems),
       add_context_from_internet: false,
     });
 
+    // Check if AI wants to process an order
+    let showPayment = false;
+    let orderData = null;
+    let displayMessage = aiResponse;
+
+    if (aiResponse.includes('ORDER_READY')) {
+      showPayment = true;
+      
+      // Extract order details from AI response
+      const orderPrompt = `Based on this conversation:
+${recentMessages}
+
+And this AI response: ${aiResponse}
+
+Extract the order details and return a JSON with this structure:
+{
+  "delivery_address": "full address",
+  "orders": [
+    {
+      "restaurant_name": "Restaurant Name",
+      "restaurant_id": "will be filled",
+      "items": [
+        {"name": "Item Name", "quantity": 2, "price": 1500}
+      ]
+    }
+  ]
+}`;
+
+      const orderDetails = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: orderPrompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            delivery_address: { type: "string" },
+            orders: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  restaurant_name: { type: "string" },
+                  items: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        quantity: { type: "number" },
+                        price: { type: "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Match restaurants and create order data
+      const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      orderData = [];
+
+      for (const order of orderDetails.orders) {
+        const restaurant = restaurants.find(r => 
+          r.name.toLowerCase().includes(order.restaurant_name.toLowerCase()) ||
+          order.restaurant_name.toLowerCase().includes(r.name.toLowerCase())
+        );
+
+        if (restaurant) {
+          const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const deliveryFee = 500;
+          const valueAddedService = 300;
+          const total = subtotal + deliveryFee + valueAddedService;
+
+          orderData.push({
+            restaurant_id: restaurant.id,
+            restaurant_name: restaurant.name,
+            customer_email: customer_email,
+            customer_name: customer_name,
+            customer_phone: '',
+            delivery_address: orderDetails.delivery_address,
+            items: order.items.map(item => ({
+              item_id: Math.random().toString(36),
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              image_url: ''
+            })),
+            subtotal,
+            delivery_fee: deliveryFee,
+            total,
+            status: 'pending',
+            payment_status: 'pending',
+            payment_method: 'cash',
+            batch_order_id: orderDetails.orders.length > 1 ? batchOrderId : null,
+            total_restaurants_in_batch: orderDetails.orders.length
+          });
+        }
+      }
+
+      displayMessage = aiResponse.replace('ORDER_READY', '').trim();
+      if (!displayMessage) {
+        displayMessage = "Great! I've prepared your order. Please confirm the details and payment below to complete your order. 👇";
+      }
+    }
+
     // Create AI message
     await base44.asServiceRole.entities.ChatMessage.create({
       chat_id,
@@ -93,12 +209,14 @@ If the customer needs urgent help or complex issues (refunds, payment problems),
       customer_name: customer_name,
       sender_type: 'ai',
       sender_name: 'Fooda AI',
-      message: aiResponse,
+      message: displayMessage,
     });
 
     return Response.json({ 
       success: true,
-      ai_response: aiResponse 
+      ai_response: displayMessage,
+      show_payment: showPayment,
+      order_data: orderData
     });
   } catch (error) {
     console.error('AI chat error:', error);
