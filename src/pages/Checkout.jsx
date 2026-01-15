@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, User, MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Phone, Mail, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +32,8 @@ export default function Checkout() {
     customer_email: '',
     customer_phone: '',
     delivery_address: '',
-    notes: ''
+    notes: '',
+    payment_method: 'card'
   });
 
   useEffect(() => {
@@ -59,14 +60,32 @@ export default function Checkout() {
   };
 
   const createOrderMutation = useMutation({
-    mutationFn: async (ordersData) => {
-      // Create multiple orders if from different restaurants
-      const orders = await Promise.all(
-        ordersData.map(orderData => base44.entities.Order.create(orderData))
-      );
-      return orders;
+    mutationFn: async ({ ordersData, paymentMethod }) => {
+      if (paymentMethod === 'card') {
+        // Initialize Paystack payment
+        const paymentData = {
+          email: formData.customer_email,
+          amount: total,
+          orderData: ordersData
+        };
+        
+        const response = await base44.functions.invoke('initializePayment', paymentData);
+        
+        // Redirect to Paystack payment page
+        window.location.href = response.data.authorization_url;
+        return null;
+      } else {
+        // Cash on delivery - create orders directly
+        const orders = await Promise.all(
+          ordersData.map(orderData => base44.entities.Order.create(orderData))
+        );
+        return orders;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (orders) => {
+      // Skip success flow for card payments (redirected to Paystack)
+      if (!orders) return;
+      
       // Trigger confetti celebration
       const duration = 3000;
       const end = Date.now() + duration;
@@ -156,14 +175,14 @@ export default function Checkout() {
         total,
         notes: formData.notes,
         status: 'pending',
-        payment_status: 'pending',
-        payment_method: 'cash',
+        payment_status: formData.payment_method === 'card' ? 'pending' : 'pending',
+        payment_method: formData.payment_method,
         batch_order_id: restaurants.length > 1 ? batchOrderId : null,
         total_restaurants_in_batch: restaurants.length
       };
     });
 
-    createOrderMutation.mutate(ordersData);
+    createOrderMutation.mutate({ ordersData, paymentMethod: formData.payment_method });
   };
 
   // Group by restaurant to calculate totals
@@ -277,13 +296,38 @@ export default function Checkout() {
                   />
                 </div>
 
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <p className="text-sm text-orange-800 font-medium">
-                    💵 Cash on Delivery
-                  </p>
-                  <p className="text-xs text-orange-700 mt-1">
-                    Pay with cash when your order arrives
-                  </p>
+                <div>
+                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" />
+                    Payment Method *
+                  </label>
+                  <Select
+                    value={formData.payment_method}
+                    onValueChange={(value) => setFormData({...formData, payment_method: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="card">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" />
+                          <span>Pay with Card (Paystack)</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="cash">
+                        <div className="flex items-center gap-2">
+                          <span>💵</span>
+                          <span>Cash on Delivery</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.payment_method === 'card' && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Secure payment via Paystack
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -343,7 +387,9 @@ export default function Checkout() {
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
                   disabled={createOrderMutation.isPending}
                 >
-                  {createOrderMutation.isPending ? 'Placing Order...' : 'Place Order'}
+                  {createOrderMutation.isPending 
+                    ? (formData.payment_method === 'card' ? 'Redirecting to payment...' : 'Placing Order...') 
+                    : (formData.payment_method === 'card' ? 'Proceed to Payment' : 'Place Order')}
                 </Button>
               </CardContent>
             </Card>
