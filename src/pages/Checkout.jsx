@@ -22,7 +22,6 @@ export default function Checkout() {
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [paystackReady, setPaystackReady] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -33,38 +32,14 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
-    loadPaystackScript();
-  }, []);
-
-  const loadPaystackScript = () => {
-    if (window.PaystackPop) {
-      setPaystackReady(true);
-      return;
-    }
-
-    if (document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
-      const checkInterval = setInterval(() => {
-        if (window.PaystackPop) {
-          setPaystackReady(true);
-          clearInterval(checkInterval);
-        }
-      }, 100);
-      
-      setTimeout(() => clearInterval(checkInterval), 5000);
-      return;
-    }
     
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => {
-      setPaystackReady(true);
-      toast.success('Payment system ready');
-    };
-    script.onerror = () => {
-      toast.error('Failed to load payment system. Please refresh.');
-    };
-    document.head.appendChild(script);
-  };
+    // Load Paystack script
+    if (!document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      document.head.appendChild(script);
+    }
+  }, []);
 
   const checkAuth = async () => {
     try {
@@ -373,9 +348,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
-                  disabled={processing || !paystackReady}
+                  disabled={processing}
                 >
-                  {!paystackReady ? 'Loading Payment...' : processing ? 'Processing...' : 'Pay ₦' + total.toLocaleString()}
+                  {processing ? 'Opening Payment...' : 'Pay ₦' + total.toLocaleString()}
                 </Button>
               </CardContent>
             </Card>
