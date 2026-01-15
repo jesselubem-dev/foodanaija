@@ -331,6 +331,13 @@ export default function RiderDashboard() {
                             </Badge>
                           </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-1">{order.restaurant_name}</h3>
+                          {order.batch_order_id && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
+                                🔗 Batch ({order.total_restaurants_in_batch} restaurants)
+                              </span>
+                            </div>
+                          )}
                           <p className="text-gray-600 flex items-center gap-1">
                             <User className="w-4 h-4" />
                             {order.customer_name} • {order.customer_phone}
@@ -389,6 +396,13 @@ export default function RiderDashboard() {
                             </span>
                           </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-1">{order.restaurant_name}</h3>
+                          {order.batch_order_id && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
+                                🔗 Batch Order ({order.total_restaurants_in_batch} restaurants)
+                              </span>
+                            </div>
+                          )}
                           <div className="space-y-1">
                             <p className="text-gray-600 flex items-center gap-2">
                               <User className="w-4 h-4" />
