@@ -77,10 +77,13 @@ export default function Checkout() {
 
 
   const initiatePayment = (email, amount, reference, ordersData) => {
-    console.log('Initiating payment:', { email, amount, reference, PaystackPopAvailable: !!window.PaystackPop });
-    
+    console.log('🚀 Initiating payment:', { email, amount, reference });
+    console.log('Window object keys:', Object.keys(window).filter(k => k.includes('Paystack')));
+    console.log('PaystackPop available:', !!window.PaystackPop);
+
     if (!window.PaystackPop) {
-      console.error('PaystackPop not available');
+      console.error('❌ PaystackPop not available on window');
+      console.log('Full window.Paystack:', window.Paystack);
       toast.error('Payment system not loaded - try refreshing the page');
       setProcessing(false);
       return;
