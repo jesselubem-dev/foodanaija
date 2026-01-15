@@ -51,9 +51,8 @@ export default function Promos() {
   const activePromos = allPromoItems.filter(item => {
     if (!item.promo_start_date || !item.promo_end_date) return true;
     const now = new Date();
-    const start = new Date(item.promo_start_date);
     const end = new Date(item.promo_end_date);
-    return now >= start && now <= end;
+    return now <= end;
   });
 
   const restaurantsWithPromos = restaurants.map(restaurant => {
@@ -179,9 +178,15 @@ export default function Promos() {
                           </div>
 
                           {item.promo_end_date && (
-                            <p className="text-xs text-gray-500 mt-3 flex items-center gap-1">
+                            <p className={`text-xs mt-3 flex items-center gap-1 ${
+                              new Date() > new Date(item.promo_end_date)
+                                ? 'text-red-600 font-semibold'
+                                : 'text-gray-500'
+                            }`}>
                               <Clock className="w-3 h-3" />
-                              Ends {new Date(item.promo_end_date).toLocaleDateString()}
+                              {new Date() > new Date(item.promo_end_date) 
+                                ? '⏰ Promo Expired' 
+                                : `Ends ${new Date(item.promo_end_date).toLocaleDateString()}`}
                             </p>
                           )}
                         </CardContent>
