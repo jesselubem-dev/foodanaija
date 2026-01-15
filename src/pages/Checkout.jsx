@@ -40,27 +40,33 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
-    
+  }, []);
+
+  useEffect(() => {
     // Load Paystack script
-    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
-    
-    if (existingScript) {
+    if (window.PaystackPop) {
       setPaystackLoaded(true);
       return;
     }
-    
+
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
     script.onload = () => {
-      console.log('Paystack loaded');
       setPaystackLoaded(true);
     };
-    script.onerror = (e) => {
-      console.error('Paystack load error:', e);
+    script.onerror = () => {
       toast.error('Failed to load payment system');
     };
     
     document.body.appendChild(script);
+
+    return () => {
+      const scriptToRemove = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+      if (scriptToRemove && !window.PaystackPop) {
+        scriptToRemove.remove();
+      }
+    };
   }, []);
 
   const checkAuth = async () => {
@@ -93,9 +99,14 @@ export default function Checkout() {
     },
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!paystackLoaded || !window.PaystackPop) {
+      toast.error('Payment system is loading. Please wait a moment...');
+      return;
+    }
+
     if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.delivery_address) {
       toast.error('Please fill in all required fields');
       return;
@@ -149,43 +160,40 @@ export default function Checkout() {
       };
     });
 
-    // Initialize Paystack payment
-    if (!window.PaystackPop) {
-      console.error('PaystackPop not available');
-      toast.error('Payment system not loaded. Please refresh the page.');
-      return;
-    }
-
     // Calculate total amount for payment
     const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
 
-    console.log('Initializing payment:', {
-      email: formData.customer_email,
-      amount: totalAmount * 100,
-      totalAmount
-    });
-
-    const handler = window.PaystackPop.setup({
+    // Initialize Paystack payment
+    const paystack = window.PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
       email: formData.customer_email,
       amount: totalAmount * 100,
       currency: 'NGN',
-      ref: `FOODA_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      ref: `${Date.now()}`,
       metadata: {
-        order_data: JSON.stringify(ordersData),
+        custom_fields: [
+          {
+            display_name: "Customer Name",
+            variable_name: "customer_name",
+            value: formData.customer_name
+          },
+          {
+            display_name: "Phone",
+            variable_name: "phone",
+            value: formData.customer_phone
+          }
+        ],
+        order_data: ordersData,
         customer_name: formData.customer_name,
         customer_phone: formData.customer_phone
       },
-      callback: async (response) => {
-        console.log('Payment successful:', response);
+      callback: async function(response) {
         try {
-          // Verify payment and create orders
           const verifyResult = await base44.functions.invoke('verifyPayment', { 
             reference: response.reference 
           });
           
           if (verifyResult.data.success) {
-            // Trigger confetti
             const duration = 3000;
             const end = Date.now() + duration;
             const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
@@ -221,18 +229,15 @@ export default function Checkout() {
             toast.error('Payment verification failed');
           }
         } catch (error) {
-          console.error('Payment verification error:', error);
-          toast.error('Failed to verify payment');
+          toast.error('Payment verification failed');
         }
       },
-      onClose: () => {
-        console.log('Payment popup closed');
-        toast.info('Payment window closed');
+      onClose: function() {
+        toast.info('Payment cancelled');
       }
     });
     
-    console.log('Opening Paystack iframe');
-    handler.openIframe();
+    paystack.openIframe();
   };
 
   // Group by restaurant to calculate totals
@@ -401,9 +406,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
-                  disabled={createOrderMutation.isPending || !paystackLoaded}
+                  disabled={!paystackLoaded}
                 >
-                  {!paystackLoaded ? 'Loading payment system...' : createOrderMutation.isPending ? 'Redirecting to payment...' : 'Proceed to Payment'}
+                  {!paystackLoaded ? 'Loading payment...' : 'Proceed to Payment'}
                 </Button>
               </CardContent>
             </Card>
