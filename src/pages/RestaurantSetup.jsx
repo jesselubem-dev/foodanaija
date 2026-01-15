@@ -42,7 +42,6 @@ export default function RestaurantSetup() {
     opening_time: '08:00',
     closing_time: '22:00',
     min_order: 1000,
-    delivery_time: '30-45 mins',
     cuisine_types: []
   });
 
@@ -430,23 +429,6 @@ export default function RestaurantSetup() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Estimated Delivery Time</Label>
-              <Select 
-                value={formData.delivery_time} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, delivery_time: value }))}
-              >
-                <SelectTrigger className="h-12 rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="15-30 mins">15-30 mins</SelectItem>
-                  <SelectItem value="30-45 mins">30-45 mins</SelectItem>
-                  <SelectItem value="45-60 mins">45-60 mins</SelectItem>
-                  <SelectItem value="1-2 hours">1-2 hours</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         )}
 
