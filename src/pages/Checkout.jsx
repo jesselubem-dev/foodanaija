@@ -25,6 +25,15 @@ import { CheckCircle2 } from 'lucide-react';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
+// Ensure Paystack is loaded globally
+if (typeof window !== 'undefined' && !window.paystackScriptLoaded) {
+  const script = document.createElement('script');
+  script.src = 'https://js.paystack.co/v1/inline.js';
+  script.async = false; // Load synchronously
+  document.head.appendChild(script);
+  window.paystackScriptLoaded = true;
+}
+
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
@@ -40,37 +49,27 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
-    loadPaystack();
+    
+    // Wait for Paystack to be available
+    const checkPaystack = setInterval(() => {
+      if (window.PaystackPop) {
+        console.log('✅ Paystack is ready');
+        setPaystackLoaded(true);
+        clearInterval(checkPaystack);
+      }
+    }, 100);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      clearInterval(checkPaystack);
+      if (!window.PaystackPop) {
+        console.error('❌ Paystack failed to load');
+        toast.error('Payment system failed to load. Please refresh the page.');
+      }
+    }, 10000);
+    
+    return () => clearInterval(checkPaystack);
   }, []);
-
-  const loadPaystack = () => {
-    // Remove any existing script first
-    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
-    if (existingScript) {
-      existingScript.remove();
-    }
-    
-    // Check if already loaded
-    if (window.PaystackPop) {
-      console.log('Paystack already available');
-      setPaystackLoaded(true);
-      return;
-    }
-    
-    // Load fresh script
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => {
-      console.log('✅ Paystack loaded successfully');
-      setPaystackLoaded(true);
-      toast.success('Payment system ready');
-    };
-    script.onerror = (error) => {
-      console.error('❌ Failed to load Paystack:', error);
-      toast.error('Failed to load payment system. Please refresh.');
-    };
-    document.head.appendChild(script);
-  };
 
   const checkAuth = async () => {
     try {

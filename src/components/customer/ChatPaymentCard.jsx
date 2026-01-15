@@ -8,6 +8,15 @@ import { toast } from 'sonner';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
+// Ensure Paystack is loaded globally
+if (typeof window !== 'undefined' && !window.paystackScriptLoaded) {
+  const script = document.createElement('script');
+  script.src = 'https://js.paystack.co/v1/inline.js';
+  script.async = false;
+  document.head.appendChild(script);
+  window.paystackScriptLoaded = true;
+}
+
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
