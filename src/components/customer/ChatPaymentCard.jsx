@@ -10,15 +10,28 @@ const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paystackReady, setPaystackReady] = useState(false);
+
+  React.useEffect(() => {
+    // Ensure Paystack is loaded
+    const checkPaystack = setInterval(() => {
+      if (window.PaystackPop) {
+        setPaystackReady(true);
+        clearInterval(checkPaystack);
+      }
+    }, 100);
+
+    return () => clearInterval(checkPaystack);
+  }, []);
 
   const handlePayment = async () => {
+    if (!window.PaystackPop) {
+      alert('Payment system not loaded. Please refresh the page.');
+      return;
+    }
+    
     setProcessing(true);
     try {
-      if (!window.PaystackPop) {
-        alert('Payment system not loaded. Please refresh the page.');
-        setProcessing(false);
-        return;
-      }
 
       // Initialize Paystack inline payment
       const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
@@ -145,7 +158,7 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
           <Button
             onClick={handlePayment}
             className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-            disabled={processing}
+            disabled={processing || !paystackReady}
           >
             {processing ? (
               <>

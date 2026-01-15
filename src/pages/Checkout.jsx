@@ -42,27 +42,21 @@ export default function Checkout() {
     checkAuth();
     
     // Load Paystack script dynamically
-    const loadPaystack = () => {
-      if (window.PaystackPop) {
-        setPaystackLoaded(true);
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://js.paystack.co/v1/inline.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('Paystack loaded successfully');
-        setPaystackLoaded(true);
-      };
-      script.onerror = () => {
-        console.error('Failed to load Paystack');
-        toast.error('Failed to load payment system');
-      };
-      document.body.appendChild(script);
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = false;
+    script.onload = () => {
+      setPaystackLoaded(true);
     };
-
-    loadPaystack();
+    script.onerror = () => {
+      toast.error('Failed to load payment system. Please refresh.');
+    };
+    
+    if (!document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
+      document.head.appendChild(script);
+    } else {
+      setPaystackLoaded(true);
+    }
   }, []);
 
   const checkAuth = async () => {
