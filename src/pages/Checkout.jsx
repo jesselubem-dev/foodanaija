@@ -104,13 +104,19 @@ export default function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('Submit clicked - Paystack loaded:', paystackLoaded, 'Window.PaystackPop:', !!window.PaystackPop);
+    console.log('=== SUBMIT DEBUG ===');
+    console.log('Paystack loaded state:', paystackLoaded);
+    console.log('Window.PaystackPop exists:', !!window.PaystackPop);
+    console.log('PaystackPop object:', window.PaystackPop);
     
     if (!window.PaystackPop) {
-      toast.error('Payment system not ready. Please refresh the page.');
-      console.error('PaystackPop not available on window object');
+      console.error('❌ PaystackPop not available');
+      toast.error('Payment system not loaded. Refreshing...');
+      setTimeout(() => window.location.reload(), 1000);
       return;
     }
+    
+    console.log('✅ PaystackPop is available, proceeding...');
     
     if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.delivery_address) {
       toast.error('Please fill in all required fields');
