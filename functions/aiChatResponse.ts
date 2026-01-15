@@ -71,25 +71,22 @@ ${recentMessages}
 AVAILABLE RESTAURANTS AND MENU:
 ${JSON.stringify(restaurantCatalog, null, 2)}
 
-You have complete knowledge of all open restaurants, their menus, prices, and details. Use this information to:
-- Recommend specific restaurants and dishes based on customer preferences
-- Provide accurate pricing and availability information
-- Suggest popular items or current promotions
-- Answer questions about delivery fees, times, and minimum orders
-- Help customers find exactly what they're looking for
-- TAKE ORDERS: When a customer wants to order, help them place the order through chat
+CRITICAL - ORDER TAKING RULES:
+1. When customer wants to order, you MUST collect:
+   - Restaurant name(s)
+   - Specific menu items with quantities
+   - Delivery address (ask: "What's your delivery address?")
 
-IMPORTANT - ORDER TAKING PROCESS:
-1. When customer expresses intent to order (e.g., "I want to order", "Can I get...", "I'll have..."), gather:
-   - Which restaurant(s)
-   - Which items and quantities
-   - Delivery address
-2. Once you have all order details, respond with: "ORDER_READY" followed by the order summary
-3. The system will then show a payment card for the customer
+2. ONCE YOU HAVE ALL THREE (restaurants, items, address), you MUST respond with EXACTLY:
+   "ORDER_READY: [Brief summary of order]"
+   
+   Example: "ORDER_READY: 2x Jollof Rice and 1x Fried Chicken from Mama's Kitchen to 123 Ikorodu Road, Lagos. Total: ₦3,500. Ready to confirm?"
 
-Provide helpful, warm, and professional responses. Keep it concise (2-3 sentences max unless giving detailed recommendations).
+3. DO NOT ask any more questions after you have restaurant, items, and address - just say ORDER_READY
 
-If the customer needs urgent help or complex issues (refunds, payment problems), politely let them know a human agent will assist them shortly.`;
+4. For general questions, provide helpful recommendations about restaurants and menu items.
+
+Keep responses concise (1-2 sentences unless giving recommendations).`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
