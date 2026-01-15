@@ -23,10 +23,13 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2 } from 'lucide-react';
 
+const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
+
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [paystackLoaded, setPaystackLoaded] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -37,6 +40,19 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
+    
+    // Load Paystack script
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => setPaystackLoaded(true);
+    script.onerror = () => toast.error('Failed to load payment system');
+    document.body.appendChild(script);
+    
+    return () => {
+      const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+      if (existingScript) existingScript.remove();
+    };
   }, []);
 
   const checkAuth = async () => {
@@ -72,6 +88,11 @@ export default function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!paystackLoaded || !window.PaystackPop) {
+      toast.error('Payment system is still loading. Please wait...');
+      return;
+    }
+    
     if (!formData.customer_name || !formData.customer_email || !formData.customer_phone || !formData.delivery_address) {
       toast.error('Please fill in all required fields');
       return;
@@ -98,69 +119,109 @@ export default function Checkout() {
     const restaurants = Object.values(itemsByRestaurant);
     const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Create separate order for each restaurant
-    try {
-      for (const restaurant of restaurants) {
-        const subtotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const deliveryFee = 500;
-        const valueAddedService = 300;
-        const total = subtotal + deliveryFee + valueAddedService;
+    // Prepare order data
+    const ordersData = restaurants.map(restaurant => {
+      const subtotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const deliveryFee = 500;
+      const valueAddedService = 300;
+      const total = subtotal + deliveryFee + valueAddedService;
 
-        await base44.entities.Order.create({
-          restaurant_id: restaurant.restaurant_id,
-          restaurant_name: restaurant.restaurant_name,
-          customer_email: formData.customer_email,
-          customer_name: formData.customer_name,
-          customer_phone: formData.customer_phone,
-          delivery_address: formData.delivery_address,
-          items: restaurant.items,
-          subtotal,
-          delivery_fee: deliveryFee,
-          total,
-          notes: formData.notes,
-          status: 'pending',
-          payment_status: 'pending',
-          payment_method: 'cash',
-          batch_order_id: restaurants.length > 1 ? batchOrderId : null,
-          total_restaurants_in_batch: restaurants.length
-        });
-      }
+      return {
+        restaurant_id: restaurant.restaurant_id,
+        restaurant_name: restaurant.restaurant_name,
+        customer_email: formData.customer_email,
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        delivery_address: formData.delivery_address,
+        items: restaurant.items,
+        subtotal,
+        delivery_fee: deliveryFee,
+        total,
+        notes: formData.notes,
+        status: 'pending',
+        payment_status: 'pending',
+        payment_method: 'card',
+        batch_order_id: restaurants.length > 1 ? batchOrderId : null,
+        total_restaurants_in_batch: restaurants.length
+      };
+    });
 
-      // Trigger confetti
-      const duration = 3000;
-      const end = Date.now() + duration;
-      const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
-      
-      (function frame() {
-        confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors
-        });
+    const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
+    // Open Paystack popup
+    const handler = window.PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: formData.customer_email,
+      amount: totalAmount * 100,
+      currency: 'NGN',
+      ref: `${Date.now()}`,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Customer Name",
+            variable_name: "customer_name",
+            value: formData.customer_name
+          },
+          {
+            display_name: "Phone Number",
+            variable_name: "customer_phone",
+            value: formData.customer_phone
+          }
+        ],
+        order_data: ordersData
+      },
+      callback: async function(response) {
+        try {
+          const verifyResult = await base44.functions.invoke('verifyPayment', { 
+            reference: response.reference 
+          });
+          
+          if (verifyResult.data.success) {
+            // Trigger confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+            const colors = ['#f97316', '#fb923c', '#fdba74', '#fed7aa'];
+            
+            (function frame() {
+              confetti({
+                particleCount: 3,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+              });
+              confetti({
+                particleCount: 3,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+
+            localStorage.removeItem('cart');
+            setShowSuccess(true);
+            
+            setTimeout(() => {
+              window.location.href = createPageUrl('OrderHistory');
+            }, 3500);
+          } else {
+            toast.error('Payment verification failed');
+          }
+        } catch (error) {
+          toast.error('Payment verification failed');
         }
-      }());
-
-      localStorage.removeItem('cart');
-      setShowSuccess(true);
-      
-      setTimeout(() => {
-        window.location.href = createPageUrl('OrderHistory');
-      }, 3500);
-    } catch (error) {
-      toast.error('Failed to create order');
-    }
+      },
+      onClose: function() {
+        toast.info('Payment cancelled');
+      }
+    });
+    
+    handler.openIframe();
   };
 
   // Group by restaurant to calculate totals
@@ -329,8 +390,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
+                  disabled={!paystackLoaded}
                 >
-                  Place Order
+                  {paystackLoaded ? 'Proceed to Payment' : 'Loading...'}
                 </Button>
               </CardContent>
             </Card>

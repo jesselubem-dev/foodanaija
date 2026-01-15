@@ -4,42 +4,88 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
 import confetti from 'canvas-confetti';
+import { toast } from 'sonner';
+
+const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
 export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel }) {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paystackLoaded, setPaystackLoaded] = useState(false);
 
-  const handleOrderPlacement = async () => {
+  React.useEffect(() => {
+    if (window.PaystackPop) {
+      setPaystackLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => setPaystackLoaded(true);
+    document.body.appendChild(script);
+  }, []);
+
+  const handlePayment = async () => {
+    if (!paystackLoaded || !window.PaystackPop) {
+      toast.error('Payment system is loading. Please wait...');
+      return;
+    }
+    
     setProcessing(true);
     
-    try {
-      const createdOrders = [];
-      
-      for (const order of orderData) {
-        const newOrder = await base44.entities.Order.create({
-          ...order,
-          payment_method: 'cash',
-          payment_status: 'pending'
-        });
-        createdOrders.push(newOrder);
+    const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
+    
+    const handler = window.PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: orderData[0].customer_email,
+      amount: totalAmount * 100,
+      currency: 'NGN',
+      ref: `${Date.now()}`,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Customer Name",
+            variable_name: "customer_name",
+            value: orderData[0].customer_name
+          }
+        ],
+        order_data: orderData
+      },
+      callback: async function(response) {
+        try {
+          const verifyResult = await base44.functions.invoke('verifyPayment', { 
+            reference: response.reference 
+          });
+          
+          if (verifyResult.data.success) {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+
+            setSuccess(true);
+            
+            setTimeout(() => {
+              onPaymentSuccess(verifyResult.data.orders);
+            }, 1500);
+          } else {
+            toast.error('Payment verification failed');
+            setProcessing(false);
+          }
+        } catch (error) {
+          toast.error('Payment verification failed');
+          setProcessing(false);
+        }
+      },
+      onClose: function() {
+        setProcessing(false);
+        toast.info('Payment cancelled');
       }
-
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
-      setSuccess(true);
-      
-      setTimeout(() => {
-        onPaymentSuccess(createdOrders);
-      }, 1500);
-    } catch (error) {
-      console.error('Order placement failed:', error);
-      alert('Failed to place order. Please try again.');
-      setProcessing(false);
-    }
+    });
+    
+    handler.openIframe();
   };
 
   const totalAmount = orderData.reduce((sum, order) => sum + order.total, 0);
@@ -119,19 +165,24 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
             Cancel
           </Button>
           <Button
-            onClick={handleOrderPlacement}
+            onClick={handlePayment}
             className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-            disabled={processing}
+            disabled={processing || !paystackLoaded}
           >
             {processing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Placing order...
+                Processing...
+              </>
+            ) : !paystackLoaded ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
               </>
             ) : (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Place Order
+                Proceed to Payment
               </>
             )}
           </Button>
