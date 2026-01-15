@@ -22,6 +22,7 @@ export default function Checkout() {
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [paystackReady, setPaystackReady] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -36,22 +37,33 @@ export default function Checkout() {
   }, []);
 
   const loadPaystackScript = () => {
+    if (window.PaystackPop) {
+      setPaystackReady(true);
+      return;
+    }
+
     if (document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
-      console.log('Paystack script already loaded');
+      const checkInterval = setInterval(() => {
+        if (window.PaystackPop) {
+          setPaystackReady(true);
+          clearInterval(checkInterval);
+        }
+      }, 100);
+      
+      setTimeout(() => clearInterval(checkInterval), 5000);
       return;
     }
     
     const script = document.createElement('script');
     script.src = 'https://js.paystack.co/v1/inline.js';
     script.onload = () => {
-      console.log('✅ Paystack script loaded successfully');
-      console.log('PaystackPop available:', !!window.PaystackPop);
+      setPaystackReady(true);
+      toast.success('Payment system ready');
     };
     script.onerror = () => {
-      console.error('❌ Failed to load Paystack script');
       toast.error('Failed to load payment system. Please refresh.');
     };
-    document.body.appendChild(script);
+    document.head.appendChild(script);
   };
 
   const checkAuth = async () => {
@@ -139,13 +151,11 @@ export default function Checkout() {
       return;
     }
     
-    if (!window.PaystackPop) {
-      toast.error('Payment system not loaded. Please wait a moment and try again.');
-      console.error('PaystackPop not available');
+    if (!window.PaystackPop || !paystackReady) {
+      toast.error('Payment system not ready. Please wait...');
       return;
     }
     
-    console.log('Starting payment process...');
     setProcessing(true);
 
     // Group cart items by restaurant
@@ -363,9 +373,9 @@ export default function Checkout() {
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
-                  disabled={processing}
+                  disabled={processing || !paystackReady}
                 >
-                  {processing ? 'Processing...' : 'Pay ₦' + total.toLocaleString()}
+                  {!paystackReady ? 'Loading Payment...' : processing ? 'Processing...' : 'Pay ₦' + total.toLocaleString()}
                 </Button>
               </CardContent>
             </Card>
