@@ -118,38 +118,33 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <Button
-            onClick={onCancel}
-            variant="outline"
-            className="flex-1 border-gray-300"
-            disabled={processing}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handlePayment}
-            className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-            disabled={processing || !paystackLoaded}
-          >
-            {processing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Processing...
-              </>
-            ) : !paystackLoaded ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Proceed to Payment
-              </>
-            )}
-          </Button>
-        </div>
+         <div className="flex gap-2">
+           <Button
+             onClick={onCancel}
+             variant="outline"
+             className="flex-1 border-gray-300"
+             disabled={processing}
+           >
+             Cancel
+           </Button>
+           <Button
+             onClick={handleAddToCart}
+             className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+             disabled={processing}
+           >
+             {processing ? (
+               <>
+                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                 Adding to cart...
+               </>
+             ) : (
+               <>
+                 <ArrowRight className="w-4 h-4 mr-2" />
+                 Add to Cart & Checkout
+               </>
+             )}
+           </Button>
+         </div>
       </CardContent>
     </Card>
   );
