@@ -37,12 +37,9 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'AdminLiveChat', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
-      <>
-        <script src="https://js.paystack.co/v1/inline.js"></script>
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
-          {children}
-        </div>
-      </>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+        {children}
+      </div>
     );
   }
 
