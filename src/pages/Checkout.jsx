@@ -76,6 +76,39 @@ export default function Checkout() {
 
 
 
+  const verifyPaymentAsync = async (reference, ordersData) => {
+    try {
+      const result = await base44.functions.invoke('verifyPayment', {
+        reference: reference,
+        ordersData: ordersData
+      });
+
+      if (result.data.success) {
+        console.log('✓ Payment verified successfully');
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+
+        localStorage.removeItem('cart');
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          window.location.href = createPageUrl('OrderHistory');
+        }, 3000);
+      } else {
+        console.error('Payment verification failed:', result.data);
+        toast.error('Payment verification failed');
+        setProcessing(false);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Payment verification failed: ' + error.message);
+      setProcessing(false);
+    }
+  };
+
   const initiatePayment = (email, amount, reference, ordersData) => {
     console.log('🚀 Initiating payment:', { email, amount, reference });
     console.log('Window object keys:', Object.keys(window).filter(k => k.includes('Paystack')));
