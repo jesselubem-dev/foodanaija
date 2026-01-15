@@ -13,15 +13,29 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
   const [paystackReady, setPaystackReady] = useState(false);
 
   React.useEffect(() => {
-    // Ensure Paystack is loaded
-    const checkPaystack = setInterval(() => {
-      if (window.PaystackPop) {
-        setPaystackReady(true);
-        clearInterval(checkPaystack);
-      }
-    }, 100);
+    // Load Paystack script if not already loaded
+    if (window.PaystackPop) {
+      setPaystackReady(true);
+      return;
+    }
 
-    return () => clearInterval(checkPaystack);
+    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (existingScript) {
+      const checkPaystack = setInterval(() => {
+        if (window.PaystackPop) {
+          setPaystackReady(true);
+          clearInterval(checkPaystack);
+        }
+      }, 100);
+      return () => clearInterval(checkPaystack);
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.onload = () => {
+      setPaystackReady(true);
+    };
+    document.body.appendChild(script);
   }, []);
 
   const handlePayment = async () => {
