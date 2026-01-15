@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { reference } = await req.json();
+    const { reference, ordersData } = await req.json();
     
     if (!reference) {
       return Response.json({ error: 'Payment reference is required' }, { status: 400 });
@@ -37,12 +37,9 @@ Deno.serve(async (req) => {
     }
 
     // Payment successful, create orders
-    const orderData = verifyData.data.metadata.order_data;
-    const orders = typeof orderData === 'string' ? JSON.parse(orderData) : orderData;
-    
     const createdOrders = [];
     
-    for (const order of orders) {
+    for (const order of ordersData) {
       const newOrder = await base44.asServiceRole.entities.Order.create({
         ...order,
         payment_status: 'paid',
