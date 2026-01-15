@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2 } from 'lucide-react';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
-
 export default function Checkout() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
@@ -32,21 +30,6 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
-    
-    // Load Paystack script
-    const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
-    if (!existingScript) {
-      const script = document.createElement('script');
-      script.src = 'https://js.paystack.co/v1/inline.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('Paystack loaded successfully');
-      };
-      script.onerror = () => {
-        toast.error('Failed to load payment system');
-      };
-      document.head.appendChild(script);
-    }
   }, []);
 
   const checkAuth = async () => {
@@ -70,62 +53,32 @@ export default function Checkout() {
 
 
 
-  const payWithPaystack = async (email, amount, reference, ordersData) => {
-    // Wait for PaystackPop to be available
-    let attempts = 0;
-    while (!window.PaystackPop && attempts < 20) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
-    }
-
-    if (!window.PaystackPop) {
-      toast.error('Payment system failed to load');
-      setProcessing(false);
-      return;
-    }
-
-    const handler = window.PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: email,
-      amount: amount * 100,
-      currency: 'NGN',
-      ref: reference,
-      onClose: function() {
-        setProcessing(false);
-        toast.info('Payment cancelled');
-      },
-      callback: async function(response) {
-        try {
-          const result = await base44.functions.invoke('verifyPayment', { 
-            reference: response.reference,
-            ordersData: ordersData
-          });
-          
-          if (result.data.success) {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 }
-            });
-            
-            localStorage.removeItem('cart');
-            setShowSuccess(true);
-            
-            setTimeout(() => {
-              window.location.href = createPageUrl('OrderHistory');
-            }, 3000);
-          } else {
-            toast.error('Payment verification failed');
-            setProcessing(false);
-          }
-        } catch (error) {
-          toast.error('Payment verification failed');
-          setProcessing(false);
-        }
+  const createOrders = async (ordersData) => {
+    try {
+      for (const order of ordersData) {
+        await base44.entities.Order.create({
+          ...order,
+          payment_status: 'pending',
+          payment_method: 'cash'
+        });
       }
-    });
-    
-    handler.openIframe();
+
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      localStorage.removeItem('cart');
+      setShowSuccess(true);
+
+      setTimeout(() => {
+        window.location.href = createPageUrl('OrderHistory');
+      }, 3000);
+    } catch (error) {
+      toast.error('Failed to create order');
+      setProcessing(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -142,12 +95,6 @@ export default function Checkout() {
     }
     
     setProcessing(true);
-
-    if (!window.PaystackPop) {
-      toast.error('Payment system not ready. Please wait and try again.');
-      setProcessing(false);
-      return;
-    }
 
     // Group cart items by restaurant
     const itemsByRestaurant = {};
@@ -192,10 +139,7 @@ export default function Checkout() {
       };
     });
 
-    const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
-    const reference = `PAY_${Date.now()}`;
-    
-    payWithPaystack(formData.customer_email, totalAmount, reference, ordersData);
+    createOrders(ordersData);
   };
 
   // Group by restaurant to calculate totals
@@ -366,7 +310,7 @@ export default function Checkout() {
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
                   disabled={processing}
                 >
-                  {processing ? 'Opening Payment...' : 'Pay ₦' + total.toLocaleString()}
+                  {processing ? 'Placing Order...' : 'Place Order (Cash on Delivery)'}
                 </Button>
               </CardContent>
             </Card>
