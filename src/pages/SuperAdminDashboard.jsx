@@ -21,11 +21,6 @@ export default function SuperAdminDashboard() {
   const checkAdmin = async () => {
     try {
       const userData = await base44.auth.me();
-      // Allow access if user is admin OR app creator
-      if (userData.role !== 'admin' && userData._app_role !== 'admin') {
-        window.location.href = createPageUrl('Home');
-        return;
-      }
       setUser(userData);
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
