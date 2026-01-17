@@ -17,10 +17,16 @@ export default function Home() {
 
   const handleDashboardClick = async () => {
     try {
-      await base44.auth.me();
-      window.location.href = createPageUrl('DashboardHome');
+      const userData = await base44.auth.me();
+      const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
+      
+      if (restaurants.length > 0) {
+        window.location.href = createPageUrl('DashboardHome');
+      } else {
+        window.location.href = createPageUrl('RestaurantSetup');
+      }
     } catch (e) {
-      base44.auth.redirectToLogin(createPageUrl('DashboardHome'));
+      base44.auth.redirectToLogin(createPageUrl('RestaurantSetup'));
     }
   };
 
