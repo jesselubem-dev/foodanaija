@@ -8,10 +8,16 @@ import { Button } from '@/components/ui/button';
 export default function Home() {
   const handleRegisterClick = async () => {
     try {
-      await base44.auth.me();
-      window.location.href = createPageUrl('RestaurantSetup');
+      const userData = await base44.auth.me();
+      const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
+      
+      if (restaurants.length > 0) {
+        window.location.href = createPageUrl('DashboardHome');
+      } else {
+        window.location.href = createPageUrl('RestaurantSetup');
+      }
     } catch (e) {
-      base44.auth.redirectToLogin(createPageUrl('RestaurantSetup'));
+      base44.auth.redirectToLogin(createPageUrl('Home'));
     }
   };
 
