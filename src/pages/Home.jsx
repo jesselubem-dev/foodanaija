@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { ChefHat, Store } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { ChefHat, Store, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      await base44.auth.me();
+      setIsAuthenticated(true);
+    } catch (e) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterClick = () => {
+    if (isAuthenticated) {
+      window.location.href = createPageUrl('RestaurantSetup');
+    } else {
+      base44.auth.redirectToLogin(createPageUrl('RestaurantSetup'));
+    }
+  };
+
+  const handleDashboardClick = () => {
+    if (isAuthenticated) {
+      window.location.href = createPageUrl('DashboardHome');
+    } else {
+      base44.auth.redirectToLogin(createPageUrl('DashboardHome'));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
       {/* Hero Section */}
@@ -27,17 +62,27 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to={createPageUrl('RestaurantSetup')}>
-              <Button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-6 text-lg rounded-2xl shadow-lg shadow-emerald-500/30">
-                <Store className="w-5 h-5 mr-2" />
-                Register Your Restaurant
-              </Button>
-            </Link>
-            <Link to={createPageUrl('DashboardHome')}>
-              <Button variant="outline" className="border-2 border-emerald-200 px-8 py-6 text-lg rounded-2xl">
-                Restaurant Dashboard
-              </Button>
-            </Link>
+            <Button 
+              onClick={handleRegisterClick}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-6 text-lg rounded-2xl shadow-lg shadow-emerald-500/30"
+            >
+              <Store className="w-5 h-5 mr-2" />
+              {isLoading ? 'Loading...' : isAuthenticated ? 'Register Your Restaurant' : 'Sign Up & Register'}
+            </Button>
+            <Button 
+              onClick={handleDashboardClick}
+              disabled={isLoading}
+              variant="outline" 
+              className="border-2 border-emerald-200 px-8 py-6 text-lg rounded-2xl"
+            >
+              {isLoading ? 'Loading...' : isAuthenticated ? 'Restaurant Dashboard' : (
+                <>
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Login to Dashboard
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
