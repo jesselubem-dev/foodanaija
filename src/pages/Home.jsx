@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -6,36 +6,20 @@ import { ChefHat, Store, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const handleRegisterClick = async () => {
     try {
       await base44.auth.me();
-      setIsAuthenticated(true);
-    } catch (e) {
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRegisterClick = () => {
-    if (isAuthenticated) {
       window.location.href = createPageUrl('RestaurantSetup');
-    } else {
+    } catch (e) {
       base44.auth.redirectToLogin(createPageUrl('RestaurantSetup'));
     }
   };
 
-  const handleDashboardClick = () => {
-    if (isAuthenticated) {
+  const handleDashboardClick = async () => {
+    try {
+      await base44.auth.me();
       window.location.href = createPageUrl('DashboardHome');
-    } else {
+    } catch (e) {
       base44.auth.redirectToLogin(createPageUrl('DashboardHome'));
     }
   };
@@ -64,24 +48,18 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={handleRegisterClick}
-              disabled={isLoading}
               className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-6 text-lg rounded-2xl shadow-lg shadow-emerald-500/30"
             >
               <Store className="w-5 h-5 mr-2" />
-              {isLoading ? 'Loading...' : isAuthenticated ? 'Register Your Restaurant' : 'Sign Up & Register'}
+              Register Your Restaurant
             </Button>
             <Button 
               onClick={handleDashboardClick}
-              disabled={isLoading}
               variant="outline" 
               className="border-2 border-emerald-200 px-8 py-6 text-lg rounded-2xl"
             >
-              {isLoading ? 'Loading...' : isAuthenticated ? 'Restaurant Dashboard' : (
-                <>
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Login to Dashboard
-                </>
-              )}
+              <LogIn className="w-5 h-5 mr-2" />
+              Restaurant Dashboard
             </Button>
           </div>
         </div>
