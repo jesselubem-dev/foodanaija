@@ -32,7 +32,7 @@ export default function Home() {
         window.location.href = createPageUrl('RestaurantSetup');
       }
     } catch (e) {
-      base44.auth.redirectToLogin(createPageUrl('RestaurantSetup'));
+      base44.auth.redirectToLogin(createPageUrl('Home'));
     }
   };
 
