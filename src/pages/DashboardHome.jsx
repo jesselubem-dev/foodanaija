@@ -42,9 +42,12 @@ export default function DashboardHome() {
       if (restaurants.length > 0) {
         setRestaurant(restaurants[0]);
       } else {
+        // Redirect to setup if no restaurant found
         window.location.href = createPageUrl('RestaurantSetup');
+        return;
       }
     } catch (e) {
+      console.error('Auth error:', e);
       base44.auth.redirectToLogin(window.location.href);
     }
   };
