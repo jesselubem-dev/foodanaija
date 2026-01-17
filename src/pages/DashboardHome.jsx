@@ -39,13 +39,12 @@ export default function DashboardHome() {
       setUser(userData);
       
       const restaurants = await base44.entities.Restaurant.filter({ owner_email: userData.email });
-      if (restaurants.length > 0) {
-        setRestaurant(restaurants[0]);
-      } else {
+      if (restaurants.length === 0) {
         // Redirect to setup if no restaurant found
         window.location.href = createPageUrl('RestaurantSetup');
         return;
       }
+      setRestaurant(restaurants[0]);
     } catch (e) {
       console.error('Auth error:', e);
       base44.auth.redirectToLogin(window.location.href);
