@@ -158,7 +158,6 @@ export default function CustomerHome() {
   const checkAuth = async () => {
     try {
       const userData = await base44.auth.me();
-      setUser(userData);
       
       // Check if onboarding is completed
       const onboardingCompleted = localStorage.getItem('onboarding_completed');
@@ -166,6 +165,8 @@ export default function CustomerHome() {
         window.location.href = createPageUrl('Onboarding');
         return;
       }
+
+      setUser(userData);
 
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
