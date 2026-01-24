@@ -321,11 +321,7 @@ function CustomerHomeContent() {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   if (isLoading) {
-    return (
-      <LanguageProvider>
-        <LoadingScreen />
-      </LanguageProvider>
-    );
+    return <LoadingScreen />;
   }
 
   return (
