@@ -25,8 +25,10 @@ import BannerCarousel from '../components/customer/BannerCarousel';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import NoInternet from '../components/NoInternet';
+import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 
-export default function CustomerHome() {
+function CustomerHomeContent() {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
@@ -331,7 +333,7 @@ export default function CustomerHome() {
               <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Search restaurants or cuisines..."
+                placeholder={t('searchRestaurants')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 h-14 rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-colors text-base"
@@ -353,7 +355,7 @@ export default function CustomerHome() {
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
-            All Cities
+            {t('allCities')}
           </button>
           {cities.map(city => (
             <button
@@ -410,7 +412,7 @@ export default function CustomerHome() {
                         ? 'bg-green-500/90 text-white' 
                         : 'bg-gray-800/90 text-white'
                     }`}>
-                      {restaurant.is_open ? '● Open' : '● Closed'}
+                      {restaurant.is_open ? `● ${t('open')}` : `● ${t('closed')}`}
                     </div>
 
                     {/* Logo Overlay */}
@@ -495,5 +497,13 @@ export default function CustomerHome() {
         />
       )}
       </div>
-      );
-      }
+  );
+}
+
+export default function CustomerHome() {
+  return (
+    <LanguageProvider>
+      <CustomerHomeContent />
+    </LanguageProvider>
+  );
+}
