@@ -14,8 +14,9 @@ import ReviewSection from '../components/restaurant/ReviewSection';
 import FloatingCart from '../components/customer/FloatingCart';
 import NotificationBell from '../components/customer/NotificationBell';
 import FloatingMenu from '../components/customer/FloatingMenu';
+import { LanguageProvider } from '../components/LanguageContext';
 
-export default function RestaurantDetail() {
+function RestaurantDetailContent() {
   const urlParams = new URLSearchParams(window.location.search);
   const restaurantId = urlParams.get('id');
   const [cart, setCart] = useState([]);
@@ -378,5 +379,13 @@ export default function RestaurantDetail() {
 
       <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
     </div>
+  );
+}
+
+export default function RestaurantDetail() {
+  return (
+    <LanguageProvider>
+      <RestaurantDetailContent />
+    </LanguageProvider>
   );
 }
