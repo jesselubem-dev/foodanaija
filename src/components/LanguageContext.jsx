@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 
 // Hausa translations
 const translations = {
@@ -154,8 +155,29 @@ export const LanguageProvider = ({ children }) => {
     setLanguage(lang);
   };
 
+  const translateText = async (text) => {
+    if (!text || language === 'en') return text;
+    
+    try {
+      const cacheKey = `translation_${language}_${text.substring(0, 50)}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) return cached;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Translate the following text to Hausa language. Only return the translated text, nothing else:\n\n${text}`,
+        add_context_from_internet: false,
+      });
+
+      sessionStorage.setItem(cacheKey, response);
+      return response;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return text;
+    }
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, changeLanguage, t }}>
+    <LanguageContext.Provider value={{ language, changeLanguage, t, translateText }}>
       {children}
     </LanguageContext.Provider>
   );
