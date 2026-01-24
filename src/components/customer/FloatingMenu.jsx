@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Home, ShoppingBag, History, User, LogOut, Bell, Sparkles, MessageSquare } from 'lucide-react';
+import { Home, ShoppingBag, History, User, LogOut, Bell, Sparkles, MessageSquare, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../LanguageContext';
 import {
   Sheet,
   SheetContent,
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 
 export default function FloatingMenu({ cartCount = 0, userEmail }) {
-
+  const { language, changeLanguage, t } = useLanguage();
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('CustomerHome');
@@ -86,7 +87,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               >
                 <Home className={`w-5 h-5 ${currentPage === 'CustomerHome' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Home</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('home')}</span>
             </Button>
           </motion.div>
         </Link>
@@ -103,7 +104,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               >
                 <Sparkles className={`w-5 h-5 ${currentPage === 'Promos' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
-              <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">Promos</span>
+              <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">{t('promos')}</span>
             </Button>
           </motion.div>
         </Link>
@@ -120,7 +121,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               >
                 <ShoppingBag className={`w-5 h-5 ${currentPage === 'Cart' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Cart</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('cart')}</span>
               {cartCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -142,7 +143,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
             >
               <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Orders</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
             </Button>
           </motion.div>
         </Link>
@@ -159,7 +160,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               >
                 <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Chat</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
             </Button>
           </motion.div>
         </Link>
@@ -172,7 +173,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
               >
                 <User className={`w-6 h-6 ${profileOpen ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Profile</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('profile')}</span>
               </Button>
             </motion.div>
           </SheetTrigger>
@@ -198,7 +199,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Bell className="w-5 h-5 text-orange-600" />
-                        <h3 className="font-bold text-gray-900">Notifications</h3>
+                        <h3 className="font-bold text-gray-900">{t('notifications')}</h3>
                       </div>
                       {unreadCount > 0 && (
                         <Badge className="bg-orange-500 text-white">{unreadCount}</Badge>
@@ -208,7 +209,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                     {notifications.length === 0 ? (
                       <div className="text-center py-8 bg-gray-50 rounded-xl">
                         <Bell className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">No notifications yet</p>
+                        <p className="text-sm text-gray-500">{t('noNotifications')}</p>
                       </div>
                     ) : (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -239,7 +240,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
 
                   {/* Quick Actions */}
                   <div className="pt-4 border-t">
-                    <h3 className="font-bold text-gray-900 mb-3">Quick Actions</h3>
+                    <h3 className="font-bold text-gray-900 mb-3">{t('quickActions')}</h3>
                     <div className="space-y-2">
                       <Link to={createPageUrl('OrderHistory')}>
                         <button
@@ -250,8 +251,8 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                             <History className="w-5 h-5 text-orange-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">Order History</p>
-                            <p className="text-xs text-gray-500">View past orders</p>
+                            <p className="text-sm font-semibold text-gray-900">{t('orderHistory')}</p>
+                            <p className="text-xs text-gray-500">{t('viewPastOrders')}</p>
                           </div>
                         </button>
                       </Link>
@@ -265,11 +266,40 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                             <ShoppingBag className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">My Cart</p>
-                            <p className="text-xs text-gray-500">{cartCount} items</p>
+                            <p className="text-sm font-semibold text-gray-900">{t('myCart')}</p>
+                            <p className="text-xs text-gray-500">{cartCount} {t('items')}</p>
                           </div>
                         </button>
                       </Link>
+                    </div>
+                  </div>
+
+                  {/* Language Selector */}
+                  <div className="pt-4 border-t">
+                    <h3 className="font-bold text-gray-900 mb-3">{t('language')}</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => changeLanguage('en')}
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all border ${
+                          language === 'en' 
+                            ? 'bg-orange-500 text-white border-orange-500' 
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-orange-50'
+                        }`}
+                      >
+                        <Languages className="w-4 h-4" />
+                        <span className="text-sm font-medium">English</span>
+                      </button>
+                      <button
+                        onClick={() => changeLanguage('ha')}
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all border ${
+                          language === 'ha' 
+                            ? 'bg-orange-500 text-white border-orange-500' 
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-orange-50'
+                        }`}
+                      >
+                        <Languages className="w-4 h-4" />
+                        <span className="text-sm font-medium">Hausa</span>
+                      </button>
                     </div>
                   </div>
 
@@ -283,7 +313,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                   onClick={() => base44.auth.logout()}
                 >
                   <LogOut className="w-5 h-5" />
-                  Logout
+                  {t('logout')}
                 </button>
               </div>
             </div>
