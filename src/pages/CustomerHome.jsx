@@ -330,21 +330,6 @@ function CustomerHomeContent() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-          <div className="relative w-32 h-32 mx-auto mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-ping opacity-20"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-pulse opacity-30"></div>
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
-              alt="Fooda Naija" 
-              className="relative w-32 h-32 object-contain animate-bounce"
-            />
-          </div>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-          </div>
-
       <NoInternet />
       {/* Modern App Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
