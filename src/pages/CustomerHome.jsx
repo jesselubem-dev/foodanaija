@@ -27,6 +27,32 @@ import RiderRatingModal from '../components/customer/RiderRatingModal';
 import NoInternet from '../components/NoInternet';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 
+function LoadingScreen() {
+  const { t } = useLanguage();
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center z-50">
+      <div className="text-center">
+        <div className="relative w-32 h-32 mx-auto mb-6">
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-ping opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-pulse opacity-30"></div>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
+            alt="Fooda Naija" 
+            className="relative w-32 h-32 object-contain animate-bounce"
+          />
+        </div>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+          <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+          <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        </div>
+        <p className="text-xl font-bold text-gray-800 mb-1">{t('welcomeToFooda')}</p>
+        <p className="text-sm text-gray-500">{t('preparingExperience')}</p>
+      </div>
+    </div>
+  );
+}
+
 function CustomerHomeContent() {
   const { t, language, translateText } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
@@ -296,8 +322,14 @@ function CustomerHomeContent() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center z-50">
-        <div className="text-center">
+      <LanguageProvider>
+        <LoadingScreen />
+      </LanguageProvider>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
           <div className="relative w-32 h-32 mx-auto mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-ping opacity-20"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full animate-pulse opacity-30"></div>
@@ -312,15 +344,7 @@ function CustomerHomeContent() {
             <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
             <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
           </div>
-          <p className="text-xl font-bold text-gray-800 mb-1">Welcome to Fooda</p>
-          <p className="text-sm text-gray-500">Preparing your experience...</p>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       <NoInternet />
       {/* Modern App Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
@@ -356,9 +380,9 @@ function CustomerHomeContent() {
         {user && (
           <div className="pt-6 pb-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Hi, {user.full_name.split(' ')[0]}! 👋
+              {t('hi')}, {user.full_name.split(' ')[0]}! 👋
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">What would you like to eat today?</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('whatToEat')}</p>
           </div>
         )}
 
@@ -421,7 +445,7 @@ function CustomerHomeContent() {
             <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <ChefHat className="w-10 h-10 text-gray-400" />
             </div>
-            <p className="text-gray-500">No restaurants found</p>
+            <p className="text-gray-500">{t('noRestaurantsFound')}</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -485,7 +509,7 @@ function CustomerHomeContent() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Clock className="w-4 h-4" />
-                        <span>5-15 mins</span>
+                        <span>5-15 {t('mins')}</span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                         <Bike className="w-4 h-4" />

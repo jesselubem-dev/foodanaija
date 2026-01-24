@@ -63,6 +63,16 @@ const translations = {
     myCart: "My Cart",
     items: "items",
     noNotifications: "No notifications yet",
+    
+    // Welcome messages
+    hi: "Hi",
+    whatToEat: "What would you like to eat today?",
+    noRestaurantsFound: "No restaurants found",
+    welcomeToFooda: "Welcome to Fooda",
+    preparingExperience: "Preparing your experience...",
+    
+    // Restaurant info
+    mins: "mins",
   },
   
   ha: {
@@ -125,6 +135,16 @@ const translations = {
     myCart: "Keken kasuwanci na",
     items: "abubuwa",
     noNotifications: "Babu sanarwa har yanzu",
+    
+    // Welcome messages
+    hi: "Sannu",
+    whatToEat: "Me kake so ka ci yau?",
+    noRestaurantsFound: "Ba a sami gidajen abinci",
+    welcomeToFooda: "Barka da zuwa Fooda",
+    preparingExperience: "Muna shirya...",
+    
+    // Restaurant info
+    mins: "mintuna",
   }
 };
 
