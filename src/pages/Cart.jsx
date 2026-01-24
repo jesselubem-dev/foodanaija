@@ -8,8 +8,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import FloatingMenu from '../components/customer/FloatingMenu';
+import { LanguageProvider } from '../components/LanguageContext';
 
-export default function Cart() {
+function CartContent() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
 
@@ -204,5 +205,13 @@ export default function Cart() {
       {/* Floating Menu */}
       <FloatingMenu cartCount={cart.length} />
     </div>
+  );
+}
+
+export default function Cart() {
+  return (
+    <LanguageProvider>
+      <CartContent />
+    </LanguageProvider>
   );
 }

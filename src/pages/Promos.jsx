@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FloatingMenu from '../components/customer/FloatingMenu';
+import { LanguageProvider } from '../components/LanguageContext';
 
-export default function Promos() {
+function PromosContent() {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
 
@@ -202,5 +203,13 @@ export default function Promos() {
 
       <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
     </div>
+  );
+}
+
+export default function Promos() {
+  return (
+    <LanguageProvider>
+      <PromosContent />
+    </LanguageProvider>
   );
 }
