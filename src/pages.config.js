@@ -27,6 +27,7 @@ import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
+import SuperAdminDrinks from './pages/SuperAdminDrinks';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +61,7 @@ export const PAGES = {
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
+    "SuperAdminDrinks": SuperAdminDrinks,
 }
 
 export const pagesConfig = {
