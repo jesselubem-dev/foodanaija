@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 
 export default function FloatingMenu({ cartCount = 0, userEmail }) {
-  const { language, changeLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('CustomerHome');
@@ -271,35 +271,6 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                           </div>
                         </button>
                       </Link>
-                    </div>
-                  </div>
-
-                  {/* Language Selector */}
-                  <div className="pt-4 border-t">
-                    <h3 className="font-bold text-gray-900 mb-3">{t('language')}</h3>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => changeLanguage('en')}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all border ${
-                          language === 'en' 
-                            ? 'bg-orange-500 text-white border-orange-500' 
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-orange-50'
-                        }`}
-                      >
-                        <Languages className="w-4 h-4" />
-                        <span className="text-sm font-medium">English</span>
-                      </button>
-                      <button
-                        onClick={() => changeLanguage('ha')}
-                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all border ${
-                          language === 'ha' 
-                            ? 'bg-orange-500 text-white border-orange-500' 
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-orange-50'
-                        }`}
-                      >
-                        <Languages className="w-4 h-4" />
-                        <span className="text-sm font-medium">Hausa</span>
-                      </button>
                     </div>
                   </div>
 
