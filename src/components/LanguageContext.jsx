@@ -1,7 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { createContext, useContext } from 'react';
 
-// Hausa translations
 const translations = {
   en: {
     // Home Page
@@ -73,78 +71,6 @@ const translations = {
     
     // Restaurant info
     mins: "mins",
-  },
-  
-  ha: {
-    // Home Page
-    welcome: "Barka da zuwa",
-    searchRestaurants: "Nemo gidajen abinci, abinci...",
-    allCities: "Duk Garuruwa",
-    open: "A BUƊE",
-    closed: "A RUFE",
-    minOrder: "Mafi ƙaranci",
-    delivery: "Isar da kaya",
-    reviews: "sharhi",
-    
-    // Navigation
-    home: "Gida",
-    promos: "Rangwame",
-    cart: "Keken kasuwanci",
-    orders: "Oda",
-    chat: "Tattaunawa",
-    
-    // Profile
-    profile: "Bayani",
-    notifications: "Sanarwa",
-    addresses: "Adiresoshi da aka adana",
-    support: "Tallafin abokin ciniki",
-    logout: "Fita",
-    language: "Harshe",
-    
-    // Cart
-    yourCart: "Keken Kasuwanci naku",
-    emptyCart: "Keken kasuwanci naku babu komai",
-    startBrowsing: "Fara duba gidajen abinci",
-    subtotal: "Jimlar",
-    deliveryFee: "Kudin isar da kaya",
-    total: "Duka",
-    proceedToCheckout: "Ci gaba zuwa biyan kuɗi",
-    
-    // Restaurant Detail
-    menu: "Menu",
-    about: "Game da",
-    reviewsTab: "Sharhi",
-    addToCart: "Ƙara zuwa keken kasuwanci",
-    unavailable: "Ba a samuwa",
-    
-    // Orders
-    myOrders: "Oda na",
-    pending: "Ana jira",
-    accepted: "An karɓa",
-    delivered: "An kawo",
-    cancelled: "An soke",
-    
-    // Common
-    viewMenu: "Duba Menu",
-    orderNow: "Oda yanzu",
-    loading: "Ana loda...",
-    noResults: "Babu sakamako",
-    quickActions: "Ayyuka masu sauri",
-    orderHistory: "Tarihin Oda",
-    viewPastOrders: "Duba oda da suka wuce",
-    myCart: "Keken kasuwanci na",
-    items: "abubuwa",
-    noNotifications: "Babu sanarwa har yanzu",
-    
-    // Welcome messages
-    hi: "Sannu",
-    whatToEat: "Me kake so ka ci yau?",
-    noRestaurantsFound: "Ba a sami gidajen abinci",
-    welcomeToFooda: "Barka da zuwa Fooda",
-    preparingExperience: "Muna shirya...",
-    
-    // Restaurant info
-    mins: "mintuna",
   }
 };
 
@@ -159,45 +85,12 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('app_language') || 'en';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('app_language', language);
-  }, [language]);
-
   const t = (key) => {
-    return translations[language]?.[key] || translations.en[key] || key;
-  };
-
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-  };
-
-  const translateText = async (text) => {
-    if (!text || language === 'en') return text;
-    
-    try {
-      const cacheKey = `translation_${language}_${text.substring(0, 50)}`;
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) return cached;
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Translate the following text to Hausa language. Only return the translated text, nothing else:\n\n${text}`,
-        add_context_from_internet: false,
-      });
-
-      sessionStorage.setItem(cacheKey, response);
-      return response;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return text;
-    }
+    return translations.en[key] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, changeLanguage, t, translateText }}>
+    <LanguageContext.Provider value={{ language: 'en', t }}>
       {children}
     </LanguageContext.Provider>
   );
