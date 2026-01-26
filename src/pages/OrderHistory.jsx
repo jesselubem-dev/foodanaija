@@ -13,8 +13,9 @@ import { toast } from 'sonner';
 import moment from 'moment';
 import FloatingMenu from '../components/customer/FloatingMenu';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
+import { LanguageProvider } from '../components/LanguageContext';
 
-export default function OrderHistory() {
+function OrderHistoryContent() {
   const [user, setUser] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
   const queryClient = useQueryClient();
@@ -222,6 +223,14 @@ export default function OrderHistory() {
             onCancel={() => setCancelOrderId(null)}
             isLoading={cancelOrderMutation.isPending}
           />
-          </div>
-          );
-          }
+    </div>
+  );
+}
+
+export default function OrderHistory() {
+  return (
+    <LanguageProvider>
+      <OrderHistoryContent />
+    </LanguageProvider>
+  );
+}
