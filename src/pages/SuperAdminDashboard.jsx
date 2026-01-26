@@ -315,6 +315,22 @@ export default function SuperAdminDashboard() {
               </CardContent>
             </Card>
           </Link>
+
+          <Link to={createPageUrl('SuperAdminDrinks')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Manage Drinks</CardTitle>
+                <UtensilsCrossed className="w-4 h-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Drinks</div>
+                <p className="text-xs text-muted-foreground">Soft drinks & beverages</p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-green-600">
+                  Manage <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
           </div>
 
         {/* Restaurant Revenue Breakdown */}

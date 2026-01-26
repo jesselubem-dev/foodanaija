@@ -14,6 +14,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { CheckCircle2 } from 'lucide-react';
+import DrinkUpsell from '../components/customer/DrinkUpsell';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
@@ -22,6 +23,7 @@ export default function Checkout() {
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [selectedDrinks, setSelectedDrinks] = useState([]);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -65,6 +67,22 @@ export default function Checkout() {
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
     }
+  };
+
+  const handleAddDrink = (drink, delta) => {
+    setSelectedDrinks(prev => {
+      const existing = prev.find(d => d.id === drink.id);
+      if (existing) {
+        const newQuantity = existing.quantity + delta;
+        if (newQuantity <= 0) {
+          return prev.filter(d => d.id !== drink.id);
+        }
+        return prev.map(d => d.id === drink.id ? { ...d, quantity: newQuantity } : d);
+      } else if (delta > 0) {
+        return [...prev, { ...drink, quantity: delta }];
+      }
+      return prev;
+    });
   };
 
 
@@ -155,12 +173,23 @@ export default function Checkout() {
     const restaurants = Object.values(itemsByRestaurant);
     const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Prepare order data
+    // Prepare order data with drinks included
     const ordersData = restaurants.map(restaurant => {
-      const subtotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const foodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
+      const orderSubtotal = foodTotal + (restaurants.length === 1 ? drinksTotal : drinksTotal / restaurants.length);
       const deliveryFee = 500;
       const valueAddedService = 300;
-      const total = subtotal + deliveryFee + valueAddedService;
+      const orderTotal = orderSubtotal + deliveryFee + valueAddedService;
+
+      // Add drinks as items
+      const drinksAsItems = selectedDrinks.map(drink => ({
+        item_id: `DRINK_${drink.id}`,
+        name: drink.name,
+        price: drink.price,
+        quantity: drink.quantity,
+        image_url: drink.image_url
+      }));
 
       return {
         restaurant_id: restaurant.restaurant_id,
@@ -169,10 +198,10 @@ export default function Checkout() {
         customer_name: formData.customer_name,
         customer_phone: formData.customer_phone,
         delivery_address: formData.delivery_address,
-        items: restaurant.items,
-        subtotal,
+        items: [...restaurant.items, ...drinksAsItems],
+        subtotal: orderSubtotal,
         delivery_fee: deliveryFee,
-        total,
+        total: orderTotal,
         notes: formData.notes,
         status: 'pending',
         payment_status: 'pending',
@@ -198,7 +227,9 @@ export default function Checkout() {
   });
   
   const restaurantCount = Object.keys(itemsByRestaurant).length;
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const foodSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
+  const subtotal = foodSubtotal + drinksSubtotal;
   const deliveryFee = restaurantCount * 500;
   const valueAddedService = restaurantCount * 300;
   const total = subtotal + deliveryFee + valueAddedService;
@@ -240,6 +271,8 @@ export default function Checkout() {
         <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
           {/* Delivery Details */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Drinks Upsell */}
+            <DrinkUpsell onAddDrink={handleAddDrink} selectedDrinks={selectedDrinks} />
             <Card className="border-gray-100">
               <CardHeader>
                 <CardTitle>Delivery Details</CardTitle>
@@ -329,6 +362,21 @@ export default function Checkout() {
                     </span>
                   </div>
                 ))}
+
+                {selectedDrinks.length > 0 && (
+                  <div className="pt-2 border-t">
+                    {selectedDrinks.map((drink) => (
+                      <div key={drink.id} className="flex justify-between text-sm">
+                        <span className="text-gray-600">
+                          🥤 {drink.name} x{drink.quantity}
+                        </span>
+                        <span className="font-medium text-orange-600">
+                          ₦{(drink.price * drink.quantity).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-gray-600">
