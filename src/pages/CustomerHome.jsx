@@ -54,7 +54,7 @@ function LoadingScreen() {
 }
 
 function CustomerHomeContent() {
-  const { t, language, translateText } = useLanguage();
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
@@ -63,7 +63,6 @@ function CustomerHomeContent() {
   const [showVoiceOrder, setShowVoiceOrder] = useState(false);
   const [riderRatingOrder, setRiderRatingOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [translatedRestaurants, setTranslatedRestaurants] = useState([]);
 
   useEffect(() => {
     checkAuth();
@@ -276,44 +275,10 @@ function CustomerHomeContent() {
 
   const cities = ['Sokoto'];
 
-  // Translate restaurants when language changes
-  useEffect(() => {
-    if (language === 'en' || restaurants.length === 0) {
-      setTranslatedRestaurants(restaurants);
-      return;
-    }
-
-    const translateRestaurants = async () => {
-      const translated = await Promise.all(
-        restaurants.map(async (restaurant) => {
-          const translatedName = await translateText(restaurant.name);
-          const translatedDesc = await translateText(restaurant.description || '');
-          const translatedCuisines = await Promise.all(
-            (restaurant.cuisine_types || []).map(c => translateText(c))
-          );
-          
-          return {
-            ...restaurant,
-            translatedName,
-            translatedDescription: translatedDesc,
-            translatedCuisineTypes: translatedCuisines,
-          };
-        })
-      );
-      setTranslatedRestaurants(translated);
-    };
-
-    translateRestaurants();
-  }, [language, restaurants]);
-
-  const filteredRestaurants = (translatedRestaurants.length > 0 ? translatedRestaurants : restaurants).filter(r => {
-    const displayName = r.translatedName || r.name;
-    const displayDesc = r.translatedDescription || r.description;
-    const displayCuisines = r.translatedCuisineTypes || r.cuisine_types;
-    
-    const matchesSearch = displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         displayDesc?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         displayCuisines?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredRestaurants = restaurants.filter(r => {
+    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCity = selectedCity === 'all' || r.city === selectedCity;
     return matchesSearch && matchesCity;
   });
@@ -469,16 +434,16 @@ function CustomerHomeContent() {
                   
                   <div className="p-4 pt-8">
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
-                      {restaurant.translatedName || restaurant.name}
+                      {restaurant.name}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mb-3">
-                      {restaurant.translatedDescription || restaurant.description}
+                      {restaurant.description}
                     </p>
 
                     {/* Cuisine Tags */}
-                    {(restaurant.translatedCuisineTypes || restaurant.cuisine_types)?.length > 0 && (
+                    {restaurant.cuisine_types?.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
-                        {(restaurant.translatedCuisineTypes || restaurant.cuisine_types).slice(0, 2).map((cuisine, idx) => (
+                        {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
                           <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg font-medium">
                             {cuisine}
                           </span>
