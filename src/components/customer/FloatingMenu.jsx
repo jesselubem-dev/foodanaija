@@ -271,6 +271,21 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                           </div>
                         </button>
                       </Link>
+
+                      <Link to={createPageUrl('DeleteAccount')}>
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-left border border-red-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                            <LogOut className="w-5 h-5 text-red-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-red-900">Delete Account</p>
+                            <p className="text-xs text-red-600">Permanently remove your account</p>
+                          </div>
+                        </button>
+                      </Link>
                     </div>
                   </div>
 
