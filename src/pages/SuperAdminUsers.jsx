@@ -2,19 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Users, User, Mail, Calendar, ArrowLeft, Search, Shield
+  Users, User, Mail, Calendar, ArrowLeft, Search, Shield, UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SuperAdminUsers() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('user');
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     checkAdmin();
@@ -55,6 +74,30 @@ export default function SuperAdminUsers() {
     return restaurants.find(r => r.owner_email === userEmail);
   };
 
+  const inviteUserMutation = useMutation({
+    mutationFn: async ({ email, role }) => {
+      return await base44.users.inviteUser(email, role);
+    },
+    onSuccess: () => {
+      toast.success('User invited successfully!');
+      setInviteDialogOpen(false);
+      setInviteEmail('');
+      setInviteRole('user');
+      queryClient.invalidateQueries({ queryKey: ['all-users'] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to invite user');
+    },
+  });
+
+  const handleInviteUser = () => {
+    if (!inviteEmail) {
+      toast.error('Please enter an email address');
+      return;
+    }
+    inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole });
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -67,16 +110,67 @@ export default function SuperAdminUsers() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link to={createPageUrl('SuperAdminDashboard')}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
-            <p className="text-gray-500 mt-1">View all registered users</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Link to={createPageUrl('SuperAdminDashboard')}>
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
+              <p className="text-gray-500 mt-1">View all registered users</p>
+            </div>
           </div>
+          
+          <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-orange-500 hover:bg-orange-600">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite User
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Invite New User</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Email Address</label>
+                  <Input
+                    type="email"
+                    placeholder="user@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Role</label>
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {inviteRole === 'admin' && (
+                    <p className="text-xs text-amber-600 mt-2">
+                      ⚠️ Admin users will have full access to the Super Admin Dashboard
+                    </p>
+                  )}
+                </div>
+                <Button 
+                  onClick={handleInviteUser}
+                  disabled={inviteUserMutation.isPending}
+                  className="w-full bg-orange-500 hover:bg-orange-600"
+                >
+                  {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Search */}
