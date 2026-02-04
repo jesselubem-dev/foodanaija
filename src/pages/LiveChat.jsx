@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import FloatingMenu from '../components/customer/FloatingMenu';
 import { LanguageProvider } from '../components/LanguageContext';
+import ChatPaymentCard from '../components/customer/ChatPaymentCard';
 
 function LiveChatContent() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,7 @@ function LiveChatContent() {
   const [chatId, setChatId] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [aiTyping, setAiTyping] = useState(false);
+  const [orderData, setOrderData] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -216,7 +218,44 @@ function LiveChatContent() {
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map((msg) => (
+            {messages.map((msg) => {
+              // Check if message contains order data
+              if (msg.message.startsWith('ORDER_DATA:')) {
+                const orderInfo = JSON.parse(msg.message.replace('ORDER_DATA:', ''));
+                
+                // Group items by restaurant
+                const ordersByRestaurant = orderInfo.reduce((acc, item) => {
+                  const existing = acc.find(o => o.restaurant_id === item.restaurant_id);
+                  if (existing) {
+                    existing.items.push(item);
+                    existing.total += item.price * item.quantity;
+                  } else {
+                    acc.push({
+                      restaurant_id: item.restaurant_id,
+                      restaurant_name: item.restaurant_name,
+                      items: [item],
+                      total: item.price * item.quantity,
+                      delivery_address: 'Set during checkout'
+                    });
+                  }
+                  return acc;
+                }, []);
+
+                return (
+                  <ChatPaymentCard
+                    key={msg.id}
+                    orderData={ordersByRestaurant}
+                    onPaymentSuccess={() => {
+                      toast.success('Order placed successfully!');
+                    }}
+                    onCancel={() => {
+                      toast.info('Order cancelled');
+                    }}
+                  />
+                );
+              }
+
+              return (
               <div
                 key={msg.id}
                 className={`flex ${msg.sender_type === 'customer' ? 'justify-end' : 'justify-start'}`}
@@ -261,7 +300,8 @@ function LiveChatContent() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             
             {/* AI Typing Indicator */}
             {aiTyping && (

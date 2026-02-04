@@ -60,7 +60,120 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Generate AI response with order detection
+    // Check if customer wants to place an order
+    const orderDetectionPrompt = `Analyze this customer message: "${customer_message}"
+
+Is the customer trying to place a food order? Reply with ONLY "yes" or "no".
+
+Examples:
+"I want jollof rice" -> yes
+"Order egusi soup" -> yes
+"Get me some chicken" -> yes
+"What's your location?" -> no
+"How much is delivery?" -> no`;
+
+    const orderIntent = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: orderDetectionPrompt,
+      add_context_from_internet: false,
+    });
+
+    const isOrderRequest = orderIntent.toLowerCase().trim() === 'yes';
+
+    if (isOrderRequest) {
+      // Extract order details
+      const orderExtractionPrompt = `Based on this message: "${customer_message}"
+      
+And these available restaurants:
+${JSON.stringify(restaurantCatalog, null, 2)}
+
+Extract the order details and return a JSON response with this exact structure:
+{
+  "order_items": [
+    {
+      "restaurant_name": "exact restaurant name from catalog",
+      "item_name": "menu item name",
+      "quantity": 1
+    }
+  ]
+}
+
+Rules:
+- Match items to actual restaurants and menu items from the catalog
+- If restaurant/item not found, return empty order_items array
+- Default quantity is 1 if not specified
+- Return ONLY the JSON, no other text`;
+
+      const orderData = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: orderExtractionPrompt,
+        add_context_from_internet: false,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            order_items: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  restaurant_name: { type: "string" },
+                  item_name: { type: "string" },
+                  quantity: { type: "number" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (orderData.order_items && orderData.order_items.length > 0) {
+        // Build the order payload with actual IDs and prices
+        const orderPayload = [];
+        
+        for (const orderItem of orderData.order_items) {
+          const restaurant = restaurants.find(r => 
+            r.name.toLowerCase() === orderItem.restaurant_name.toLowerCase()
+          );
+          
+          if (restaurant) {
+            const menuItem = allMenuItems.find(m => 
+              m.restaurant_id === restaurant.id && 
+              m.name.toLowerCase().includes(orderItem.item_name.toLowerCase())
+            );
+            
+            if (menuItem) {
+              orderPayload.push({
+                restaurant_id: restaurant.id,
+                restaurant_name: restaurant.name,
+                item_id: menuItem.id,
+                name: menuItem.name,
+                price: menuItem.price,
+                quantity: orderItem.quantity || 1,
+                image_url: menuItem.images?.[0] || ''
+              });
+            }
+          }
+        }
+
+        if (orderPayload.length > 0) {
+          // Store order data for the chat session
+          await base44.asServiceRole.entities.ChatMessage.create({
+            chat_id,
+            customer_email: customer_email,
+            customer_name: customer_name,
+            sender_type: 'ai',
+            sender_name: 'Fooda',
+            message: `ORDER_DATA:${JSON.stringify(orderPayload)}`,
+          });
+
+          return Response.json({ 
+            success: true,
+            ai_response: "Great! I've prepared your order. Please review and confirm below.",
+            has_order: true
+          });
+        }
+      }
+    }
+
+    // Generate regular AI response
     const prompt = `You are Fooda, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
 
 Customer: ${customer_name}
@@ -69,14 +182,17 @@ ${recentMessages}
 Current message: ${customer_message}
 
 AVAILABLE RESTAURANTS: ${restaurants.length} open restaurants
-Sample restaurants: ${restaurants.slice(0, 3).map(r => r.name).join(', ')}
+Here are our top restaurants with their specialties:
+${restaurantCatalog.slice(0, 5).map(r => 
+  `${r.name} (${r.city}) - ${r.cuisine_types?.join(', ') || 'Nigerian cuisine'}\n  Popular items: ${r.menu_items.filter(i => i.is_popular).slice(0, 3).map(i => i.name).join(', ')}`
+).join('\n')}
 
 INSTRUCTIONS:
 1. Help customers find restaurants and menu items
 2. Answer questions about delivery, pricing, and orders
-3. Be friendly and concise (1-2 sentences)
-4. If asked about specific menu items, recommend popular options
-5. For order placement, guide them to use the app's cart feature
+3. Be friendly and concise (2-3 sentences max)
+4. Suggest popular menu items when asked
+5. If they want to order, ask them to specify what they want
 
 Keep responses short and helpful.`;
 
