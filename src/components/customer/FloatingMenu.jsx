@@ -97,6 +97,35 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </motion.div>
         </button>
 
+        <button onClick={() => { handleTabClick('LiveChat'); if (currentPage !== 'LiveChat') window.location.href = createPageUrl('LiveChat'); }}>
+          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+            >
+              <motion.div
+                animate={{ rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+              </motion.div>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
+            </Button>
+          </motion.div>
+        </button>
+
+        <button onClick={() => { handleTabClick('OrderHistory'); if (currentPage !== 'OrderHistory') window.location.href = createPageUrl('OrderHistory'); }}>
+          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+            >
+              <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
+            </Button>
+          </motion.div>
+        </button>
+
         <button onClick={() => { handleTabClick('Cart'); if (currentPage !== 'Cart') window.location.href = createPageUrl('Cart'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
@@ -120,35 +149,6 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                   {cartCount}
                 </motion.span>
               )}
-            </Button>
-          </motion.div>
-        </button>
-
-        <button onClick={() => { handleTabClick('OrderHistory'); if (currentPage !== 'OrderHistory') window.location.href = createPageUrl('OrderHistory'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
-            </Button>
-          </motion.div>
-        </button>
-
-        <button onClick={() => { handleTabClick('LiveChat'); if (currentPage !== 'LiveChat') window.location.href = createPageUrl('LiveChat'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <motion.div
-                animate={{ rotate: [0, -5, 5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
             </Button>
           </motion.div>
         </button>
