@@ -352,13 +352,7 @@ function CustomerHomeContent() {
 
         {/* Restaurants Grid */}
         {restaurantsLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
-              alt="Loading..." 
-              className="h-16 w-auto object-contain animate-pulse"
-            />
-          </div>
+          <LoadingScreen />
         ) : filteredRestaurants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
