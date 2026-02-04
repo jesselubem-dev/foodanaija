@@ -169,7 +169,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
             </Button>
           </motion.div>
-        </Link>
+        </button>
 
         <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
           <SheetTrigger asChild>
