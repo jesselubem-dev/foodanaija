@@ -369,8 +369,8 @@ function CustomerHomeContent() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRestaurants.map((restaurant) => (
-              <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)}>
-                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)} className="block">
+                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95">
                   <div className="relative">
                     {restaurant.cover_image_url ? (
                       <img 
