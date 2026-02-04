@@ -64,10 +64,6 @@ function LiveChatContent() {
     initChat();
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ['chat-messages', chatId],
     queryFn: () => base44.entities.ChatMessage.filter(
@@ -81,7 +77,7 @@ function LiveChatContent() {
   });
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessageMutation = useMutation({
@@ -89,7 +85,6 @@ function LiveChatContent() {
     onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
       setMessage('');
-      scrollToBottom();
       
       // Show typing indicator
       setAiTyping(true);
