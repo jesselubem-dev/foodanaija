@@ -90,6 +90,19 @@ export default function SuperAdminUsers() {
     },
   });
 
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }) => {
+      return await base44.entities.User.update(userId, { role: newRole });
+    },
+    onSuccess: () => {
+      toast.success('User role updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['all-users'] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update user role');
+    },
+  });
+
   const handleInviteUser = () => {
     if (!inviteEmail) {
       toast.error('Please enter an email address');
@@ -242,7 +255,7 @@ export default function SuperAdminUsers() {
                             <h3 className="text-lg font-bold text-gray-900">{u.full_name || 'User'}</h3>
                             <p className="text-sm text-gray-500">{u.email}</p>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 items-center">
                             {u.role === 'admin' && (
                               <Badge className="bg-red-100 text-red-700">
                                 <Shield className="w-3 h-3 mr-1" />
@@ -256,6 +269,28 @@ export default function SuperAdminUsers() {
                             )}
                             {u.user_type && (
                               <Badge variant="outline">{u.user_type}</Badge>
+                            )}
+                            {u.role !== 'admin' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRoleMutation.mutate({ userId: u.id, newRole: 'admin' })}
+                                disabled={updateUserRoleMutation.isPending}
+                                className="ml-2 text-xs"
+                              >
+                                Make Admin
+                              </Button>
+                            )}
+                            {u.role === 'admin' && u.email !== 'tamirbe@base44.com' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateUserRoleMutation.mutate({ userId: u.id, newRole: 'user' })}
+                                disabled={updateUserRoleMutation.isPending}
+                                className="ml-2 text-xs"
+                              >
+                                Remove Admin
+                              </Button>
                             )}
                           </div>
                         </div>
