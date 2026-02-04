@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/sheet";
 
 export default function FloatingMenu({ cartCount = 0, userEmail }) {
-  const { t } = useLanguage();
+  const languageContext = useLanguage();
+  const t = languageContext?.t || ((key) => key);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('CustomerHome');
