@@ -14,11 +14,16 @@ import moment from 'moment';
 import FloatingMenu from '../components/customer/FloatingMenu';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
+import PullToRefresh from '../components/PullToRefresh';
 
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
   const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+  };
 
   useEffect(() => {
     loadUser();
@@ -91,8 +96,9 @@ function OrderHistoryContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50">
-      {/* Header */}
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 pb-20">
+        {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
@@ -207,23 +213,24 @@ function OrderHistoryContent() {
             })}
           </div>
           )}
-          </div>
+        </div>
 
-          {/* Floating Menu */}
-          <FloatingMenu cartCount={0} />
+        {/* Floating Menu */}
+        <FloatingMenu cartCount={0} userEmail={user?.email} />
 
-          {/* Cancel Order Modal */}
-          <CancelOrderModal
-            isOpen={!!cancelOrderId}
-            order={orders.find(o => o.id === cancelOrderId)}
-            onConfirm={(orderId) => {
-              cancelOrderMutation.mutate(orderId);
-              setCancelOrderId(null);
-            }}
-            onCancel={() => setCancelOrderId(null)}
-            isLoading={cancelOrderMutation.isPending}
-          />
-    </div>
+        {/* Cancel Order Modal */}
+        <CancelOrderModal
+          isOpen={!!cancelOrderId}
+          order={orders.find(o => o.id === cancelOrderId)}
+          onConfirm={(orderId) => {
+            cancelOrderMutation.mutate(orderId);
+            setCancelOrderId(null);
+          }}
+          onCancel={() => setCancelOrderId(null)}
+          isLoading={cancelOrderMutation.isPending}
+        />
+      </div>
+    </PullToRefresh>
   );
 }
 
