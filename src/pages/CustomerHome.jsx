@@ -487,6 +487,32 @@ function CustomerHomeContent() {
 
         {/* Floating Menu */}
         <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
+
+        {/* Promo Modal */}
+        {showPromo && promoItems.length > 0 && (
+          <PromoModal 
+            promoItems={promoItems} 
+            onClose={() => setShowPromo(false)} 
+          />
+        )}
+
+        {/* Voice Order Modal */}
+        <VoiceOrderModal
+          isOpen={showVoiceOrder}
+          onClose={() => setShowVoiceOrder(false)}
+          restaurants={restaurants}
+          onAddToCart={(items) => {
+            console.log('Add to cart:', items);
+          }}
+        />
+
+        {/* Rider Rating Modal */}
+        {riderRatingOrder && (
+          <RiderRatingModal
+            order={riderRatingOrder}
+            onClose={() => setRiderRatingOrder(null)}
+          />
+        )}
       </div>
     </PullToRefresh>
   );
