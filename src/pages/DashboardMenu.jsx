@@ -193,15 +193,63 @@ export default function DashboardMenu() {
     });
   };
 
+  const compressImage = async (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Calculate dimensions to maintain aspect ratio
+          let width = img.width;
+          let height = img.height;
+          const maxDimension = 1024;
+          
+          if (width > height && width > maxDimension) {
+            height = (height * maxDimension) / width;
+            width = maxDimension;
+          } else if (height > maxDimension) {
+            width = (width * maxDimension) / height;
+            height = maxDimension;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Start with quality 0.8, then reduce if needed
+          let quality = 0.8;
+          let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // Keep reducing quality until under 245KB
+          while (compressedDataUrl.length > 245 * 1024 * 1.37 && quality > 0.1) {
+            quality -= 0.1;
+            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          
+          // Convert to blob
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', quality);
+        };
+      };
+    });
+  };
+
   const handleImageUpload = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const compressedFile = await compressImage(file);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: compressedFile });
       setItemForm(prev => ({ 
         ...prev, 
         images: [...prev.images, file_url]
       }));
-      toast.success('Image uploaded');
+      toast.success('Image uploaded and compressed');
     } catch (error) {
       toast.error('Failed to upload image');
     } finally {
