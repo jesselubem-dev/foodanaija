@@ -16,7 +16,6 @@ export default function LiveChat() {
   const [message, setMessage] = useState('');
   const [chatId, setChatId] = useState(null);
   const [cartCount, setCartCount] = useState(0);
-  const [pendingOrder, setPendingOrder] = useState(null);
   const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
@@ -102,22 +101,28 @@ export default function LiveChat() {
       
       // Trigger AI response
       try {
-        const response = await base44.functions.invoke('aiChatResponse', {
+        await base44.functions.invoke('aiChatResponse', {
           chat_id: chatId,
           customer_message: variables.message,
           customer_name: user.full_name,
           customer_email: user.email,
         });
         
-        // Check if AI wants to show payment card
-        if (response.data?.show_payment && response.data?.order_data) {
-          setPendingOrder(response.data.order_data);
-        }
-        
         queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
       } catch (error) {
         console.error('Failed to get AI response:', error);
-        toast.error('AI response failed, but your message was sent');
+        
+        // Send fallback message
+        await base44.entities.ChatMessage.create({
+          chat_id: chatId,
+          customer_email: user.email,
+          customer_name: user.full_name,
+          sender_type: 'ai',
+          sender_name: 'Fooda',
+          message: "I'm having trouble connecting right now. Please try browsing our restaurants directly or contact support if you need immediate help.",
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
       } finally {
         setAiTyping(false);
       }
@@ -286,33 +291,7 @@ export default function LiveChat() {
               </div>
             )}
             
-            {/* Payment Card */}
-            {pendingOrder && (
-              <ChatPaymentCard
-                orderData={pendingOrder}
-                onPaymentSuccess={async (orders) => {
-                  setPendingOrder(null);
-                  
-                  // Send success message from AI
-                  await base44.entities.ChatMessage.create({
-                    chat_id: chatId,
-                    customer_email: user.email,
-                    customer_name: user.full_name,
-                    sender_type: 'ai',
-                    sender_name: 'Fooda',
-                    message: `Perfect! Your order has been confirmed and sent to ${orders.length} restaurant${orders.length > 1 ? 's' : ''}. A rider will be assigned shortly. You can track your order in Order History. 🎉`,
-                  });
-                  
-                  queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
-                  toast.success('Order placed successfully!');
-                }}
-                onCancel={() => {
-                  setPendingOrder(null);
-                  toast.info('Order cancelled');
-                }}
-              />
-            )}
-            
+
             <div ref={messagesEndRef} />
           </div>
         )}

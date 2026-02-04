@@ -64,143 +64,28 @@ Deno.serve(async (req) => {
     const prompt = `You are Fooda, a friendly and helpful customer support assistant for Fooda Naija - a food delivery platform in Nigeria.
 
 Customer: ${customer_name}
-Customer Email: ${customer_email}
 Recent conversation:
 ${recentMessages}
+Current message: ${customer_message}
 
-AVAILABLE RESTAURANTS AND MENU:
-${JSON.stringify(restaurantCatalog, null, 2)}
+AVAILABLE RESTAURANTS: ${restaurants.length} open restaurants
+Sample restaurants: ${restaurants.slice(0, 3).map(r => r.name).join(', ')}
 
-CRITICAL - ORDER TAKING RULES:
-1. When customer wants to order, you MUST collect ALL of these:
-   - Restaurant name(s)
-   - Specific menu items with quantities
-   - Phone number (ask: "What's your phone number? (e.g., 08012345678)")
-   - Delivery address (ask: "What's your delivery address?")
+INSTRUCTIONS:
+1. Help customers find restaurants and menu items
+2. Answer questions about delivery, pricing, and orders
+3. Be friendly and concise (1-2 sentences)
+4. If asked about specific menu items, recommend popular options
+5. For order placement, guide them to use the app's cart feature
 
-2. ONCE YOU HAVE ALL FOUR (restaurants, items, phone, address), you MUST respond with EXACTLY:
-   "ORDER_READY: [Brief summary of order]"
-   
-   Example: "ORDER_READY: 2x Jollof Rice and 1x Fried Chicken from Mama's Kitchen to 123 Ikorodu Road, Lagos. Phone: 08012345678. Total: ₦3,500. Ready to confirm?"
-
-3. DO NOT ask any more questions after you have all four details - just say ORDER_READY
-
-4. For general questions, provide helpful recommendations about restaurants and menu items.
-
-Keep responses concise (1-2 sentences unless giving recommendations).`;
+Keep responses short and helpful.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: false,
     });
 
-    // Check if AI wants to process an order
-    let showPayment = false;
-    let orderData = null;
     let displayMessage = aiResponse;
-
-    if (aiResponse.includes('ORDER_READY')) {
-      showPayment = true;
-      
-      // Extract order details from AI response
-      const orderPrompt = `Based on this conversation:
-${recentMessages}
-
-And this AI response: ${aiResponse}
-
-Extract the order details and return a JSON with this structure:
-{
-  "customer_phone": "phone number with country code",
-  "delivery_address": "full address",
-  "orders": [
-    {
-      "restaurant_name": "Restaurant Name",
-      "restaurant_id": "will be filled",
-      "items": [
-        {"name": "Item Name", "quantity": 2, "price": 1500}
-      ]
-    }
-  ]
-}`;
-
-      const orderDetails = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: orderPrompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            customer_phone: { type: "string" },
-            delivery_address: { type: "string" },
-            orders: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  restaurant_name: { type: "string" },
-                  items: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        name: { type: "string" },
-                        quantity: { type: "number" },
-                        price: { type: "number" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Match restaurants and create order data
-      const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      orderData = [];
-
-      for (const order of orderDetails.orders) {
-        const restaurant = restaurants.find(r => 
-          r.name.toLowerCase().includes(order.restaurant_name.toLowerCase()) ||
-          order.restaurant_name.toLowerCase().includes(r.name.toLowerCase())
-        );
-
-        if (restaurant) {
-          const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-          const deliveryFee = 500;
-          const valueAddedService = 300;
-          const total = subtotal + deliveryFee + valueAddedService;
-
-          orderData.push({
-            restaurant_id: restaurant.id,
-            restaurant_name: restaurant.name,
-            customer_email: customer_email,
-            customer_name: customer_name,
-            customer_phone: orderDetails.customer_phone,
-            delivery_address: orderDetails.delivery_address,
-            items: order.items.map(item => ({
-              item_id: Math.random().toString(36),
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              image_url: ''
-            })),
-            subtotal,
-            delivery_fee: deliveryFee,
-            total,
-            status: 'pending',
-            payment_status: 'pending',
-            payment_method: 'card',
-            batch_order_id: orderDetails.orders.length > 1 ? batchOrderId : null,
-            total_restaurants_in_batch: orderDetails.orders.length
-          });
-        }
-      }
-
-      displayMessage = aiResponse.replace('ORDER_READY', '').trim();
-      if (!displayMessage) {
-        displayMessage = "Great! I've prepared your order. Please confirm the details and payment below to complete your order. 👇";
-      }
-    }
 
     // Create AI message
     await base44.asServiceRole.entities.ChatMessage.create({
@@ -214,9 +99,7 @@ Extract the order details and return a JSON with this structure:
 
     return Response.json({ 
       success: true,
-      ai_response: displayMessage,
-      show_payment: showPayment,
-      order_data: orderData
+      ai_response: displayMessage
     });
   } catch (error) {
     console.error('AI chat error:', error);

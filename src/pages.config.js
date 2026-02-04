@@ -50,7 +50,6 @@
 import AdminLiveChat from './pages/AdminLiveChat';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import CustomerHome from './pages/CustomerHome';
 import CustomerSupport from './pages/CustomerSupport';
 import DashboardAnalytics from './pages/DashboardAnalytics';
 import DashboardHome from './pages/DashboardHome';
@@ -78,6 +77,7 @@ import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
+import CustomerHome from './pages/CustomerHome';
 import __Layout from './Layout.jsx';
 
 
@@ -85,7 +85,6 @@ export const PAGES = {
     "AdminLiveChat": AdminLiveChat,
     "Cart": Cart,
     "Checkout": Checkout,
-    "CustomerHome": CustomerHome,
     "CustomerSupport": CustomerSupport,
     "DashboardAnalytics": DashboardAnalytics,
     "DashboardHome": DashboardHome,
@@ -113,6 +112,7 @@ export const PAGES = {
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
+    "CustomerHome": CustomerHome,
 }
 
 export const pagesConfig = {
