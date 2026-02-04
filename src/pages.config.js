@@ -62,7 +62,6 @@ import LiveChat from './pages/LiveChat';
 import Onboarding from './pages/Onboarding';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
-import Promos from './pages/Promos';
 import RestaurantDetail from './pages/RestaurantDetail';
 import RestaurantSetup from './pages/RestaurantSetup';
 import RiderDashboard from './pages/RiderDashboard';
@@ -97,7 +96,6 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "OrderConfirmation": OrderConfirmation,
     "OrderHistory": OrderHistory,
-    "Promos": Promos,
     "RestaurantDetail": RestaurantDetail,
     "RestaurantSetup": RestaurantSetup,
     "RiderDashboard": RiderDashboard,
