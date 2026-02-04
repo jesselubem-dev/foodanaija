@@ -13,6 +13,7 @@ import { LanguageProvider } from '../components/LanguageContext';
 function CartContent() {
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [isLoadingCart, setIsLoadingCart] = useState(true);
 
   useEffect(() => {
     checkAuth();
@@ -27,6 +28,7 @@ function CartContent() {
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
+      setIsLoadingCart(false);
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
     }
@@ -73,14 +75,18 @@ function CartContent() {
             </Link>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Shopping Cart</h1>
-              <p className="text-sm text-gray-500">{cart.length} items</p>
+              {!isLoadingCart && <p className="text-sm text-gray-500">{cart.length} items</p>}
             </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {cart.length === 0 ? (
+        {isLoadingCart ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+          </div>
+        ) : cart.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />

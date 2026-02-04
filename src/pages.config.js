@@ -57,6 +57,7 @@ import DashboardHome from './pages/DashboardHome';
 import DashboardMenu from './pages/DashboardMenu';
 import DashboardOrders from './pages/DashboardOrders';
 import DashboardSettings from './pages/DashboardSettings';
+import DeleteAccount from './pages/DeleteAccount';
 import Home from './pages/Home';
 import LiveChat from './pages/LiveChat';
 import Onboarding from './pages/Onboarding';
@@ -77,7 +78,6 @@ import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import DeleteAccount from './pages/DeleteAccount';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +92,7 @@ export const PAGES = {
     "DashboardMenu": DashboardMenu,
     "DashboardOrders": DashboardOrders,
     "DashboardSettings": DashboardSettings,
+    "DeleteAccount": DeleteAccount,
     "Home": Home,
     "LiveChat": LiveChat,
     "Onboarding": Onboarding,
@@ -112,7 +113,6 @@ export const PAGES = {
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
-    "DeleteAccount": DeleteAccount,
 }
 
 export const pagesConfig = {
