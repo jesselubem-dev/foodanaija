@@ -81,7 +81,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <Link to={createPageUrl('CustomerHome')} onClick={() => handleTabClick('CustomerHome')}>
+        <button onClick={() => { handleTabClick('CustomerHome'); if (currentPage !== 'CustomerHome') window.location.href = createPageUrl('CustomerHome'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -96,9 +96,9 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('home')}</span>
             </Button>
           </motion.div>
-        </Link>
+        </button>
 
-        <Link to={createPageUrl('Promos')} onClick={() => handleTabClick('Promos')}>
+        <button onClick={() => { handleTabClick('Promos'); if (currentPage !== 'Promos') window.location.href = createPageUrl('Promos'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -113,9 +113,9 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">{t('promos')}</span>
             </Button>
           </motion.div>
-        </Link>
+        </button>
 
-        <Link to={createPageUrl('Cart')} onClick={() => handleTabClick('Cart')}>
+        <button onClick={() => { handleTabClick('Cart'); if (currentPage !== 'Cart') window.location.href = createPageUrl('Cart'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -140,9 +140,9 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               )}
             </Button>
           </motion.div>
-        </Link>
+        </button>
 
-        <Link to={createPageUrl('OrderHistory')} onClick={() => handleTabClick('OrderHistory')}>
+        <button onClick={() => { handleTabClick('OrderHistory'); if (currentPage !== 'OrderHistory') window.location.href = createPageUrl('OrderHistory'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -152,9 +152,9 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
             </Button>
           </motion.div>
-        </Link>
+        </button>
 
-        <Link to={createPageUrl('LiveChat')} onClick={() => handleTabClick('LiveChat')}>
+        <button onClick={() => { handleTabClick('LiveChat'); if (currentPage !== 'LiveChat') window.location.href = createPageUrl('LiveChat'); }}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"

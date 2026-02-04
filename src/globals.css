@@ -118,6 +118,17 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Fixed headers with safe area */
+header.sticky,
+header.fixed,
+.fixed-header {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
 /* Pulse animation for notifications */
 @keyframes pulse-ring {
   0% {
