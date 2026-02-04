@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import FloatingMenu from '../components/customer/FloatingMenu';
-import ChatPaymentCard from '../components/customer/ChatPaymentCard';
+import { LanguageProvider } from '../components/LanguageContext';
 
-export default function LiveChat() {
+function LiveChatContent() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
   const [chatId, setChatId] = useState(null);
@@ -330,5 +330,13 @@ export default function LiveChat() {
 
       <FloatingMenu cartCount={cartCount} userEmail={user?.email} />
     </div>
+  );
+}
+
+export default function LiveChat() {
+  return (
+    <LanguageProvider>
+      <LiveChatContent />
+    </LanguageProvider>
   );
 }
