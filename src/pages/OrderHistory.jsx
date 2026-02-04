@@ -19,6 +19,7 @@ import PullToRefresh from '../components/PullToRefresh';
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
+  const [showAll, setShowAll] = useState(false);
   const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
@@ -134,7 +135,7 @@ function OrderHistoryContent() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => {
+            {(showAll ? orders : orders.slice(0, 3)).map((order) => {
               const status = statusConfig[order.status] || statusConfig.pending;
               const StatusIcon = status.icon;
 
@@ -210,6 +211,19 @@ function OrderHistoryContent() {
                 </Card>
               );
             })}
+            
+            {/* View All Button */}
+            {orders.length > 3 && !showAll && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  onClick={() => setShowAll(true)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  View All Orders ({orders.length})
+                </Button>
+              </div>
+            )}
           </div>
           )}
         </div>
