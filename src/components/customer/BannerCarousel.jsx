@@ -10,14 +10,6 @@ export default function BannerCarousel() {
   const banners = [
     {
       id: 1,
-      gradient: 'from-orange-500 to-amber-500',
-      icon: Sparkles,
-      title: '🔥 Special Deals',
-      subtitle: 'View all active promos & discounts',
-      link: 'Promos'
-    },
-    {
-      id: 2,
       gradient: 'from-blue-500 to-cyan-500',
       icon: Zap,
       title: '⚡ Fast Delivery',
@@ -25,7 +17,7 @@ export default function BannerCarousel() {
       link: 'CustomerHome'
     },
     {
-      id: 3,
+      id: 2,
       gradient: 'from-purple-500 to-pink-500',
       icon: ChefHat,
       title: '👨‍🍳 Top Restaurants',
@@ -33,7 +25,7 @@ export default function BannerCarousel() {
       link: 'CustomerHome'
     },
     {
-      id: 4,
+      id: 3,
       gradient: 'from-green-500 to-emerald-500',
       icon: Clock,
       title: '⏰ Order Anytime',
