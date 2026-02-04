@@ -16,23 +16,15 @@ function CartContent() {
   const [isLoadingCart, setIsLoadingCart] = useState(true);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      
+    const loadData = () => {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
       setIsLoadingCart(false);
-    } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
-    }
-  };
+    };
+    loadData();
+  }, []);
 
   const updateQuantity = (itemId, delta) => {
     const newCart = cart.map(i => {

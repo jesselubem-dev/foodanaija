@@ -26,17 +26,16 @@ function OrderHistoryContent() {
   };
 
   useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {
+        // User not logged in, Layout will handle redirect
+      }
+    };
     loadUser();
   }, []);
-
-  const loadUser = async () => {
-    try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
-    }
-  };
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['my-orders', user?.email],

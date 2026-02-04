@@ -21,57 +21,50 @@ function LiveChatContent() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    checkAuth();
+    const initChat = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+        
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+          const cart = JSON.parse(savedCart);
+          setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
+        }
+
+        const storedChatId = localStorage.getItem(`chat_id_${userData.email}`);
+        if (storedChatId) {
+          setChatId(storedChatId);
+        } else {
+          const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          localStorage.setItem(`chat_id_${userData.email}`, newChatId);
+          setChatId(newChatId);
+          
+          setTimeout(async () => {
+            try {
+              await base44.entities.ChatMessage.create({
+                chat_id: newChatId,
+                customer_email: userData.email,
+                customer_name: userData.full_name,
+                sender_type: 'ai',
+                sender_name: 'Fooda',
+                message: `Hello ${userData.full_name.split(' ')[0]}! 👋 Welcome to Fooda Support. I'm here to help you with restaurant recommendations, orders, deliveries, and any questions you have. How can I assist you today?`,
+              });
+            } catch (error) {
+              console.error('Failed to send welcome message:', error);
+            }
+          }, 500);
+        }
+      } catch (e) {
+        // User not logged in, Layout will handle redirect
+      }
+    };
+    initChat();
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, []);
-
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const checkAuth = async () => {
-    try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        const cart = JSON.parse(savedCart);
-        setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
-      }
-
-      // Generate or retrieve chat ID
-      const storedChatId = localStorage.getItem(`chat_id_${userData.email}`);
-      if (storedChatId) {
-        setChatId(storedChatId);
-      } else {
-        const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem(`chat_id_${userData.email}`, newChatId);
-        setChatId(newChatId);
-        
-        // Send welcome message from AI
-        setTimeout(async () => {
-          try {
-            await base44.entities.ChatMessage.create({
-              chat_id: newChatId,
-              customer_email: userData.email,
-              customer_name: userData.full_name,
-              sender_type: 'ai',
-              sender_name: 'Fooda',
-              message: `Hello ${userData.full_name.split(' ')[0]}! 👋 Welcome to Fooda Support. I'm here to help you with restaurant recommendations, orders, deliveries, and any questions you have. How can I assist you today?`,
-            });
-          } catch (error) {
-            console.error('Failed to send welcome message:', error);
-          }
-        }, 500);
-      }
-    } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
-    }
-  };
+  }, [messages]);
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ['chat-messages', chatId],
