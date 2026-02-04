@@ -76,7 +76,7 @@ export default function SuperAdminUsers() {
 
   const inviteUserMutation = useMutation({
     mutationFn: async ({ email, role }) => {
-      return await base44.users.inviteUser(email, role);
+      return await base44.auth.inviteUser(email, role);
     },
     onSuccess: () => {
       toast.success('User invited successfully!');
