@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Home, ShoppingBag, History, User, LogOut, Bell, Sparkles, MessageSquare, Languages } from 'lucide-react';
+import { Home, ShoppingBag, History, User, LogOut, Bell, MessageSquare, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -44,7 +44,6 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
     // Track current page
     const path = window.location.pathname;
     if (path.includes('OrderHistory')) setCurrentPage('OrderHistory');
-    else if (path.includes('Promos')) setCurrentPage('Promos');
     else if (path.includes('Cart')) setCurrentPage('Cart');
     else if (path.includes('LiveChat')) setCurrentPage('LiveChat');
     else setCurrentPage('CustomerHome');
@@ -77,7 +76,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
       transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
     >
       <motion.div 
-        className="grid grid-cols-6 gap-1 px-4 py-3"
+        className="grid grid-cols-5 gap-1 px-4 py-3"
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
@@ -94,23 +93,6 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                 <Home className={`w-5 h-5 ${currentPage === 'CustomerHome' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
               </motion.div>
               <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('home')}</span>
-            </Button>
-          </motion.div>
-        </button>
-
-        <button onClick={() => { handleTabClick('Promos'); if (currentPage !== 'Promos') window.location.href = createPageUrl('Promos'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <motion.div
-                animate={{ rotate: [0, 15, -15, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Sparkles className={`w-5 h-5 ${currentPage === 'Promos' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              </motion.div>
-              <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">{t('promos')}</span>
             </Button>
           </motion.div>
         </button>
