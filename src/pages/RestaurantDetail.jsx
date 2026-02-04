@@ -49,6 +49,8 @@ function RestaurantDetailContent() {
       return restaurants[0];
     },
     enabled: !!restaurantId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const { data: menuItems = [] } = useQuery({
@@ -58,6 +60,8 @@ function RestaurantDetailContent() {
       is_available: true 
     }),
     enabled: !!restaurantId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const { data: categories = [] } = useQuery({
@@ -67,6 +71,8 @@ function RestaurantDetailContent() {
       is_active: true 
     }),
     enabled: !!restaurantId,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   });
 
   const { data: reviews = [] } = useQuery({
@@ -75,6 +81,8 @@ function RestaurantDetailContent() {
       restaurant_id: restaurantId 
     }),
     enabled: !!restaurantId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const filteredItems = selectedCategory === 'all' 

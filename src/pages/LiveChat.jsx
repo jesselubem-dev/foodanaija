@@ -81,8 +81,9 @@ export default function LiveChat() {
       'created_date'
     ),
     enabled: !!chatId,
-    refetchInterval: 5000, // Poll every 5 seconds
-    staleTime: 3000,
+    refetchInterval: 3000, // Poll every 3 seconds
+    staleTime: 1000,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {

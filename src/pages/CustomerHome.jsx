@@ -132,20 +132,18 @@ function CustomerHomeContent() {
           5
         );
 
-        // Check for notifications created in last 30 seconds
+        // Check for notifications created in last 60 seconds
         const recentNotifications = notifications.filter(n => {
           const notifTime = new Date(n.created_date).getTime();
           const now = Date.now();
-          return (now - notifTime) < 30000; // 30 seconds
+          return (now - notifTime) < 60000; // 60 seconds
         });
 
         recentNotifications.forEach(async notification => {
           // Show browser notification with appealing image
           if ('Notification' in window && Notification.permission === 'granted') {
-            // Try to extract restaurant info from notification metadata or fetch a random promo image
-            let notificationImage = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'; // Default food image
+            let notificationImage = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80';
             
-            // If notification has metadata with restaurant/item info, use that image
             if (notification.metadata?.image_url) {
               notificationImage = notification.metadata.image_url;
             }
@@ -160,13 +158,11 @@ function CustomerHomeContent() {
             });
           }
 
-          // Also show toast for in-app
           toast.success(notification.message, {
             duration: 8000,
             position: 'top-center',
           });
           
-          // Mark as read after showing
           setTimeout(() => {
             base44.entities.Notification.update(notification.id, { is_read: true });
           }, 2000);
@@ -176,9 +172,8 @@ function CustomerHomeContent() {
       }
     };
 
-    // Check immediately and then every 15 seconds
     checkNewNotifications();
-    const interval = setInterval(checkNewNotifications, 15000);
+    const interval = setInterval(checkNewNotifications, 30000); // 30 seconds
 
     return () => clearInterval(interval);
   }, [user]);
@@ -211,8 +206,10 @@ function CustomerHomeContent() {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
       return results;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const { data: promoItems = [] } = useQuery({
@@ -221,12 +218,10 @@ function CustomerHomeContent() {
       const items = await base44.entities.MenuItem.filter({ is_promo: true, is_available: true });
       const now = new Date();
       
-      const itemsWithRestaurants = await Promise.all(
-        items.map(async (item) => {
-          const restaurant = restaurants.find(r => r.id === item.restaurant_id);
-          return { ...item, restaurant };
-        })
-      );
+      const itemsWithRestaurants = items.map((item) => {
+        const restaurant = restaurants.find(r => r.id === item.restaurant_id);
+        return { ...item, restaurant };
+      });
       
       return itemsWithRestaurants.filter(item => {
         if (!item.restaurant?.is_approved || !item.restaurant?.is_open) return false;
@@ -235,7 +230,8 @@ function CustomerHomeContent() {
       });
     },
     enabled: restaurants.length > 0,
-    staleTime: 3 * 60 * 1000, // 3 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   // Fetch unread chat messages
@@ -248,8 +244,9 @@ function CustomerHomeContent() {
       return await base44.entities.ChatMessage.filter({ chat_id: chatId, is_read: false }, '-created_date', 10);
     },
     enabled: !!user?.email,
-    refetchInterval: 15000, // 15 seconds instead of 5
-    staleTime: 10000,
+    refetchInterval: 30000, // 30 seconds
+    staleTime: 20000,
+    refetchOnWindowFocus: false,
   });
 
   // Count unread messages from admin/AI
