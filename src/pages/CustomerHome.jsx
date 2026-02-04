@@ -299,10 +299,10 @@ function CustomerHomeContent() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+      <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       {/* Modern App Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -316,7 +316,7 @@ function CustomerHomeContent() {
             <div className="flex items-center gap-2">
               <Link to={createPageUrl('LiveChat')}>
                 <Button variant="ghost" size="icon" className="relative">
-                  <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <MessageSquare className="w-5 h-5 text-gray-700" />
                   {unreadChatCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
                       {unreadChatCount}
@@ -334,10 +334,10 @@ function CustomerHomeContent() {
         {/* Compact Welcome */}
         {user && (
           <div className="pt-6 pb-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               {t('hi')}, {user.full_name.split(' ')[0]}! 👋
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('whatToEat')}</p>
+            <p className="text-sm text-gray-500 mt-1">{t('whatToEat')}</p>
           </div>
         )}
 
@@ -350,7 +350,7 @@ function CustomerHomeContent() {
                 placeholder={t('searchRestaurants')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 rounded-2xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-colors text-base"
+                className="pl-12 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-gray-900 transition-colors text-base"
               />
             </div>
           </div>
@@ -366,7 +366,7 @@ function CustomerHomeContent() {
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               selectedCity === 'all'
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             {t('allCities')}
@@ -378,7 +378,7 @@ function CustomerHomeContent() {
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 selectedCity === city
                   ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               {city}
@@ -406,7 +406,7 @@ function CustomerHomeContent() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRestaurants.map((restaurant) => (
               <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)}>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                   <div className="relative">
                     {restaurant.cover_image_url ? (
                       <img 
@@ -442,10 +442,10 @@ function CustomerHomeContent() {
                   </div>
                   
                   <div className="p-4 pt-8">
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">
                       {restaurant.name}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mb-3">
+                    <p className="text-sm text-gray-500 line-clamp-1 mb-3">
                       {restaurant.description}
                     </p>
 
@@ -462,11 +462,11 @@ function CustomerHomeContent() {
 
                     {/* Info Row */}
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-gray-600">
                         <Clock className="w-4 h-4" />
                         <span>5-15 {t('mins')}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-gray-600">
                         <Bike className="w-4 h-4" />
                         <span>₦500</span>
                       </div>
@@ -525,30 +525,3 @@ export default function CustomerHome() {
     </LanguageProvider>
   );
 }
-
-      {/* Promo Modal */}
-      {showPromo && promoItems.length > 0 && (
-        <PromoModal 
-          promoItems={promoItems} 
-          onClose={() => setShowPromo(false)} 
-        />
-      )}
-
-      {/* Voice Order Modal */}
-      <VoiceOrderModal
-        isOpen={showVoiceOrder}
-        onClose={() => setShowVoiceOrder(false)}
-        restaurants={restaurants}
-        onAddToCart={(items) => {
-          // Handle adding items to cart
-          console.log('Add to cart:', items);
-        }}
-      />
-
-      {/* Rider Rating Modal */}
-      {riderRatingOrder && (
-        <RiderRatingModal
-          order={riderRatingOrder}
-          onClose={() => setRiderRatingOrder(null)}
-        />
-      )}
