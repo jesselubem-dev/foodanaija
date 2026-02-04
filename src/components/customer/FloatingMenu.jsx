@@ -80,90 +80,81 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <button onClick={() => { handleTabClick('CustomerHome'); if (currentPage !== 'CustomerHome') window.location.href = createPageUrl('CustomerHome'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <motion.div
-                animate={{ y: [0, -3, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Home className={`w-5 h-5 ${currentPage === 'CustomerHome' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('home')}</span>
-            </Button>
+        <motion.button 
+          onClick={() => { handleTabClick('CustomerHome'); if (currentPage !== 'CustomerHome') window.location.href = createPageUrl('CustomerHome'); }}
+          whileTap={{ scale: 0.85 }} 
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center gap-1 py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+        >
+          <motion.div
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Home className={`w-5 h-5 ${currentPage === 'CustomerHome' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
           </motion.div>
-        </button>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('home')}</span>
+        </motion.button>
 
-        <button onClick={() => { handleTabClick('LiveChat'); if (currentPage !== 'LiveChat') window.location.href = createPageUrl('LiveChat'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <motion.div
-                animate={{ rotate: [0, -5, 5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
-            </Button>
+        <motion.button 
+          onClick={() => { handleTabClick('LiveChat'); if (currentPage !== 'LiveChat') window.location.href = createPageUrl('LiveChat'); }}
+          whileTap={{ scale: 0.85 }} 
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center gap-1 py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+        >
+          <motion.div
+            animate={{ rotate: [0, -5, 5, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <MessageSquare className={`w-5 h-5 ${currentPage === 'LiveChat' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
           </motion.div>
-        </button>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('chat')}</span>
+        </motion.button>
 
-        <button onClick={() => { handleTabClick('OrderHistory'); if (currentPage !== 'OrderHistory') window.location.href = createPageUrl('OrderHistory'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-            >
-              <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
-            </Button>
-          </motion.div>
-        </button>
+        <motion.button 
+          onClick={() => { handleTabClick('OrderHistory'); if (currentPage !== 'OrderHistory') window.location.href = createPageUrl('OrderHistory'); }}
+          whileTap={{ scale: 0.85 }} 
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center gap-1 py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+        >
+          <History className={`w-5 h-5 ${currentPage === 'OrderHistory' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('orders')}</span>
+        </motion.button>
 
-        <button onClick={() => { handleTabClick('Cart'); if (currentPage !== 'Cart') window.location.href = createPageUrl('Cart'); }}>
-          <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl relative transition-all"
-            >
-              <motion.div
-                animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-              >
-                <ShoppingBag className={`w-5 h-5 ${currentPage === 'Cart' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-              </motion.div>
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('cart')}</span>
-              {cartCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="absolute top-1 right-6 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
-                >
-                  {cartCount}
-                </motion.span>
-              )}
-            </Button>
+        <motion.button 
+          onClick={() => { handleTabClick('Cart'); if (currentPage !== 'Cart') window.location.href = createPageUrl('Cart'); }}
+          whileTap={{ scale: 0.85 }} 
+          whileHover={{ scale: 1.05 }}
+          className="flex flex-col items-center gap-1 py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl relative transition-all"
+        >
+          <motion.div
+            animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+          >
+            <ShoppingBag className={`w-5 h-5 ${currentPage === 'Cart' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
           </motion.div>
-        </button>
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('cart')}</span>
+          {cartCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 15 }}
+              className="absolute top-1 right-6 w-5 h-5 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold"
+            >
+              {cartCount}
+            </motion.span>
+          )}
+        </motion.button>
 
         <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
           <SheetTrigger asChild>
-            <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
-              <Button
-                variant="ghost"
-                className="flex flex-col items-center gap-1 h-auto py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
-              >
-                <User className={`w-6 h-6 ${profileOpen ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('profile')}</span>
-              </Button>
-            </motion.div>
+            <motion.button
+              whileTap={{ scale: 0.85 }} 
+              whileHover={{ scale: 1.05 }}
+              className="flex flex-col items-center gap-1 py-2 hover:bg-orange-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+            >
+              <User className={`w-6 h-6 ${profileOpen ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'}`} />
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('profile')}</span>
+            </motion.button>
           </SheetTrigger>
           <SheetContent side="right" className="w-full sm:w-[400px] p-0">
             <div className="h-full flex flex-col">

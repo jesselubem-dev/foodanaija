@@ -3,14 +3,23 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { chat_id, customer_message, customer_name, customer_email } = await req.json();
+    const body = await req.json();
+    const { chat_id, customer_message, customer_name, customer_email } = body;
 
     if (!chat_id || !customer_message || !customer_email) {
+      console.error('Missing fields:', { chat_id, customer_message, customer_email });
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if human has taken over
-    const messages = await base44.asServiceRole.entities.ChatMessage.filter({ chat_id });
+    let messages = [];
+    try {
+      messages = await base44.asServiceRole.entities.ChatMessage.filter({ chat_id });
+    } catch (error) {
+      console.error('Failed to fetch messages:', error);
+      messages = [];
+    }
+    
     const humanTakeover = messages.some(m => m.sender_type === 'admin');
     
     if (humanTakeover) {
@@ -28,14 +37,25 @@ Deno.serve(async (req) => {
       .join('\n');
 
     // Fetch all open restaurants with their menu items
-    const restaurants = await base44.asServiceRole.entities.Restaurant.filter({ 
-      is_approved: true, 
-      is_open: true 
-    });
+    let restaurants = [];
+    let allMenuItems = [];
+    
+    try {
+      restaurants = await base44.asServiceRole.entities.Restaurant.filter({ 
+        is_approved: true, 
+        is_open: true 
+      });
 
-    const allMenuItems = await base44.asServiceRole.entities.MenuItem.filter({ 
-      is_available: true 
-    });
+      allMenuItems = await base44.asServiceRole.entities.MenuItem.filter({ 
+        is_available: true 
+      });
+    } catch (error) {
+      console.error('Failed to fetch restaurants/items:', error);
+      return Response.json({ 
+        success: false,
+        error: 'Failed to load restaurant data' 
+      }, { status: 500 });
+    }
 
     // Build restaurant catalog with menu items
     const restaurantCatalog = restaurants.map(restaurant => {
