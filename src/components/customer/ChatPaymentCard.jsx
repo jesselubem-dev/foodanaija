@@ -19,15 +19,25 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
       const savedCart = localStorage.getItem('cart');
       const cart = savedCart ? JSON.parse(savedCart) : [];
 
+      if (!Array.isArray(cart)) {
+        throw new Error('Invalid cart data');
+      }
+
+      if (!orderData || !Array.isArray(orderData) || orderData.length === 0) {
+        throw new Error('Invalid order data');
+      }
+
       // Add all items from all orders to cart
       orderData.forEach(order => {
-        order.items.forEach(item => {
-          cart.push({
-            ...item,
-            restaurant_id: order.restaurant_id,
-            restaurant_name: order.restaurant_name
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            cart.push({
+              ...item,
+              restaurant_id: order.restaurant_id,
+              restaurant_name: order.restaurant_name
+            });
           });
-        });
+        }
       });
 
       // Save updated cart
@@ -46,6 +56,7 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         window.location.href = createPageUrl('Checkout');
       }, 1500);
     } catch (error) {
+      console.error('Error adding to cart:', error);
       toast.error('Failed to add items to cart');
       setProcessing(false);
     }

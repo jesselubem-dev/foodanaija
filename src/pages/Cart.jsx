@@ -17,26 +17,38 @@ function CartContent() {
 
   useEffect(() => {
     const loadData = () => {
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
+      try {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+          const parsedCart = JSON.parse(savedCart);
+          setCart(Array.isArray(parsedCart) ? parsedCart : []);
+        }
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        localStorage.removeItem('cart');
+      } finally {
+        setIsLoadingCart(false);
       }
-      setIsLoadingCart(false);
     };
     loadData();
   }, []);
 
   const updateQuantity = (itemId, delta) => {
-    const newCart = cart.map(i => {
-      if (i.item_id === itemId) {
-        const newQuantity = i.quantity + delta;
-        return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
-      }
-      return i;
-    }).filter(Boolean);
-    
-    setCart(newCart);
-    localStorage.setItem('cart', JSON.stringify(newCart));
+    try {
+      const newCart = cart.map(i => {
+        if (i.item_id === itemId) {
+          const newQuantity = i.quantity + delta;
+          return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
+        }
+        return i;
+      }).filter(Boolean);
+      
+      setCart(newCart);
+      localStorage.setItem('cart', JSON.stringify(newCart));
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      toast.error('Failed to update cart');
+    }
   };
 
   const removeItem = (itemId) => {

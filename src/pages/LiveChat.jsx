@@ -91,7 +91,7 @@ function LiveChatContent() {
       
       // Trigger AI response
       try {
-        await base44.functions.invoke('aiChatResponse', {
+        const response = await base44.functions.invoke('aiChatResponse', {
           chat_id: chatId,
           customer_message: variables.message,
           customer_name: user.full_name,
@@ -103,16 +103,21 @@ function LiveChatContent() {
         console.error('Failed to get AI response:', error);
         
         // Send fallback message
-        await base44.entities.ChatMessage.create({
-          chat_id: chatId,
-          customer_email: user.email,
-          customer_name: user.full_name,
-          sender_type: 'ai',
-          sender_name: 'Fooda',
-          message: "I'm having trouble connecting right now. Please try browsing our restaurants directly or contact support if you need immediate help.",
-        });
-        
-        queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
+        try {
+          await base44.entities.ChatMessage.create({
+            chat_id: chatId,
+            customer_email: user.email,
+            customer_name: user.full_name,
+            sender_type: 'ai',
+            sender_name: 'Fooda',
+            message: "I'm having trouble connecting right now. Please try browsing our restaurants directly or contact support if you need immediate help.",
+          });
+          
+          queryClient.invalidateQueries({ queryKey: ['chat-messages', chatId] });
+        } catch (fallbackError) {
+          console.error('Failed to send fallback message:', fallbackError);
+          toast.error('Connection issue. Please try again.');
+        }
       } finally {
         setAiTyping(false);
       }
@@ -216,38 +221,43 @@ function LiveChatContent() {
             {messages.map((msg) => {
               // Check if message contains order data
               if (msg.message.startsWith('ORDER_DATA:')) {
-                const orderInfo = JSON.parse(msg.message.replace('ORDER_DATA:', ''));
-                
-                // Group items by restaurant
-                const ordersByRestaurant = orderInfo.reduce((acc, item) => {
-                  const existing = acc.find(o => o.restaurant_id === item.restaurant_id);
-                  if (existing) {
-                    existing.items.push(item);
-                    existing.total += item.price * item.quantity;
-                  } else {
-                    acc.push({
-                      restaurant_id: item.restaurant_id,
-                      restaurant_name: item.restaurant_name,
-                      items: [item],
-                      total: item.price * item.quantity,
-                      delivery_address: 'Set during checkout'
-                    });
-                  }
-                  return acc;
-                }, []);
+                try {
+                  const orderInfo = JSON.parse(msg.message.replace('ORDER_DATA:', ''));
+                  
+                  // Group items by restaurant
+                  const ordersByRestaurant = orderInfo.reduce((acc, item) => {
+                    const existing = acc.find(o => o.restaurant_id === item.restaurant_id);
+                    if (existing) {
+                      existing.items.push(item);
+                      existing.total += item.price * item.quantity;
+                    } else {
+                      acc.push({
+                        restaurant_id: item.restaurant_id,
+                        restaurant_name: item.restaurant_name,
+                        items: [item],
+                        total: item.price * item.quantity,
+                        delivery_address: 'Set during checkout'
+                      });
+                    }
+                    return acc;
+                  }, []);
 
-                return (
-                  <ChatPaymentCard
-                    key={msg.id}
-                    orderData={ordersByRestaurant}
-                    onPaymentSuccess={() => {
-                      toast.success('Order placed successfully!');
-                    }}
-                    onCancel={() => {
-                      toast.info('Order cancelled');
-                    }}
-                  />
-                );
+                  return (
+                    <ChatPaymentCard
+                      key={msg.id}
+                      orderData={ordersByRestaurant}
+                      onPaymentSuccess={() => {
+                        toast.success('Order placed successfully!');
+                      }}
+                      onCancel={() => {
+                        toast.info('Order cancelled');
+                      }}
+                    />
+                  );
+                } catch (error) {
+                  console.error('Error parsing order data:', error);
+                  return null;
+                }
               }
 
               return (

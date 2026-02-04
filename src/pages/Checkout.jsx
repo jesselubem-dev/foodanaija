@@ -94,7 +94,7 @@ export default function Checkout() {
         ordersData
       });
 
-      if (result.data.success) {
+      if (result.data?.success) {
         confetti({
           particleCount: 100,
           spread: 70,
@@ -108,11 +108,12 @@ export default function Checkout() {
           window.location.href = createPageUrl('OrderHistory');
         }, 3000);
       } else {
-        toast.error('Payment verification failed');
+        toast.error(result.data?.message || 'Payment verification failed');
         setProcessing(false);
       }
     } catch (error) {
-      toast.error('Payment verification failed');
+      console.error('Payment verification error:', error);
+      toast.error('Payment verification failed. Please contact support.');
       setProcessing(false);
     }
   };
@@ -152,6 +153,18 @@ export default function Checkout() {
 
     if (cart.length === 0) {
       toast.error('Your cart is empty');
+      return;
+    }
+
+    // Validate phone number
+    if (!/^[0-9]{10,11}$/.test(formData.customer_phone.replace(/\s/g, ''))) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customer_email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
