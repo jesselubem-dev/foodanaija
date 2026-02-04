@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ThemeProvider } from './components/ThemeProvider';
 import NoInternet from './components/NoInternet';
 
 export default function Layout({ children, currentPageName }) {
@@ -40,21 +39,19 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'AdminLiveChat', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
-      <ThemeProvider>
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </ThemeProvider>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     );
   }
 
@@ -77,9 +74,8 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <NoInternet />
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+      <NoInternet />
       {/* Dashboard Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">
         <div className="p-6">
@@ -158,8 +154,7 @@ export default function Layout({ children, currentPageName }) {
           </motion.div>
         </AnimatePresence>
       </main>
-      </div>
-    </ThemeProvider>
+    </div>
   );
 }
 
