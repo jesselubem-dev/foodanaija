@@ -247,36 +247,8 @@ function CustomerHomeContent() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       <NoInternet />
-      {/* Modern App Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
-                alt="Fooda Naija" 
-                className="h-10 w-auto object-contain"
-              />
-            </div>
 
-            <div className="flex items-center gap-2">
-              <Link to={createPageUrl('LiveChat')}>
-                <Button variant="ghost" size="icon" className="relative">
-                  <MessageSquare className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                  {unreadChatCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                      {unreadChatCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-              <NotificationBell userEmail={user?.email} />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 pb-24">
+      <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
         {/* Compact Welcome */}
         {user && (
           <div className="pt-6 pb-4">
