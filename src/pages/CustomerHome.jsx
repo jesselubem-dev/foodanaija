@@ -26,6 +26,7 @@ import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import NoInternet from '../components/NoInternet';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
+import PullToRefresh from '../components/PullToRefresh';
 
 function LoadingScreen() {
   const { t } = useLanguage();
@@ -200,7 +201,9 @@ function CustomerHomeContent() {
     }
   };
 
-  const { data: restaurants = [], isLoading: restaurantsLoading, error } = useQuery({
+  const queryClient = useQueryClient();
+
+  const { data: restaurants = [], isLoading: restaurantsLoading, error, refetch: refetchRestaurants } = useQuery({
     queryKey: ['approved-restaurants'],
     queryFn: async () => {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
@@ -211,6 +214,14 @@ function CustomerHomeContent() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchRestaurants(),
+      queryClient.invalidateQueries({ queryKey: ['promo-items'] }),
+      queryClient.invalidateQueries({ queryKey: ['chat-messages'] }),
+    ]);
+  };
 
   const { data: promoItems = [] } = useQuery({
     queryKey: ['promo-items'],
@@ -287,8 +298,9 @@ function CustomerHomeContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-      <NoInternet />
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
+        <NoInternet />
       {/* Modern App Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -473,8 +485,20 @@ function CustomerHomeContent() {
         )}
       </div>
 
-      {/* Floating Menu */}
-      <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
+        {/* Floating Menu */}
+        <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
+      </div>
+    </PullToRefresh>
+  );
+}
+
+export default function CustomerHome() {
+  return (
+    <LanguageProvider>
+      <CustomerHomeContent />
+    </LanguageProvider>
+  );
+}
 
       {/* Promo Modal */}
       {showPromo && promoItems.length > 0 && (
@@ -502,14 +526,3 @@ function CustomerHomeContent() {
           onClose={() => setRiderRatingOrder(null)}
         />
       )}
-      </div>
-  );
-}
-
-export default function CustomerHome() {
-  return (
-    <LanguageProvider>
-      <CustomerHomeContent />
-    </LanguageProvider>
-  );
-}

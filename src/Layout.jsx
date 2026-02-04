@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { 
@@ -7,12 +7,15 @@ import {
   BarChart3, Settings, Menu, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ThemeProvider } from './components/ThemeProvider';
 import NoInternet from './components/NoInternet';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     loadUser();
@@ -37,9 +40,21 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'AdminLiveChat', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
-        {children}
-      </div>
+      <ThemeProvider>
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </ThemeProvider>
     );
   }
 
@@ -62,8 +77,9 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
-      <NoInternet />
+    <ThemeProvider>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <NoInternet />
       {/* Dashboard Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">
         <div className="p-6">
@@ -130,9 +146,20 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
 

@@ -97,6 +97,21 @@ export default function DashboardOrders() {
         });
       }
     },
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: ['restaurant-orders', restaurant?.id] });
+      
+      const previousOrders = queryClient.getQueryData(['restaurant-orders', restaurant?.id]);
+      
+      queryClient.setQueryData(['restaurant-orders', restaurant?.id], (old) =>
+        old?.map((order) => order.id === id ? { ...order, status } : order)
+      );
+      
+      return { previousOrders };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(['restaurant-orders', restaurant?.id], context.previousOrders);
+      toast.error('Failed to update order status');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['restaurant-orders']);
       toast.success('Order status updated');

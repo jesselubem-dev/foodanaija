@@ -44,6 +44,22 @@ export default function ReviewSection({ restaurant, reviews }) {
       
       return review;
     },
+    onMutate: async (newReview) => {
+      await queryClient.cancelQueries({ queryKey: ['restaurant-reviews', restaurant.id] });
+      
+      const previousReviews = queryClient.getQueryData(['restaurant-reviews', restaurant.id]);
+      
+      queryClient.setQueryData(['restaurant-reviews', restaurant.id], (old) => [
+        ...old,
+        { ...newReview, id: 'temp-' + Date.now(), created_date: new Date().toISOString() }
+      ]);
+      
+      return { previousReviews };
+    },
+    onError: (err, newReview, context) => {
+      queryClient.setQueryData(['restaurant-reviews', restaurant.id], context.previousReviews);
+      toast.error('Failed to submit review');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['restaurant-reviews']);
       queryClient.invalidateQueries(['restaurant-detail']);
@@ -52,9 +68,6 @@ export default function ReviewSection({ restaurant, reviews }) {
       setComment('');
       toast.success('Review submitted successfully!');
     },
-    onError: () => {
-      toast.error('Failed to submit review');
-    }
   });
 
   const handleSubmit = async (e) => {

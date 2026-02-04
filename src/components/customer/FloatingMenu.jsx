@@ -23,6 +23,12 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
   const [currentPage, setCurrentPage] = useState('CustomerHome');
   const queryClient = useQueryClient();
 
+  const handleTabClick = (pageName) => {
+    if (currentPage === pageName) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     // Load user data
     const loadUser = async () => {
@@ -75,7 +81,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <Link to={createPageUrl('CustomerHome')}>
+        <Link to={createPageUrl('CustomerHome')} onClick={() => handleTabClick('CustomerHome')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -92,7 +98,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </motion.div>
         </Link>
 
-        <Link to={createPageUrl('Promos')}>
+        <Link to={createPageUrl('Promos')} onClick={() => handleTabClick('Promos')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -109,7 +115,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </motion.div>
         </Link>
 
-        <Link to={createPageUrl('Cart')}>
+        <Link to={createPageUrl('Cart')} onClick={() => handleTabClick('Cart')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -136,7 +142,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </motion.div>
         </Link>
 
-        <Link to={createPageUrl('OrderHistory')}>
+        <Link to={createPageUrl('OrderHistory')} onClick={() => handleTabClick('OrderHistory')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
@@ -148,7 +154,7 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
           </motion.div>
         </Link>
 
-        <Link to={createPageUrl('LiveChat')}>
+        <Link to={createPageUrl('LiveChat')} onClick={() => handleTabClick('LiveChat')}>
           <motion.div whileTap={{ scale: 0.85 }} whileHover={{ scale: 1.05 }}>
             <Button
               variant="ghost"
