@@ -4,8 +4,10 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
 
-        // Get all users
-        const users = await base44.asServiceRole.entities.User.list();
+        // Get all users who have placed orders (active customers)
+        const orders = await base44.asServiceRole.entities.Order.list('-created_date', 1000);
+        const uniqueEmails = new Set(orders.map(o => o.customer_email));
+        const users = Array.from(uniqueEmails).map(email => ({ email }));
         
         // Get all approved and open restaurants
         const restaurants = await base44.asServiceRole.entities.Restaurant.filter({ 
@@ -13,9 +15,9 @@ Deno.serve(async (req) => {
             is_open: true 
         });
 
-        if (restaurants.length === 0) {
+        if (restaurants.length === 0 || users.length === 0) {
             return Response.json({ 
-                message: 'No open restaurants to promote',
+                message: 'No open restaurants or users to promote to',
                 notifications_sent: 0 
             });
         }
