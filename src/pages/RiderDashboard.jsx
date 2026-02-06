@@ -4,8 +4,9 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, Home
+  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, Home, MessageSquare
 } from 'lucide-react';
+import ComplaintsSheet from '../components/rider/ComplaintsSheet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -554,7 +555,7 @@ export default function RiderDashboard() {
 
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-blue-100 shadow-2xl z-50 safe-area-inset-bottom">
-          <div className="grid grid-cols-2 gap-1 px-4 py-3">
+          <div className="grid grid-cols-3 gap-1 px-4 py-3">
             {/* Available Toggle */}
             <button
               onClick={toggleAvailability}
@@ -569,6 +570,9 @@ export default function RiderDashboard() {
                 {rider.is_available ? 'Available' : 'Offline'}
               </span>
             </button>
+
+            {/* Complaints Button */}
+            <ComplaintsSheet rider={rider} />
 
             {/* Profile Button */}
             <button
