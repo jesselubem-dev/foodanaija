@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -328,6 +328,22 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-muted-foreground">Soft drinks & beverages</p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-green-600">
                   Manage <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl('SuperAdminRiderComplaints')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Rider Complaints</CardTitle>
+                <MessageCircle className="w-4 h-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Support</div>
+                <p className="text-xs text-muted-foreground">Rider feedback & issues</p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-purple-600">
+                  View <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>
