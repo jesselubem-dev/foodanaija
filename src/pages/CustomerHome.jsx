@@ -26,7 +26,6 @@ import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import NoInternet from '../components/NoInternet';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
-import PullToRefresh from '../components/PullToRefresh';
 
 function LoadingScreen() {
   const { t } = useLanguage();
@@ -207,13 +206,7 @@ function CustomerHomeContent() {
     refetchOnMount: false,
   });
 
-  const handleRefresh = async () => {
-    await Promise.all([
-      refetchRestaurants(),
-      queryClient.invalidateQueries({ queryKey: ['promo-items'] }),
-      queryClient.invalidateQueries({ queryKey: ['chat-messages'] }),
-    ]);
-  };
+
 
   const { data: promoItems = [] } = useQuery({
     queryKey: ['promo-items'],
@@ -290,7 +283,6 @@ function CustomerHomeContent() {
   }
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
@@ -454,7 +446,6 @@ function CustomerHomeContent() {
           />
         )}
       </div>
-    </PullToRefresh>
   );
 }
 
