@@ -51,14 +51,14 @@ export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
                           <button
-                            onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            onClick={() => onUpdateQuantity(item.item_id, Math.max(1, item.quantity - 1))}
                             className="w-7 h-7 rounded-md bg-white hover:bg-gray-100 flex items-center justify-center transition-colors"
                           >
                             <Minus className="w-3 h-3 text-gray-600" />
                           </button>
                           <span className="text-sm font-semibold text-gray-900 w-8 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => onUpdateQuantity(item.item_id, item.quantity + 1)}
                             className="w-7 h-7 rounded-md bg-white hover:bg-gray-100 flex items-center justify-center transition-colors"
                           >
                             <Plus className="w-3 h-3 text-gray-600" />
