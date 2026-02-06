@@ -35,7 +35,7 @@ export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, 
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {cart.map((item) => (
-                <div key={item.id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
+                <div key={item.item_id} className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
                   <div className="flex gap-3">
                     {item.image_url && (
                       <img 
