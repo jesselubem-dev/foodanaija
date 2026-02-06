@@ -51,14 +51,21 @@ export default function SuperAdminRiderComplaints() {
 
   const { data: complaints = [], isLoading } = useQuery({
     queryKey: ['all-rider-complaints'],
-    queryFn: () => base44.asServiceRole.entities.RiderComplaint.list('-created_date'),
+    queryFn: async () => {
+      try {
+        return await base44.entities.RiderComplaint.list('-created_date');
+      } catch (error) {
+        console.error('Error fetching complaints:', error);
+        return [];
+      }
+    },
     enabled: !!user,
     refetchInterval: 10000,
   });
 
   const respondMutation = useMutation({
     mutationFn: async ({ complaintId, responseText, status }) => {
-      return await base44.asServiceRole.entities.RiderComplaint.update(complaintId, {
+      return await base44.entities.RiderComplaint.update(complaintId, {
         admin_response: responseText,
         status: status,
         responded_at: new Date().toISOString(),
