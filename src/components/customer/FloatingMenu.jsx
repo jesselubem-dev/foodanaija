@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Home, ShoppingBag, History, User, LogOut, Bell, MessageSquare, Languages } from 'lucide-react';
+import { Home, ShoppingBag, History, User, LogOut, Bell, MessageSquare, Languages, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -247,6 +247,21 @@ export default function FloatingMenu({ cartCount = 0, userEmail }) {
                           <div>
                             <p className="text-sm font-semibold text-gray-900">{t('myCart')}</p>
                             <p className="text-xs text-gray-500">{cartCount} {t('items')}</p>
+                          </div>
+                        </button>
+                      </Link>
+
+                      <Link to={createPageUrl('CustomerSettings')}>
+                        <button
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 transition-colors text-left border border-gray-100"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                            <Settings className="w-5 h-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">Settings</p>
+                            <p className="text-xs text-gray-500">Manage addresses</p>
                           </div>
                         </button>
                       </Link>
