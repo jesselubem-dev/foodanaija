@@ -66,7 +66,7 @@ export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, 
                         </div>
 
                         <button
-                          onClick={() => onRemoveItem(item.id)}
+                          onClick={() => onRemoveItem(item.item_id)}
                           className="p-2 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
