@@ -309,12 +309,11 @@ function CustomerHomeContent() {
         <div className="pt-2 pb-4">
           <div className="flex items-center gap-3">
               <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 placeholder={t('searchRestaurants')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-gray-900 transition-colors text-base"
+                className="pl-4 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-gray-900 transition-colors text-base"
               />
             </div>
           </div>
@@ -355,9 +354,6 @@ function CustomerHomeContent() {
           <LoadingScreen />
         ) : filteredRestaurants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-              <ChefHat className="w-10 h-10 text-gray-400" />
-            </div>
             <p className="text-gray-500">{t('noRestaurantsFound')}</p>
           </div>
         ) : (
@@ -373,8 +369,7 @@ function CustomerHomeContent() {
                         className={`w-full h-44 object-cover ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}
                       />
                     ) : (
-                      <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
-                        <ChefHat className="w-14 h-14 text-orange-600" />
+                      <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
                       </div>
                     )}
                     
@@ -387,16 +382,7 @@ function CustomerHomeContent() {
                       {restaurant.is_open ? `● ${t('open')}` : `● ${t('closed')}`}
                     </div>
 
-                    {/* Logo Overlay */}
-                    {restaurant.logo_url && (
-                      <div className="absolute -bottom-6 left-4">
-                        <img 
-                          src={restaurant.logo_url} 
-                          alt="" 
-                          className="w-14 h-14 rounded-2xl object-cover border-4 border-white shadow-lg"
-                        />
-                      </div>
-                    )}
+
                   </div>
                   
                   <div className="p-4 pt-8">
@@ -420,20 +406,17 @@ function CustomerHomeContent() {
 
                     {/* Info Row */}
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span>5-15 {t('mins')}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-gray-600">
-                        <Bike className="w-4 h-4" />
-                        <span>₦500</span>
-                      </div>
-                      {restaurant.rating > 0 && (
-                        <div className="flex items-center gap-1 text-amber-600">
-                          <Star className="w-4 h-4 fill-amber-500" />
-                          <span className="font-semibold">{restaurant.rating}</span>
-                        </div>
-                      )}
+                     <div className="flex items-center gap-1 text-gray-600">
+                       <span>5-15 {t('mins')}</span>
+                     </div>
+                     <div className="flex items-center gap-1 text-gray-600">
+                       <span>₦500</span>
+                     </div>
+                     {restaurant.rating > 0 && (
+                       <div className="flex items-center gap-1 text-amber-600">
+                         <span className="font-semibold">{restaurant.rating}</span>
+                       </div>
+                     )}
                     </div>
                   </div>
                 </div>
@@ -443,8 +426,7 @@ function CustomerHomeContent() {
         )}
       </div>
 
-        {/* Floating Menu */}
-        <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
+
 
         {/* Promo Modal */}
         {showPromo && promoItems.length > 0 && (

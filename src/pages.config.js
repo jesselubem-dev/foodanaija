@@ -74,10 +74,10 @@ import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
 import SuperAdminReports from './pages/SuperAdminReports';
 import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
+import SuperAdminRiderComplaints from './pages/SuperAdminRiderComplaints';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import SuperAdminRiderComplaints from './pages/SuperAdminRiderComplaints';
 import __Layout from './Layout.jsx';
 
 
@@ -109,10 +109,10 @@ export const PAGES = {
     "SuperAdminOrders": SuperAdminOrders,
     "SuperAdminReports": SuperAdminReports,
     "SuperAdminRestaurants": SuperAdminRestaurants,
+    "SuperAdminRiderComplaints": SuperAdminRiderComplaints,
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
-    "SuperAdminRiderComplaints": SuperAdminRiderComplaints,
 }
 
 export const pagesConfig = {
