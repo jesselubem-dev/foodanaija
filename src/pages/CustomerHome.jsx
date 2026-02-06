@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, MessageSquare, Headset, User
+  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, MessageSquare, Headset
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -308,11 +308,6 @@ function CustomerHomeContent() {
                 className="pl-4 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-gray-900 transition-colors text-base"
               />
             </div>
-            <Link to={createPageUrl('Profile')}>
-              <Button size="icon" className="h-14 w-14 rounded-2xl bg-orange-500 hover:bg-orange-600">
-                <User className="w-6 h-6 text-white" />
-              </Button>
-            </Link>
           </div>
         </div>
 
