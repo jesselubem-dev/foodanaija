@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -26,14 +26,33 @@ import {
 } from "@/components/ui/select";
 
 export default function SuperAdminRiderComplaints() {
+  const [user, setUser] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [response, setResponse] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    checkAdmin();
+  }, []);
+
+  const checkAdmin = async () => {
+    try {
+      const userData = await base44.auth.me();
+      if (userData.role !== 'admin' && userData._app_role !== 'admin') {
+        window.location.href = createPageUrl('Home');
+        return;
+      }
+      setUser(userData);
+    } catch (e) {
+      base44.auth.redirectToLogin(window.location.href);
+    }
+  };
+
   const { data: complaints = [], isLoading } = useQuery({
     queryKey: ['all-rider-complaints'],
     queryFn: () => base44.asServiceRole.entities.RiderComplaint.list('-created_date'),
+    enabled: !!user,
     refetchInterval: 10000,
   });
 
@@ -78,7 +97,7 @@ export default function SuperAdminRiderComplaints() {
 
   const pendingCount = complaints.filter(c => c.status === 'pending').length;
 
-  if (isLoading) {
+  if (!user || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
