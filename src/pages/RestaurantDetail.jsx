@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  ArrowLeft, MapPin, Clock, Bike, Star, Plus, Minus, ShoppingBag, ChefHat
+  ArrowLeft, Plus, Minus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,8 +12,6 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import ReviewSection from '../components/restaurant/ReviewSection';
 import FloatingCart from '../components/customer/FloatingCart';
-import NotificationBell from '../components/customer/NotificationBell';
-import FloatingMenu from '../components/customer/FloatingMenu';
 import { LanguageProvider } from '../components/LanguageContext';
 
 function RestaurantDetailContent() {
@@ -192,10 +190,8 @@ function RestaurantDetailContent() {
               </Button>
             </Link>
 
-            <NotificationBell userEmail={user?.email} />
             <Link to={createPageUrl('Cart')}>
               <Button className="relative bg-gradient-to-r from-orange-500 to-orange-600">
-                <ShoppingBag className="w-5 h-5 mr-2" />
                 Cart
                 {cartItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -217,8 +213,7 @@ function RestaurantDetailContent() {
             className={`w-full h-64 object-cover ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}
           />
         ) : (
-          <div className={`w-full h-64 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
-            <ChefHat className="w-24 h-24 text-orange-600" />
+          <div className={`w-full h-64 bg-gradient-to-br from-orange-100 to-yellow-100 ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
           </div>
         )}
         
@@ -238,21 +233,17 @@ function RestaurantDetailContent() {
                   <p className="text-gray-600 mb-4">{restaurant.description}</p>
                   
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-orange-600" />
+                    <div>
                       {restaurant.city}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-orange-600" />
+                    <div>
                       {restaurant.delivery_time}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Bike className="w-4 h-4 text-orange-600" />
+                    <div>
                       ₦{restaurant.delivery_fee?.toLocaleString()} delivery
                     </div>
                     {restaurant.rating > 0 && (
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      <div>
                         {restaurant.rating} ({restaurant.total_reviews} reviews)
                       </div>
                     )}
@@ -307,7 +298,6 @@ function RestaurantDetailContent() {
         {filteredItems.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <ChefHat className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No menu items available</p>
             </CardContent>
           </Card>
@@ -340,7 +330,6 @@ function RestaurantDetailContent() {
                           disabled={!restaurant.is_open}
                           className="bg-gradient-to-r from-orange-500 to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Plus className="w-4 h-4 mr-1" />
                           {restaurant.is_open ? 'Add' : 'Closed'}
                         </Button>
                       ) : (
@@ -384,8 +373,6 @@ function RestaurantDetailContent() {
         onUpdateQuantity={updateCartQuantity}
         onRemoveItem={removeFromCart}
       />
-
-      <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
     </div>
   );
 }

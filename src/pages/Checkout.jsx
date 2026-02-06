@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, User, MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,6 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { CheckCircle2 } from 'lucide-react';
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
@@ -292,8 +291,7 @@ export default function Checkout() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <User className="w-4 h-4" />
+                  <label className="text-sm font-medium mb-2">
                     Full Name *
                   </label>
                   <Input
@@ -305,8 +303,7 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
+                  <label className="text-sm font-medium mb-2">
                     Email *
                   </label>
                   <Input
@@ -319,8 +316,7 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
+                  <label className="text-sm font-medium mb-2">
                     Phone Number *
                   </label>
                   <Input
@@ -332,8 +328,7 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
+                  <label className="text-sm font-medium mb-2">
                     Delivery Address *
                   </label>
                   <Textarea
@@ -431,8 +426,7 @@ export default function Checkout() {
           <div className="text-center py-6">
             <div className="mb-4 flex justify-center">
               <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center animate-bounce">
-                  <CheckCircle2 className="w-12 h-12 text-white" />
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full animate-bounce">
                 </div>
                 <div className="absolute inset-0 w-20 h-20 bg-orange-500 rounded-full animate-ping opacity-75"></div>
               </div>

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, MessageCircle, User, Plus } from 'lucide-react';
+import { ArrowLeft, Send, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import FloatingMenu from '../components/customer/FloatingMenu';
+
 import { LanguageProvider } from '../components/LanguageContext';
 import ChatPaymentCard from '../components/customer/ChatPaymentCard';
 
@@ -181,12 +181,9 @@ function LiveChatContent() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-6 h-6 text-orange-600" />
-              <div>
-                <h1 className="text-lg font-bold">Fooda Support</h1>
-                <p className="text-xs text-green-600">● Online</p>
-              </div>
+            <div>
+              <h1 className="text-lg font-bold">Fooda Support</h1>
+              <p className="text-xs text-green-600">● Online</p>
             </div>
           </div>
         </div>
@@ -201,14 +198,9 @@ function LiveChatContent() {
         ) : messages.length === 0 ? (
           <div className="text-center py-12">
             <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 mb-6 max-w-md mx-auto">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-purple-600" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-gray-900">Fooda</p>
-                  <p className="text-xs text-gray-500">Online now</p>
-                </div>
+              <div className="mb-3">
+                <p className="font-semibold text-gray-900">Fooda</p>
+                <p className="text-xs text-gray-500">Online now</p>
               </div>
               <p className="text-gray-700 text-sm">
                 Hello! 👋 I'm Fooda, your personal food delivery assistant. How can I help you today?
@@ -266,21 +258,6 @@ function LiveChatContent() {
                 className={`flex ${msg.sender_type === 'customer' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex gap-2 max-w-[80%] ${msg.sender_type === 'customer' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    msg.sender_type === 'customer' 
-                      ? 'bg-orange-100' 
-                      : msg.sender_type === 'ai'
-                      ? 'bg-purple-100'
-                      : 'bg-blue-100'
-                  }`}>
-                    <User className={`w-4 h-4 ${
-                      msg.sender_type === 'customer' 
-                        ? 'text-orange-600' 
-                        : msg.sender_type === 'ai'
-                        ? 'text-purple-600'
-                        : 'text-blue-600'
-                    }`} />
-                  </div>
                   <div>
                     {(msg.sender_type === 'ai' || msg.sender_type === 'admin') && (
                       <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
@@ -312,9 +289,6 @@ function LiveChatContent() {
             {aiTyping && (
               <div className="flex justify-start">
                 <div className="flex gap-2 max-w-[80%]">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-purple-100">
-                    <User className="w-4 h-4 text-purple-600" />
-                  </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-600 mb-1 px-2">Fooda</p>
                     <div className="bg-purple-50 border border-purple-200 rounded-2xl px-4 py-3">
@@ -342,9 +316,8 @@ function LiveChatContent() {
             onClick={startNewChat}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 border-orange-200 hover:bg-orange-50 text-orange-600 mb-3 w-full"
+            className="border-orange-200 hover:bg-orange-50 text-orange-600 mb-3 w-full"
           >
-            <Plus className="w-4 h-4" />
             Start New Chat
           </Button>
           <form onSubmit={handleSubmit} className="flex gap-2">
@@ -366,7 +339,7 @@ function LiveChatContent() {
         </div>
       </div>
 
-      <FloatingMenu cartCount={cartCount} userEmail={user?.email} />
+
     </div>
   );
 }

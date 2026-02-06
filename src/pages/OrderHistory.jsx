@@ -4,17 +4,15 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  ArrowLeft, Clock, CheckCircle, XCircle, Package, ShoppingBag, RotateCcw
+  ArrowLeft, Clock, CheckCircle, XCircle, Package, RotateCcw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import moment from 'moment';
-import FloatingMenu from '../components/customer/FloatingMenu';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
-import PullToRefresh from '../components/PullToRefresh';
 
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
@@ -22,9 +20,7 @@ function OrderHistoryContent() {
   const [showAll, setShowAll] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleRefresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-  };
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -96,7 +92,6 @@ function OrderHistoryContent() {
   }
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 pb-20">
         {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
@@ -123,7 +118,6 @@ function OrderHistoryContent() {
         ) : orders.length === 0 ? (
           <Card className="border-orange-100">
             <CardContent className="p-12 text-center">
-              <ShoppingBag className="w-16 h-16 text-orange-300 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-900 mb-2">No orders yet</h2>
               <p className="text-gray-500 mb-6">Start ordering from your favorite restaurants</p>
               <Link to={createPageUrl('CustomerHome')}>
@@ -193,9 +187,7 @@ function OrderHistoryContent() {
                         <Button
                           onClick={() => handleReorder(order)}
                           variant="outline"
-                          className="gap-2"
                         >
-                          <RotateCcw className="w-4 h-4" />
                           Reorder
                         </Button>
                       </div>
@@ -228,9 +220,6 @@ function OrderHistoryContent() {
           )}
         </div>
 
-        {/* Floating Menu */}
-        <FloatingMenu cartCount={0} userEmail={user?.email} />
-
         {/* Cancel Order Modal */}
         <CancelOrderModal
           isOpen={!!cancelOrderId}
@@ -243,7 +232,6 @@ function OrderHistoryContent() {
           isLoading={cancelOrderMutation.isPending}
         />
       </div>
-    </PullToRefresh>
   );
 }
 
