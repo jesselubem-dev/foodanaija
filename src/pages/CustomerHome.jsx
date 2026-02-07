@@ -469,6 +469,27 @@ function CustomerHomeContent() {
             onClose={() => setRiderRatingOrder(null)}
           />
         )}
+
+        {/* Floating Cart Button */}
+        {cartItemCount > 0 && (
+          <button
+            onClick={() => setCartOpen(true)}
+            className="fixed right-4 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full p-4 shadow-2xl hover:scale-110 transition-transform z-40"
+          >
+            <ShoppingBag className="w-6 h-6" />
+            <span className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+              {cartItemCount}
+            </span>
+          </button>
+        )}
+
+        <FloatingCart 
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
+          cart={cart}
+          onUpdateQuantity={updateCartQuantity}
+          onRemoveItem={removeFromCart}
+        />
       </div>
   );
 }
