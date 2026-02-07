@@ -381,7 +381,7 @@ function CustomerHomeContent() {
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-24">
         {/* Compact Welcome */}
         {user && (
-          <div className="pt-6 pb-4">
+          <div className="sticky top-0 z-10 bg-white pt-6 pb-4">
             <h2 className="text-2xl font-bold text-gray-900">
               {t('hi')}, {user.full_name.split(' ')[0]}! <span className="inline-block animate-wave">👋</span>
             </h2>
