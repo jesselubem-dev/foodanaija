@@ -532,8 +532,19 @@ function CustomerHomeContent() {
         {/* Floating Cart Button */}
         {cartItemCount > 0 && (
           <button
-            onClick={() => setCartOpen(true)}
-            className="fixed right-4 top-1/2 -translate-y-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full p-4 shadow-2xl hover:scale-110 transition-transform z-40"
+            onClick={(e) => {
+              if (!isDragging) setCartOpen(true);
+            }}
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            style={{
+              left: `${cartPosition.x}px`,
+              top: `${cartPosition.y}px`,
+              transform: 'translate(-50%, -50%)'
+            }}
+            className={`fixed bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full p-4 shadow-2xl z-40 cursor-move ${
+              !isDragging && 'hover:scale-110 transition-transform'
+            }`}
           >
             <ShoppingBag className="w-6 h-6" />
             <span className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
