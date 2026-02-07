@@ -165,6 +165,46 @@ function OrderHistoryContent() {
                       )}
                     </div>
 
+                    {/* Delivery Progress Bar */}
+                    {order.status === 'accepted' && (
+                      <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium text-gray-700">Delivery Progress</p>
+                          <p className="text-xs text-gray-500">
+                            {order.delivery_status === 'unassigned' && 'Waiting for rider'}
+                            {order.delivery_status === 'assigned' && 'Rider assigned'}
+                            {order.delivery_status === 'picked_up' && 'Order picked up'}
+                            {order.delivery_status === 'on_the_way' && 'On the way'}
+                            {order.delivery_status === 'delivered' && 'Delivered'}
+                          </p>
+                        </div>
+                        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
+                            style={{
+                              width: 
+                                order.delivery_status === 'unassigned' ? '0%' :
+                                order.delivery_status === 'assigned' ? '25%' :
+                                order.delivery_status === 'picked_up' ? '50%' :
+                                order.delivery_status === 'on_the_way' ? '75%' :
+                                order.delivery_status === 'delivered' ? '100%' : '0%'
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between mt-2 text-xs text-gray-500">
+                          <span className={order.delivery_status !== 'unassigned' ? 'text-blue-600 font-medium' : ''}>Assigned</span>
+                          <span className={['picked_up', 'on_the_way', 'delivered'].includes(order.delivery_status) ? 'text-blue-600 font-medium' : ''}>Picked Up</span>
+                          <span className={['on_the_way', 'delivered'].includes(order.delivery_status) ? 'text-blue-600 font-medium' : ''}>On the Way</span>
+                          <span className={order.delivery_status === 'delivered' ? 'text-blue-600 font-medium' : ''}>Delivered</span>
+                        </div>
+                        {order.rider_name && (
+                          <p className="text-xs text-gray-600 mt-2">
+                            Rider: <span className="font-medium">{order.rider_name}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="border-t pt-4 flex items-center justify-between gap-2">
                       <div>
                         <p className="text-sm text-gray-500">Total Amount</p>
