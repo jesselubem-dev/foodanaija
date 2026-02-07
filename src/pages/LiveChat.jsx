@@ -77,6 +77,16 @@ function LiveChatContent() {
     refetchOnWindowFocus: true,
   });
 
+  // Play beep sound when AI messages arrive
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.sender_type === 'ai' || lastMessage.sender_type === 'admin') {
+        audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+      }
+    }
+  }, [messages.length]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
