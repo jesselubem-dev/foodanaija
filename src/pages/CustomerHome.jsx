@@ -473,34 +473,22 @@ function CustomerHomeContent() {
               return isOpen ? (
                 <Link key={restaurant.id} to={createPageUrl(`RestaurantDetail?id=${restaurant.id}`)} className="block">
                   <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95">
-                    {/* ... rest of card ... */}
-                  </div>
-                </Link>
-              ) : (
-                <div key={restaurant.id} className="block cursor-not-allowed">
-                  <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
                   <div className="relative">
                     {restaurant.cover_image_url ? (
                       <img 
                         src={restaurant.cover_image_url} 
                         alt="" 
-                        className={`w-full h-44 object-cover ${!isRestaurantOpen(restaurant) ? 'grayscale opacity-60' : ''}`}
+                        className="w-full h-44 object-cover"
                       />
                     ) : (
-                      <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 ${!isRestaurantOpen(restaurant) ? 'grayscale opacity-60' : ''}`}>
+                      <div className="w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100">
                       </div>
                     )}
                     
                     {/* Status Badge */}
-                    <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-                      isRestaurantOpen(restaurant) 
-                        ? 'bg-green-500/90 text-white' 
-                        : 'bg-gray-800/90 text-white'
-                    }`}>
-                      {isRestaurantOpen(restaurant) ? `● ${t('open')}` : `● ${t('closed')}`}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-green-500/90 text-white">
+                      ● {t('open')}
                     </div>
-
-
                   </div>
                   
                   <div className="p-4 pt-8">
@@ -537,11 +525,11 @@ function CustomerHomeContent() {
                      )}
                     </div>
                   </div>
-                </div>
-              </Link>
-            ) : (
-              <div key={restaurant.id} className="block cursor-not-allowed">
-                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
+                  </div>
+                </Link>
+              ) : (
+                <div key={restaurant.id} className="block cursor-not-allowed">
+                  <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
                   <div className="relative">
                     {restaurant.cover_image_url ? (
                       <img 
