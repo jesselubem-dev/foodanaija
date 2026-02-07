@@ -21,7 +21,33 @@ function LiveChatContent() {
   const [orderData, setOrderData] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
-  const audioRef = useRef(new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBxp+zPLTgjMGHm7A7+OZSA4PWKnl8KxhGAg+l9ryx3gkBSN8yvDZizkIGWe56+idUQ4KUKzk7rVmHgg6k9bxx3wrBSh+yfHajzsJF2W86uelVRIKTqPg8bliHAg8ltfywHosBS5+yfDYizcIGm3B7+OZSg0OUKnl7a1iGQg/ltjxx3YmBSJ7yPDaiTgJGWi76+mfUAwLUKvj761lHAg6ktTxx3wpBSl+yPDZizkJGGW76uqkUw4KTqPf8btlHQg7ldXxxnooBSh9yPDajToJF2W86umhUQ8LTqPg8rxkHAk8ltfxwHksBS9+yPDXizcIF2e86uukURAKTaPf8rtlHgk7ldXxx3knBSh+yPDajToJF2W76umhUQ8LTaPf87tlHQk8ltfxwHkrBS9+yPDXizcIF2e76uukURAKTaPf8rplHgk7ldXxxnknBSl9yPDajDoJGGW76uqhUQ4LTKLe8rxlHgk8ldfxwHkrBS5+yPDYizcIGGe76uqkURAKTKPf8rxkHQk8lNXxwHkrBS5+yPDYizcIF2W76uqlURAKTKPf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KTKPf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KTKPf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8KS6Pf8rxkHQk8lNXxv3krBS5+yPDYizcIF2W76uqlUQ8K'));
+  
+  // Create modern notification sound using Web Audio API
+  const playNotificationSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // High-pitched, glassy tone (similar to iPhone notification)
+      oscillator.frequency.value = 1200;
+      oscillator.type = 'sine';
+      
+      // Smooth attack, quick decay
+      const now = audioContext.currentTime;
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.3, now + 0.02); // Quick attack
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15); // Quick decay
+      
+      oscillator.start(now);
+      oscillator.stop(now + 0.15);
+    } catch (e) {
+      console.log('Audio playback failed:', e);
+    }
+  };
 
   useEffect(() => {
     const initChat = async () => {
