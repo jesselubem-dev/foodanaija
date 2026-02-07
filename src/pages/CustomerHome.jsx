@@ -280,6 +280,28 @@ function CustomerHomeContent() {
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const updateCartQuantity = (itemId, newQuantity) => {
+    if (newQuantity === 0) {
+      removeFromCart(itemId);
+      return;
+    }
+    
+    const newCart = cart.map(i => 
+      i.item_id === itemId 
+        ? { ...i, quantity: newQuantity }
+        : i
+    );
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  };
+
+  const removeFromCart = (itemId) => {
+    const newCart = cart.filter(i => i.item_id !== itemId);
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    toast.success('Item removed from cart');
+  };
+
   if (isLoading) {
     return <LoadingScreen />;
   }
