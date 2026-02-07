@@ -71,6 +71,7 @@ import RiderDashboard from './pages/RiderDashboard';
 import RiderDelivery from './pages/RiderDelivery';
 import RiderHome from './pages/RiderHome';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminDrinkOrders from './pages/SuperAdminDrinkOrders';
 import SuperAdminDrinks from './pages/SuperAdminDrinks';
 import SuperAdminMessages from './pages/SuperAdminMessages';
 import SuperAdminOrders from './pages/SuperAdminOrders';
@@ -80,7 +81,6 @@ import SuperAdminRiderComplaints from './pages/SuperAdminRiderComplaints';
 import SuperAdminRiders from './pages/SuperAdminRiders';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import SuperAdminUsers from './pages/SuperAdminUsers';
-import SuperAdminDrinkOrders from './pages/SuperAdminDrinkOrders';
 import __Layout from './Layout.jsx';
 
 
@@ -109,6 +109,7 @@ export const PAGES = {
     "RiderDelivery": RiderDelivery,
     "RiderHome": RiderHome,
     "SuperAdminDashboard": SuperAdminDashboard,
+    "SuperAdminDrinkOrders": SuperAdminDrinkOrders,
     "SuperAdminDrinks": SuperAdminDrinks,
     "SuperAdminMessages": SuperAdminMessages,
     "SuperAdminOrders": SuperAdminOrders,
@@ -118,7 +119,6 @@ export const PAGES = {
     "SuperAdminRiders": SuperAdminRiders,
     "SuperAdminSupport": SuperAdminSupport,
     "SuperAdminUsers": SuperAdminUsers,
-    "SuperAdminDrinkOrders": SuperAdminDrinkOrders,
 }
 
 export const pagesConfig = {

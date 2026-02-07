@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  ArrowLeft, Clock, CheckCircle, XCircle, Package, RotateCcw
+  ArrowLeft, Clock, CheckCircle, XCircle, Package, RotateCcw, Bike
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -178,7 +178,7 @@ function OrderHistoryContent() {
                             {order.delivery_status === 'delivered' && 'Delivered'}
                           </p>
                         </div>
-                        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-visible">
                           <div
                             className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                             style={{
@@ -190,6 +190,22 @@ function OrderHistoryContent() {
                                 order.delivery_status === 'delivered' ? '100%' : '0%'
                             }}
                           />
+                          {order.delivery_status !== 'unassigned' && (
+                            <div
+                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-500"
+                              style={{
+                                left: 
+                                  order.delivery_status === 'assigned' ? '25%' :
+                                  order.delivery_status === 'picked_up' ? '50%' :
+                                  order.delivery_status === 'on_the_way' ? '75%' :
+                                  order.delivery_status === 'delivered' ? '100%' : '0%'
+                              }}
+                            >
+                              <div className="bg-white rounded-full p-1 shadow-lg">
+                                <Bike className="w-4 h-4 text-blue-600" />
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div className="flex justify-between mt-2 text-xs text-gray-500">
                           <span className={order.delivery_status !== 'unassigned' ? 'text-blue-600 font-medium' : ''}>Assigned</span>
