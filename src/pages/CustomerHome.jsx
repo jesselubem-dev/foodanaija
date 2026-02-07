@@ -539,7 +539,65 @@ function CustomerHomeContent() {
                   </div>
                 </div>
               </Link>
-            ))}
+            ) : (
+              <div key={restaurant.id} className="block cursor-not-allowed">
+                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
+                  <div className="relative">
+                    {restaurant.cover_image_url ? (
+                      <img 
+                        src={restaurant.cover_image_url} 
+                        alt="" 
+                        className="w-full h-44 object-cover grayscale"
+                      />
+                    ) : (
+                      <div className="w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 grayscale">
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-gray-800/90 text-white">
+                      ● {t('closed')}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 pt-8">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">
+                      {restaurant.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 line-clamp-1 mb-3">
+                      {restaurant.description}
+                    </p>
+
+                    {/* Cuisine Tags */}
+                    {restaurant.cuisine_types?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg font-medium">
+                            {cuisine}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Info Row */}
+                    <div className="flex items-center justify-between text-sm">
+                     <div className="flex items-center gap-1 text-gray-600">
+                       <span>5-15 {t('mins')}</span>
+                     </div>
+                     <div className="flex items-center gap-1 text-gray-600">
+                       <span>₦500</span>
+                     </div>
+                     {restaurant.rating > 0 && (
+                       <div className="flex items-center gap-1 text-amber-600">
+                         <span className="font-semibold">{restaurant.rating}</span>
+                       </div>
+                     )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+            })}
           </div>
         )}
       </div>
