@@ -476,20 +476,20 @@ function CustomerHomeContent() {
                       <img 
                         src={restaurant.cover_image_url} 
                         alt="" 
-                        className={`w-full h-44 object-cover ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}
+                        className={`w-full h-44 object-cover ${!isRestaurantOpen(restaurant) ? 'grayscale opacity-60' : ''}`}
                       />
                     ) : (
-                      <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 ${!restaurant.is_open ? 'grayscale opacity-60' : ''}`}>
+                      <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 ${!isRestaurantOpen(restaurant) ? 'grayscale opacity-60' : ''}`}>
                       </div>
                     )}
                     
                     {/* Status Badge */}
                     <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-                      restaurant.is_open 
+                      isRestaurantOpen(restaurant) 
                         ? 'bg-green-500/90 text-white' 
                         : 'bg-gray-800/90 text-white'
                     }`}>
-                      {restaurant.is_open ? `● ${t('open')}` : `● ${t('closed')}`}
+                      {isRestaurantOpen(restaurant) ? `● ${t('open')}` : `● ${t('closed')}`}
                     </div>
 
 
