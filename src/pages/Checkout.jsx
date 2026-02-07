@@ -195,23 +195,12 @@ export default function Checkout() {
     const restaurants = Object.values(itemsByRestaurant);
     const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Prepare order data with drinks included
+    // Prepare order data (without drinks)
     const ordersData = restaurants.map(restaurant => {
       const foodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
-      const orderSubtotal = foodTotal + (restaurants.length === 1 ? drinksTotal : drinksTotal / restaurants.length);
       const deliveryFee = 500;
       const valueAddedService = 300;
-      const orderTotal = orderSubtotal + deliveryFee + valueAddedService;
-
-      // Add drinks as items
-      const drinksAsItems = selectedDrinks.map(drink => ({
-        item_id: `DRINK_${drink.id}`,
-        name: drink.name,
-        price: drink.price,
-        quantity: drink.quantity,
-        image_url: drink.image_url
-      }));
+      const orderTotal = foodTotal + deliveryFee + valueAddedService;
 
       return {
         restaurant_id: restaurant.restaurant_id,
@@ -220,8 +209,8 @@ export default function Checkout() {
         customer_name: formData.customer_name,
         customer_phone: formData.customer_phone,
         delivery_address: formData.delivery_address,
-        items: [...restaurant.items, ...drinksAsItems],
-        subtotal: orderSubtotal,
+        items: restaurant.items,
+        subtotal: foodTotal,
         delivery_fee: deliveryFee,
         total: orderTotal,
         notes: formData.notes,
@@ -232,6 +221,29 @@ export default function Checkout() {
         total_restaurants_in_batch: restaurants.length
       };
     });
+
+    // Add drink order data if drinks selected
+    if (selectedDrinks.length > 0) {
+      const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
+      ordersData.push({
+        isDrinkOrder: true,
+        customer_email: formData.customer_email,
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        delivery_address: formData.delivery_address,
+        drinks: selectedDrinks.map(drink => ({
+          drink_id: drink.id,
+          name: drink.name,
+          price: drink.price,
+          quantity: drink.quantity,
+          image_url: drink.image_url
+        })),
+        total: drinksTotal,
+        status: 'pending',
+        payment_status: 'pending',
+        batch_order_id: batchOrderId
+      });
+    }
 
     const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
     const reference = `PAY_${Date.now()}`;
