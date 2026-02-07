@@ -65,6 +65,9 @@ function CustomerHomeContent() {
   const [riderRatingOrder, setRiderRatingOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
+  const [cartPosition, setCartPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     checkAuth();
