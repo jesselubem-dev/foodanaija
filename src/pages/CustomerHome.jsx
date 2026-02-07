@@ -305,6 +305,62 @@ function CustomerHomeContent() {
     toast.success('Item removed from cart');
   };
 
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - cartPosition.x,
+      y: e.clientY - cartPosition.y
+    });
+  };
+
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    const touch = e.touches[0];
+    setDragOffset({
+      x: touch.clientX - cartPosition.x,
+      y: touch.clientY - cartPosition.y
+    });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDragging) {
+        setCartPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y
+        });
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (isDragging) {
+        const touch = e.touches[0];
+        setCartPosition({
+          x: touch.clientX - dragOffset.x,
+          y: touch.clientY - dragOffset.y
+        });
+      }
+    };
+
+    const handleEnd = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleEnd);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleEnd);
+    };
+  }, [isDragging, dragOffset]);
+
   if (isLoading) {
     return <LoadingScreen />;
   }
