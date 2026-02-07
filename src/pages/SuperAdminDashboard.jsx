@@ -74,6 +74,13 @@ export default function SuperAdminDashboard() {
     refetchInterval: 5000,
   });
 
+  const { data: drinkOrders = [] } = useQuery({
+    queryKey: ['all-drink-orders'],
+    queryFn: () => base44.entities.DrinkOrder.list(),
+    enabled: !!user,
+    refetchInterval: 10000,
+  });
+
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
@@ -340,8 +347,10 @@ export default function SuperAdminDashboard() {
                 <ShoppingBag className="w-4 h-4 text-teal-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Manage</div>
-                <p className="text-xs text-muted-foreground">Customer drink orders</p>
+                <div className="text-2xl font-bold">{drinkOrders.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {drinkOrders.filter(o => o.status === 'pending').length} pending
+                </p>
                 <Button variant="ghost" size="sm" className="mt-2 w-full text-teal-600">
                   View <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
