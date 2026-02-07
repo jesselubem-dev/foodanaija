@@ -104,16 +104,19 @@ export default function Checkout() {
       });
 
       if (result.data?.success) {
+        localStorage.removeItem('cart');
+        
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 }
         });
 
-        localStorage.removeItem('cart');
         setShowSuccess(true);
+        setProcessing(false);
 
         setTimeout(() => {
+          setShowSuccess(false);
           window.location.href = createPageUrl('OrderHistory');
         }, 3000);
       } else {
