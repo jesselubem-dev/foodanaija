@@ -205,13 +205,11 @@ function CustomerHomeContent() {
       const results = await base44.entities.Restaurant.filter({ is_approved: true });
       return results;
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
-
-
 
   const { data: promoItems = [] } = useQuery({
     queryKey: ['promo-items'],
@@ -231,7 +229,7 @@ function CustomerHomeContent() {
       });
     },
     enabled: restaurants.length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
@@ -245,7 +243,7 @@ function CustomerHomeContent() {
       return await base44.entities.ChatMessage.filter({ chat_id: chatId, is_read: false }, '-created_date', 10);
     },
     enabled: !!user?.email,
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: 30000,
     staleTime: 20000,
     refetchOnWindowFocus: false,
   });
@@ -282,23 +280,20 @@ function CustomerHomeContent() {
       return matchesSearch && matchesCity;
     })
     .sort((a, b) => {
-      // Sort by rating first (descending)
       if (b.rating !== a.rating) {
         return (b.rating || 0) - (a.rating || 0);
       }
-      // If ratings are equal, sort by total reviews (descending)
       return (b.total_reviews || 0) - (a.total_reviews || 0);
     });
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Check if restaurant is currently open based on time
   const isRestaurantOpen = (restaurant) => {
     if (!restaurant.is_open) return false;
     if (!restaurant.opening_time || !restaurant.closing_time) return restaurant.is_open;
     
     const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+    const currentTime = now.getHours() * 60 + now.getMinutes();
     
     const [openHour, openMin] = restaurant.opening_time.split(':').map(Number);
     const [closeHour, closeMin] = restaurant.closing_time.split(':').map(Number);
@@ -306,7 +301,6 @@ function CustomerHomeContent() {
     const openingTime = openHour * 60 + openMin;
     const closingTime = closeHour * 60 + closeMin;
     
-    // Handle cases where closing time is after midnight
     if (closingTime < openingTime) {
       return currentTime >= openingTime || currentTime <= closingTime;
     }
@@ -485,7 +479,6 @@ function CustomerHomeContent() {
                       </div>
                     )}
                     
-                    {/* Status Badge */}
                     <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-green-500/90 text-white">
                       ● {t('open')}
                     </div>
@@ -499,7 +492,6 @@ function CustomerHomeContent() {
                       {restaurant.description}
                     </p>
 
-                    {/* Cuisine Tags */}
                     {restaurant.cuisine_types?.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
@@ -510,7 +502,6 @@ function CustomerHomeContent() {
                       </div>
                     )}
 
-                    {/* Info Row */}
                     <div className="flex items-center justify-between text-sm">
                      <div className="flex items-center gap-1 text-gray-600">
                        <span>5-15 {t('mins')}</span>
@@ -542,7 +533,6 @@ function CustomerHomeContent() {
                       </div>
                     )}
                     
-                    {/* Status Badge */}
                     <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-gray-800/90 text-white">
                       ● {t('closed')}
                     </div>
@@ -556,7 +546,6 @@ function CustomerHomeContent() {
                       {restaurant.description}
                     </p>
 
-                    {/* Cuisine Tags */}
                     {restaurant.cuisine_types?.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
@@ -567,7 +556,6 @@ function CustomerHomeContent() {
                       </div>
                     )}
 
-                    {/* Info Row */}
                     <div className="flex items-center justify-between text-sm">
                      <div className="flex items-center gap-1 text-gray-600">
                        <span>5-15 {t('mins')}</span>
@@ -589,8 +577,6 @@ function CustomerHomeContent() {
           </div>
         )}
       </div>
-
-
 
         {/* Promo Modal */}
         {showPromo && promoItems.length > 0 && (
@@ -649,6 +635,8 @@ function CustomerHomeContent() {
           onUpdateQuantity={updateCartQuantity}
           onRemoveItem={removeFromCart}
         />
+
+        <FloatingMenu unreadChatCount={unreadChatCount} />
       </div>
   );
 }
