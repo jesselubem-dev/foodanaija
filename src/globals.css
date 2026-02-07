@@ -145,6 +145,33 @@ header.fixed,
   animation: pulse-ring 1.5s infinite;
 }
 
+/* Wave animation for emoji */
+@keyframes wave {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30% {
+    transform: rotate(14deg);
+  }
+  20%, 40% {
+    transform: rotate(-8deg);
+  }
+  50%, 60% {
+    transform: rotate(14deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+  80% {
+    transform: rotate(10deg);
+  }
+}
+
+.animate-wave {
+  animation: wave 2.5s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
 /* Skeleton loading animation */
 @keyframes shimmer {
   0% {
