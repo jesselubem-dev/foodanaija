@@ -292,6 +292,28 @@ function CustomerHomeContent() {
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Check if restaurant is currently open based on time
+  const isRestaurantOpen = (restaurant) => {
+    if (!restaurant.is_open) return false;
+    if (!restaurant.opening_time || !restaurant.closing_time) return restaurant.is_open;
+    
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+    
+    const [openHour, openMin] = restaurant.opening_time.split(':').map(Number);
+    const [closeHour, closeMin] = restaurant.closing_time.split(':').map(Number);
+    
+    const openingTime = openHour * 60 + openMin;
+    const closingTime = closeHour * 60 + closeMin;
+    
+    // Handle cases where closing time is after midnight
+    if (closingTime < openingTime) {
+      return currentTime >= openingTime || currentTime <= closingTime;
+    }
+    
+    return currentTime >= openingTime && currentTime <= closingTime;
+  };
+
   const updateCartQuantity = (itemId, newQuantity) => {
     if (newQuantity === 0) {
       removeFromCart(itemId);
