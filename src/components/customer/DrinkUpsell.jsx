@@ -41,6 +41,7 @@ export default function DrinkUpsell({ onAddDrink, selectedDrinks = [] }) {
                 
                 {quantity === 0 ? (
                   <Button
+                    type="button"
                     size="sm"
                     onClick={() => onAddDrink(drink, 1)}
                     className="w-full bg-orange-500 hover:bg-orange-600 h-8"
@@ -51,6 +52,7 @@ export default function DrinkUpsell({ onAddDrink, selectedDrinks = [] }) {
                 ) : (
                   <div className="flex items-center justify-between gap-1">
                     <Button
+                      type="button"
                       size="icon"
                       variant="outline"
                       onClick={() => onAddDrink(drink, -1)}
@@ -60,6 +62,7 @@ export default function DrinkUpsell({ onAddDrink, selectedDrinks = [] }) {
                     </Button>
                     <span className="font-bold text-sm">{quantity}</span>
                     <Button
+                      type="button"
                       size="icon"
                       className="bg-orange-600 h-8 w-8"
                       onClick={() => onAddDrink(drink, 1)}
