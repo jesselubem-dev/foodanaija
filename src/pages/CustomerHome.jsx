@@ -273,13 +273,22 @@ function CustomerHomeContent() {
 
   const cities = ['Sokoto'];
 
-  const filteredRestaurants = restaurants.filter(r => {
-    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCity = selectedCity === 'all' || r.city === selectedCity;
-    return matchesSearch && matchesCity;
-  });
+  const filteredRestaurants = restaurants
+    .filter(r => {
+      const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCity = selectedCity === 'all' || r.city === selectedCity;
+      return matchesSearch && matchesCity;
+    })
+    .sort((a, b) => {
+      // Sort by rating first (descending)
+      if (b.rating !== a.rating) {
+        return (b.rating || 0) - (a.rating || 0);
+      }
+      // If ratings are equal, sort by total reviews (descending)
+      return (b.total_reviews || 0) - (a.total_reviews || 0);
+    });
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
