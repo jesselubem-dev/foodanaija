@@ -53,10 +53,20 @@ export default function Checkout() {
     try {
       const userData = await base44.auth.me();
       setUser(userData);
+      
+      // Fetch saved addresses
+      const savedAddresses = await base44.entities.SavedAddress.filter({ 
+        user_email: userData.email 
+      });
+      
+      // Get default address or first address
+      const defaultAddress = savedAddresses.find(a => a.is_default) || savedAddresses[0];
+      
       setFormData(prev => ({
         ...prev,
         customer_name: userData.full_name || '',
-        customer_email: userData.email || ''
+        customer_email: userData.email || '',
+        delivery_address: defaultAddress?.address || ''
       }));
       
       const savedCart = localStorage.getItem('cart');
