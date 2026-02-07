@@ -334,9 +334,11 @@ function CustomerHomeContent() {
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (isDragging) {
+        const deltaX = e.clientX - dragOffset.x - cartPosition.x;
+        const deltaY = e.clientY - dragOffset.y - cartPosition.y;
         setCartPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y
+          x: cartPosition.x + deltaX * 1.5,
+          y: cartPosition.y + deltaY * 1.5
         });
       }
     };
@@ -344,9 +346,11 @@ function CustomerHomeContent() {
     const handleTouchMove = (e) => {
       if (isDragging) {
         const touch = e.touches[0];
+        const deltaX = touch.clientX - dragOffset.x - cartPosition.x;
+        const deltaY = touch.clientY - dragOffset.y - cartPosition.y;
         setCartPosition({
-          x: touch.clientX - dragOffset.x,
-          y: touch.clientY - dragOffset.y
+          x: cartPosition.x + deltaX * 1.5,
+          y: cartPosition.y + deltaY * 1.5
         });
       }
     };
