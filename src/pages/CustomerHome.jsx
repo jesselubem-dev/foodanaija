@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FloatingMenu from '../components/customer/FloatingMenu';
 import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
 import BannerCarousel from '../components/customer/BannerCarousel';
@@ -635,8 +634,6 @@ function CustomerHomeContent() {
           onUpdateQuantity={updateCartQuantity}
           onRemoveItem={removeFromCart}
         />
-
-        <FloatingMenu unreadChatCount={unreadChatCount} />
       </div>
   );
 }
