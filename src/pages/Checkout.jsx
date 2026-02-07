@@ -14,6 +14,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import DrinkUpsell from '../components/customer/DrinkUpsell';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
 
@@ -260,6 +261,7 @@ export default function Checkout() {
 
   if (cart.length === 0) {
     return (
+      <ErrorBoundary>
       <div className="min-h-screen bg-white flex items-center justify-center">
         <Card>
           <CardContent className="p-12 text-center">
@@ -272,10 +274,12 @@ export default function Checkout() {
           </CardContent>
         </Card>
       </div>
+      </ErrorBoundary>
     );
   }
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -459,5 +463,6 @@ export default function Checkout() {
         </DialogContent>
       </Dialog>
     </div>
+    </ErrorBoundary>
   );
 }
