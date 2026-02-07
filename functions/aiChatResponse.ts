@@ -211,10 +211,12 @@ INSTRUCTIONS:
 1. Help customers find restaurants and menu items
 2. Answer questions about delivery, pricing, and orders
 3. Be friendly and concise (2-3 sentences max)
-4. Suggest popular menu items when asked
-5. If they want to order, ask them to specify what they want
+4. When listing restaurants or menus, ALWAYS use numbered lists (1., 2., 3.) or bullet points (•) for clear organization
+5. DO NOT ask for customer address, phone number, or delivery details - those will be collected at checkout
+6. If they want to order, help them select items directly without collecting their details
+7. Format your responses with proper line breaks and structure
 
-Keep responses short and helpful.`;
+Keep responses short, helpful, and well-formatted.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
