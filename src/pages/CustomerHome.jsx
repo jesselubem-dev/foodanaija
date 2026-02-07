@@ -25,6 +25,7 @@ import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
 import NoInternet from '../components/NoInternet';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 
 function LoadingScreen() {
@@ -394,6 +395,7 @@ function CustomerHomeContent() {
   }
 
   return (
+    <ErrorBoundary>
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
@@ -635,6 +637,7 @@ function CustomerHomeContent() {
           onRemoveItem={removeFromCart}
         />
       </div>
+    </ErrorBoundary>
   );
 }
 

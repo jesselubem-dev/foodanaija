@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import moment from 'moment';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
@@ -90,6 +91,7 @@ function OrderHistoryContent() {
   }
 
   return (
+    <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 pb-20">
         {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
@@ -286,6 +288,7 @@ function OrderHistoryContent() {
           isLoading={cancelOrderMutation.isPending}
         />
       </div>
+    </ErrorBoundary>
   );
 }
 
