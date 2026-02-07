@@ -11,16 +11,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import moment from 'moment';
+import confetti from 'canvas-confetti';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
   const [showAll, setShowAll] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const queryClient = useQueryClient();
-
-
 
   useEffect(() => {
     const loadUser = async () => {
@@ -32,6 +36,24 @@ function OrderHistoryContent() {
       }
     };
     loadUser();
+
+    // Check for success parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      setShowSuccess(true);
+      
+      // Remove success param from URL
+      window.history.replaceState({}, '', createPageUrl('OrderHistory'));
+      
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000);
+    }
   }, []);
 
   const { data: orders = [], isLoading } = useQuery({
@@ -287,6 +309,33 @@ function OrderHistoryContent() {
           onCancel={() => setCancelOrderId(null)}
           isLoading={cancelOrderMutation.isPending}
         />
+
+        {/* Success Dialog */}
+        <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+          <DialogContent className="max-w-sm">
+            <div className="text-center py-6">
+              <div className="mb-4 flex justify-center">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
+              <p className="text-gray-600 mb-4">
+                Your order has been successfully sent to the restaurant
+              </p>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <p className="text-sm text-orange-800 font-medium">
+                  ✓ Restaurant will review your order shortly
+                </p>
+                <p className="text-xs text-orange-700 mt-1">
+                  You'll receive notifications about your order status
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
   );
 }
