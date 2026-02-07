@@ -42,42 +42,59 @@ Deno.serve(async (req) => {
     const createdOrders = [];
     for (const orderData of ordersData) {
       try {
-        const order = await base44.entities.Order.create({
-          restaurant_id: orderData.restaurant_id,
-          restaurant_name: orderData.restaurant_name,
-          customer_email: orderData.customer_email,
-          customer_name: orderData.customer_name,
-          customer_phone: orderData.customer_phone,
-          delivery_address: orderData.delivery_address,
-          items: orderData.items,
-          subtotal: orderData.subtotal,
-          delivery_fee: orderData.delivery_fee,
-          total: orderData.total,
-          notes: orderData.notes,
-          status: 'pending',
-          payment_status: 'paid',
-          payment_method: 'card',
-          payment_reference: reference,
-          amount_paid: orderData.total,
-          batch_order_id: orderData.batch_order_id || null,
-          total_restaurants_in_batch: orderData.total_restaurants_in_batch || 1
-        });
-        createdOrders.push(order);
+        // Check if it's a drink order
+        if (orderData.isDrinkOrder) {
+          const drinkOrder = await base44.entities.DrinkOrder.create({
+            customer_email: orderData.customer_email,
+            customer_name: orderData.customer_name,
+            customer_phone: orderData.customer_phone,
+            delivery_address: orderData.delivery_address,
+            drinks: orderData.drinks,
+            total: orderData.total,
+            status: 'pending',
+            payment_status: 'paid',
+            payment_reference: reference,
+            batch_order_id: orderData.batch_order_id || null
+          });
+          createdOrders.push(drinkOrder);
+        } else {
+          const order = await base44.entities.Order.create({
+            restaurant_id: orderData.restaurant_id,
+            restaurant_name: orderData.restaurant_name,
+            customer_email: orderData.customer_email,
+            customer_name: orderData.customer_name,
+            customer_phone: orderData.customer_phone,
+            delivery_address: orderData.delivery_address,
+            items: orderData.items,
+            subtotal: orderData.subtotal,
+            delivery_fee: orderData.delivery_fee,
+            total: orderData.total,
+            notes: orderData.notes,
+            status: 'pending',
+            payment_status: 'paid',
+            payment_method: 'card',
+            payment_reference: reference,
+            amount_paid: orderData.total,
+            batch_order_id: orderData.batch_order_id || null,
+            total_restaurants_in_batch: orderData.total_restaurants_in_batch || 1
+          });
+          createdOrders.push(order);
 
-        // Create notification for customer
-        await base44.asServiceRole.entities.Notification.create({
-          user_email: orderData.customer_email,
-          title: 'Order Placed Successfully! 🎉',
-          message: `Your order from ${orderData.restaurant_name} has been placed. Total: ₦${orderData.total.toLocaleString()}`,
-          type: 'order_accepted',
-          order_id: order.id,
-          metadata: {
-            image_url: orderData.items[0]?.image_url || ''
-          }
-        });
+          // Create notification for customer
+          await base44.asServiceRole.entities.Notification.create({
+            user_email: orderData.customer_email,
+            title: 'Order Placed Successfully! 🎉',
+            message: `Your order from ${orderData.restaurant_name} has been placed. Total: ₦${orderData.total.toLocaleString()}`,
+            type: 'order_accepted',
+            order_id: order.id,
+            metadata: {
+              image_url: orderData.items[0]?.image_url || ''
+            }
+          });
+        }
       } catch (orderError) {
         console.error('Failed to create order:', orderError);
-        throw new Error(`Failed to create order for ${orderData.restaurant_name}`);
+        throw new Error(`Failed to create order: ${orderError.message}`);
       }
     }
 
