@@ -64,6 +64,7 @@ function CustomerHomeContent() {
   const [showVoiceOrder, setShowVoiceOrder] = useState(false);
   const [riderRatingOrder, setRiderRatingOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
