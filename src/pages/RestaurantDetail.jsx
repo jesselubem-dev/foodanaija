@@ -320,7 +320,7 @@ function RestaurantDetailContent() {
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                     
                     <div className="flex items-center justify-between">
-                      <p className="text-xl font-bold text-orange-600">
+                      <p className="text-base font-bold text-orange-600">
                         ₦{item.price?.toLocaleString()}
                       </p>
                       
@@ -328,27 +328,29 @@ function RestaurantDetailContent() {
                         <Button
                           onClick={() => addToCart(item)}
                           disabled={!restaurant.is_open}
-                          className="bg-gradient-to-r from-orange-500 to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          size="sm"
+                          className="bg-gradient-to-r from-orange-500 to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                         >
                           {restaurant.is_open ? 'Add' : 'Closed'}
                         </Button>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <Button
                             size="icon"
                             variant="outline"
                             onClick={() => updateQuantity(item.id, -1)}
+                            className="h-7 w-7"
                           >
-                            <Minus className="w-4 h-4" />
+                            <Minus className="w-3 h-3" />
                           </Button>
-                          <span className="font-bold w-8 text-center">{quantity}</span>
+                          <span className="font-bold text-sm w-6 text-center">{quantity}</span>
                           <Button
                             size="icon"
-                            className="bg-orange-600"
+                            className="bg-orange-600 h-7 w-7"
                             onClick={() => updateQuantity(item.id, 1)}
                             disabled={!restaurant.is_open}
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-3 h-3" />
                           </Button>
                         </div>
                       )}
