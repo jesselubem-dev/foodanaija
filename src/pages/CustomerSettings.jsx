@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, MapPin, Trash2, Edit2, Check } from 'lucide-react';
+import { ArrowLeft, Plus, MapPin, Trash2, Edit2, Check, LogOut, UserX, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +45,24 @@ function CustomerSettingsContent() {
       return await base44.entities.SavedAddress.filter({ user_email: user.email }, '-created_date');
     },
     enabled: !!user?.email,
+  });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      return await base44.entities.Notification.filter({ user_email: user.email }, '-created_date', 10);
+    },
+    enabled: !!user?.email,
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.entities.Notification.update(id, { is_read: true });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
   });
 
   const createMutation = useMutation({
@@ -136,6 +154,19 @@ function CustomerSettingsContent() {
     }
   };
 
+  const handleLogout = () => {
+    base44.auth.logout();
+  };
+
+  const getNotificationIcon = (type) => {
+    const icons = {
+      order_accepted: '✅',
+      order_declined: '❌',
+      order_delivered: '🎉',
+    };
+    return icons[type] || '🔔';
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -175,6 +206,50 @@ function CustomerSettingsContent() {
               <p className="text-sm text-gray-500">Email</p>
               <p className="font-medium text-gray-900">{user.email}</p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Notifications */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {notifications.length === 0 ? (
+              <div className="text-center py-8">
+                <Bell className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500">No notifications yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => !notification.is_read && markAsReadMutation.mutate(notification.id)}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      notification.is_read
+                        ? 'border-gray-200 bg-gray-50'
+                        : 'border-orange-500 bg-orange-50 hover:bg-orange-100'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-1">{notification.title}</h4>
+                        <p className="text-sm text-gray-600">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          {new Date(notification.created_date).toLocaleDateString()} at{' '}
+                          {new Date(notification.created_date).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -257,6 +332,32 @@ function CustomerSettingsContent() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Account Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Account Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="w-full justify-start text-gray-700 hover:bg-gray-100"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              Logout
+            </Button>
+            <Link to={createPageUrl('DeleteAccount')} className="block">
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-600 hover:bg-red-50 border-red-200"
+              >
+                <UserX className="w-5 h-5 mr-3" />
+                Delete Account
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
