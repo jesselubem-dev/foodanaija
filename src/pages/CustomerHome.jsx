@@ -24,6 +24,7 @@ import PromoModal from '../components/customer/PromoModal';
 import BannerCarousel from '../components/customer/BannerCarousel';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
+import FloatingCart from '../components/customer/FloatingCart';
 import NoInternet from '../components/NoInternet';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 
