@@ -512,6 +512,7 @@ function CustomerHomeContent() {
                      </div>
                      {restaurant.rating > 0 && (
                        <div className="flex items-center gap-1 text-amber-600">
+                         <Star className="w-4 h-4 fill-amber-600" />
                          <span className="font-semibold">{restaurant.rating}</span>
                        </div>
                      )}
@@ -566,6 +567,7 @@ function CustomerHomeContent() {
                      </div>
                      {restaurant.rating > 0 && (
                        <div className="flex items-center gap-1 text-amber-600">
+                         <Star className="w-4 h-4 fill-amber-600" />
                          <span className="font-semibold">{restaurant.rating}</span>
                        </div>
                      )}
