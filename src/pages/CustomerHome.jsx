@@ -505,6 +505,7 @@ function CustomerHomeContent() {
 
                     <div className="flex items-center justify-between text-sm">
                      <div className="flex items-center gap-1 text-gray-600">
+                       <Bike className="w-4 h-4" />
                        <span>5-15 {t('mins')}</span>
                      </div>
                      <div className="flex items-center gap-1 text-gray-600">
@@ -560,6 +561,7 @@ function CustomerHomeContent() {
 
                     <div className="flex items-center justify-between text-sm">
                      <div className="flex items-center gap-1 text-gray-600">
+                       <Bike className="w-4 h-4" />
                        <span>5-15 {t('mins')}</span>
                      </div>
                      <div className="flex items-center gap-1 text-gray-600">
