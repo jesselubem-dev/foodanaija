@@ -139,8 +139,16 @@ export default function RiderDashboard() {
     const today = new Date();
     return orderDate.toDateString() === today.toDateString();
   });
-  const todayEarnings = todayCompleted.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
-  const allTimeEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+  const todayEarnings = todayCompleted.reduce((sum, o) => {
+    const baseDeliveryFee = o.delivery_fee || 500;
+    const multiplier = o.total_restaurants_in_batch || 1;
+    return sum + (baseDeliveryFee * multiplier);
+  }, 0);
+  const allTimeEarnings = deliveredOrders.reduce((sum, o) => {
+    const baseDeliveryFee = o.delivery_fee || 500;
+    const multiplier = o.total_restaurants_in_batch || 1;
+    return sum + (baseDeliveryFee * multiplier);
+  }, 0);
 
   // Notify rider of new orders and play continuous alert
   useEffect(() => {
@@ -419,7 +427,9 @@ export default function RiderDashboard() {
                         <div className="text-right">
                           <p className="text-2xl font-bold text-red-600">₦{order.total?.toLocaleString()}</p>
                           <p className="text-sm text-gray-500">{order.items?.length} items</p>
-                          <p className="text-xs text-green-600 font-medium mt-1">+₦{order.delivery_fee || 500} fee</p>
+                          <p className="text-xs text-green-600 font-medium mt-1">
+                            +₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()} fee
+                          </p>
                         </div>
                       </div>
                       <div className="bg-white rounded-lg p-3 mb-4 border border-blue-100">
@@ -490,7 +500,7 @@ export default function RiderDashboard() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-green-600">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">+₦{order.delivery_fee || 500} earned</p>
+                          <p className="text-xs text-gray-500">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()} earned</p>
                         </div>
                       </div>
                     </CardContent>
@@ -535,7 +545,7 @@ export default function RiderDashboard() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-xs text-green-600 font-medium">+₦{order.delivery_fee || 500}</p>
+                          <p className="text-xs text-green-600 font-medium">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()}</p>
                         </div>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-2">

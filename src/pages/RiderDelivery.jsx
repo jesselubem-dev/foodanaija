@@ -299,7 +299,7 @@ export default function RiderDelivery() {
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Delivery Complete! 🎉</h2>
             <p className="text-gray-600 text-lg">Excellent work! Returning to dashboard...</p>
             <div className="mt-4 inline-flex items-center gap-2 text-green-600 font-semibold">
-              <span className="text-2xl">+₦{order.delivery_fee || 500}</span>
+              <span className="text-2xl">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()}</span>
               <span className="text-sm">earned</span>
             </div>
           </div>
