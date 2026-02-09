@@ -49,6 +49,14 @@ export default function RiderDelivery() {
     refetchInterval: 5000,
   });
 
+  // Fetch all orders in the batch if this is a batch order
+  const { data: batchOrders = [] } = useQuery({
+    queryKey: ['batch-orders', order?.batch_order_id],
+    queryFn: () => base44.entities.Order.filter({ batch_order_id: order.batch_order_id }),
+    enabled: !!order?.batch_order_id,
+    refetchInterval: 5000,
+  });
+
   useEffect(() => {
     if (!order?.accepted_at) return;
 
@@ -215,50 +223,104 @@ export default function RiderDelivery() {
           </CardContent>
         </Card>
 
-        {/* Restaurant Info */}
-        <Card className="border-purple-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-purple-600" />
-              Restaurant
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-bold text-gray-900 text-lg">{order.restaurant_name}</p>
-            <p className="text-sm text-gray-600 mt-1">{order.items?.length} items to deliver</p>
-          </CardContent>
-        </Card>
-
-        {/* Order Items */}
-        <Card className="border-gray-100">
-          <CardHeader>
-            <CardTitle>Order Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {order.items?.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    {item.image_url && (
-                      <img src={item.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
-                    )}
-                    <div>
-                      <p className="font-medium text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-500">x{item.quantity}</p>
+        {/* Batch Order Info or Single Restaurant */}
+        {order.batch_order_id && batchOrders.length > 0 ? (
+          <Card className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-purple-600" />
+                Batch Order - {batchOrders.length} Restaurants
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {batchOrders.map((batchOrder, idx) => (
+                  <div key={batchOrder.id} className="bg-white rounded-xl p-4 border-2 border-purple-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-sm">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-lg">{batchOrder.restaurant_name}</p>
+                        <p className="text-xs text-gray-500">{batchOrder.items?.length} items • ₦{batchOrder.subtotal?.toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {batchOrder.items?.map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            {item.image_url && (
+                              <img src={item.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                            )}
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                              <p className="text-xs text-gray-500">x{item.quantity}</p>
+                            </div>
+                          </div>
+                          <p className="font-bold text-gray-900 text-sm">₦{(item.price * item.quantity).toLocaleString()}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <p className="font-bold text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-gray-900">Total</span>
-                <span className="text-xl font-bold text-gray-900">₦{order.total?.toLocaleString()}</span>
+                ))}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="mt-4 pt-4 border-t border-purple-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-gray-900">Total Order Value</span>
+                  <span className="text-xl font-bold text-purple-600">₦{batchOrders.reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString()}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Your earnings: ₦{((order.delivery_fee || 500) * batchOrders.length).toLocaleString()}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Single Restaurant Info */}
+            <Card className="border-purple-100">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5 text-purple-600" />
+                  Restaurant
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="font-bold text-gray-900 text-lg">{order.restaurant_name}</p>
+                <p className="text-sm text-gray-600 mt-1">{order.items?.length} items to deliver</p>
+              </CardContent>
+            </Card>
+
+            {/* Order Items */}
+            <Card className="border-gray-100">
+              <CardHeader>
+                <CardTitle>Order Items</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {order.items?.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        {item.image_url && (
+                          <img src={item.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                        )}
+                        <div>
+                          <p className="font-medium text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-500">x{item.quantity}</p>
+                        </div>
+                      </div>
+                      <p className="font-bold text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-xl font-bold text-gray-900">₦{order.total?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         {/* Action Button */}
         {currentStatus.next && (
