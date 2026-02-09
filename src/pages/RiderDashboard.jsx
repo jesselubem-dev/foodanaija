@@ -19,6 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import NoInternet from '../components/NoInternet';
 
 export default function RiderDashboard() {
   const [user, setUser] = useState(null);
@@ -191,6 +192,7 @@ export default function RiderDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 safe-area-inset-bottom">
+      <NoInternet />
       {/* Mobile-First Header */}
       <header className="bg-white/95 backdrop-blur-xl border-b border-blue-100 shadow-lg sticky top-0 z-50">
         <div className="px-4 py-3">

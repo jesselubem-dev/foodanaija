@@ -5,6 +5,7 @@ import { Bike, Package, Clock, MapPin, Mail, Lock, TrendingUp, Navigation } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import NoInternet from '../components/NoInternet';
 
 export default function RiderHome() {
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,7 @@ export default function RiderHome() {
   // Show sign up form
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 flex flex-col safe-area-inset-bottom">
+      <NoInternet />
       {/* Hero Section */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pt-8">
         <img 
