@@ -267,7 +267,9 @@ export default function RiderDelivery() {
               <div className="mt-4 pt-4 border-t border-purple-200">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-gray-900">Total Order Value</span>
-                  <span className="text-xl font-bold text-purple-600">₦{batchOrders.reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString()}</span>
+                  <span className="text-xl font-bold text-purple-600">
+                    ₦{batchOrders.reduce((sum, o) => sum + ((o.subtotal || 0) + (o.delivery_fee || 0)), 0).toLocaleString()}
+                  </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Your earnings: ₦{((order.delivery_fee || 500) * batchOrders.length).toLocaleString()}</p>
               </div>
