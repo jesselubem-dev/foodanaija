@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
+import NoInternet from '../components/NoInternet';
 
 function CustomerSettingsContent() {
   const { t } = useLanguage();
@@ -150,6 +151,7 @@ function CustomerSettingsContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30 pb-24">
+      <NoInternet />
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
