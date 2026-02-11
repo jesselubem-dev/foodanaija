@@ -24,7 +24,6 @@ import BannerCarousel from '../components/customer/BannerCarousel';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
-import FloatingMenu from '../components/customer/FloatingMenu';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
@@ -641,9 +640,6 @@ function CustomerHomeContent() {
           onUpdateQuantity={updateCartQuantity}
           onRemoveItem={removeFromCart}
         />
-
-        {/* Bottom Navigation Menu */}
-        <FloatingMenu cartCount={cartItemCount} userEmail={user?.email} />
       </div>
     </ErrorBoundary>
   );
