@@ -34,9 +34,14 @@ export default function CancelOrderModal({ isOpen, order, onConfirm, onCancel, i
         </div>
 
         <h3 className="text-lg font-bold text-gray-900 mb-2">Cancel Order?</h3>
-        <p className="text-sm text-gray-600 mb-6">
-          Are you sure you want to cancel this order from <span className="font-semibold">{order?.restaurant_name}</span>? This action cannot be undone.
+        <p className="text-sm text-gray-600 mb-4">
+          Are you sure you want to cancel this order from <span className="font-semibold">{order?.restaurant_name}</span>?
         </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+          <p className="text-sm text-blue-800">
+            💰 <span className="font-semibold">You will receive a full refund within 2 hours</span> of cancellation.
+          </p>
+        </div>
 
         <div className="flex gap-3">
           <Button
