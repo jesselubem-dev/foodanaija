@@ -49,7 +49,9 @@ function OrderHistoryContent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders', user?.email] });
-      toast.success('Order cancelled successfully');
+      toast.success('Order cancelled successfully. You will receive a refund within 2 hours.', {
+        duration: 5000,
+      });
     },
     onError: () => {
       toast.error('Failed to cancel order');
