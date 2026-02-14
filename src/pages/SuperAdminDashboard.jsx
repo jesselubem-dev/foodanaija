@@ -10,9 +10,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function SuperAdminDashboard() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     checkAdmin();
@@ -128,6 +131,21 @@ export default function SuperAdminDashboard() {
       deliveryCount: riderDeliveries.length
     };
   }).sort((a, b) => b.earnings - a.earnings);
+
+  const markRefundedMutation = useMutation({
+    mutationFn: (orderId) => base44.entities.Order.update(orderId, { refunded: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      toast.success('Order marked as refunded');
+    },
+    onError: () => {
+      toast.error('Failed to update refund status');
+    }
+  });
+
+  const handleMarkRefunded = (orderId) => {
+    markRefundedMutation.mutate(orderId);
+  };
 
   if (!user) {
     return (
@@ -425,16 +443,30 @@ export default function SuperAdminDashboard() {
           <CardContent>
             <div className="space-y-3">
               {cancelledOrders.slice(0, 10).map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+                <div key={order.id} className="flex items-center justify-between p-3 bg-red-50 rounded-xl gap-4">
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{order.restaurant_name}</p>
                     <p className="text-sm text-gray-500">
                       {order.customer_name} • {new Date(order.created_date).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-red-600">₦{order.total.toLocaleString()}</p>
-                    <Badge className="bg-red-100 text-red-700">Cancelled</Badge>
+                  <div className="text-right flex items-center gap-3">
+                    <div>
+                      <p className="text-lg font-bold text-red-600">₦{order.total.toLocaleString()}</p>
+                      <Badge className={order.refunded ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                        {order.refunded ? 'Refunded' : 'Not Refunded'}
+                      </Badge>
+                    </div>
+                    {!order.refunded && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleMarkRefunded(order.id)}
+                        disabled={markRefundedMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Mark Refunded
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
