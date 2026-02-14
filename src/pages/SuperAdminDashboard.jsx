@@ -399,6 +399,24 @@ export default function SuperAdminDashboard() {
               </CardContent>
             </Card>
           </Link>
+
+          <Link to={createPageUrl('SuperAdminCancelledOrders')}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Cancelled Orders</CardTitle>
+                <XCircle className="w-4 h-4 text-red-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{cancelledOrders.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  {cancelledOrders.filter(o => !o.refunded).length} not refunded
+                </p>
+                <Button variant="ghost" size="sm" className="mt-2 w-full text-red-600">
+                  Manage <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
           </div>
 
         {/* Restaurant Revenue Breakdown */}
