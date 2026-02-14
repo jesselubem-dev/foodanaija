@@ -81,7 +81,8 @@ function OrderHistoryContent() {
     preparing: { icon: Package, color: 'bg-purple-100 text-purple-700', label: 'Preparing' },
     ready: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Ready' },
     delivered: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Delivered' },
-    cancelled: { icon: XCircle, color: 'bg-red-100 text-red-700', label: 'Cancelled' }
+    cancelled: { icon: XCircle, color: 'bg-red-100 text-red-700', label: 'Cancelled' },
+    refunded: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Refunded' }
   };
 
   if (!user) {
@@ -132,7 +133,8 @@ function OrderHistoryContent() {
         ) : (
           <div className="space-y-4">
             {(showAll ? orders : orders.slice(0, 3)).map((order) => {
-              const status = statusConfig[order.status] || statusConfig.pending;
+              const displayStatus = order.status === 'cancelled' && order.refunded ? 'refunded' : order.status;
+              const status = statusConfig[displayStatus] || statusConfig.pending;
               const StatusIcon = status.icon;
 
               return (
