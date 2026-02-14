@@ -93,7 +93,6 @@ export default function Layout({ children, currentPageName }) {
           <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} />
           <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} restaurant={restaurant} />
           <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} />
-          <DashboardNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" current={currentPageName} />
           <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} />
         </nav>
 
