@@ -85,6 +85,7 @@ export default function SuperAdminDashboard() {
   const activeRestaurants = restaurants.filter(r => r.is_approved);
   const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
   const deliveredOrders = orders.filter(o => o.delivery_status === 'delivered');
+  const cancelledOrders = orders.filter(o => o.status === 'cancelled');
   const totalRiderEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
   const todayOrders = orders.filter(o => {
     const orderDate = new Date(o.created_date);
@@ -194,6 +195,13 @@ export default function SuperAdminDashboard() {
             icon={TrendingUp}
             color="emerald"
             subtitle={`${deliveredOrders.length} deliveries`}
+          />
+          <StatCard
+            title="Cancelled Orders"
+            value={cancelledOrders.length}
+            icon={XCircle}
+            color="orange"
+            subtitle={`${orders.length} total orders`}
           />
         </div>
 
@@ -404,6 +412,34 @@ export default function SuperAdminDashboard() {
               ))}
               {restaurantRevenue.filter(r => r.is_approved).length === 0 && (
                 <p className="text-center text-gray-500 py-4">No revenue data yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cancelled Orders Breakdown */}
+        <Card className="border-red-100 mb-8">
+          <CardHeader>
+            <CardTitle>Cancelled Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {cancelledOrders.slice(0, 10).map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 bg-red-50 rounded-xl">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{order.restaurant_name}</p>
+                    <p className="text-sm text-gray-500">
+                      {order.customer_name} • {new Date(order.created_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-red-600">₦{order.total.toLocaleString()}</p>
+                    <Badge className="bg-red-100 text-red-700">Cancelled</Badge>
+                  </div>
+                </div>
+              ))}
+              {cancelledOrders.length === 0 && (
+                <p className="text-center text-gray-500 py-4">No cancelled orders</p>
               )}
             </div>
           </CardContent>
