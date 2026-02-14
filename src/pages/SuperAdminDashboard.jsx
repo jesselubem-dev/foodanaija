@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function SuperAdminDashboard() {
   const [user, setUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -156,23 +157,76 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex items-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block overflow-y-auto">
+        <div className="p-6">
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
             alt="Fooda Naija" 
             className="h-12 w-auto object-contain"
           />
-          <div>
+        </div>
+        
+        <nav className="px-4 space-y-1 pb-6">
+          <SidebarNavLink to="SuperAdminDashboard" icon={LayoutDashboard} label="Dashboard" />
+          <SidebarNavLink to="SuperAdminRestaurants" icon={Store} label="Restaurants" count={pendingRestaurants.length} />
+          <SidebarNavLink to="SuperAdminUsers" icon={Users} label="Users" />
+          <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" />
+          <SidebarNavLink to="SuperAdminCancelledOrders" icon={XCircle} label="Cancelled Orders" count={cancelledOrders.filter(o => !o.refunded).length} />
+          <SidebarNavLink to="SuperAdminRiders" icon={Users} label="Riders" />
+          <SidebarNavLink to="SuperAdminRiderComplaints" icon={MessageCircle} label="Rider Complaints" />
+          <SidebarNavLink to="SuperAdminDrinks" icon={UtensilsCrossed} label="Drinks" />
+          <SidebarNavLink to="SuperAdminDrinkOrders" icon={ShoppingBag} label="Drink Orders" count={drinkOrders.filter(o => o.status === 'pending').length} />
+          <SidebarNavLink to="AdminLiveChat" icon={Headset} label="Live Chat" count={activeChatCount} />
+          <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" />
+          <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" />
+        </nav>
+      </aside>
+
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
+          alt="Fooda Naija" 
+          className="h-10 w-auto object-contain"
+        />
+        <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1 overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <SidebarNavLink to="SuperAdminDashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminRestaurants" icon={Store} label="Restaurants" count={pendingRestaurants.length} onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminUsers" icon={Users} label="Users" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminCancelledOrders" icon={XCircle} label="Cancelled Orders" count={cancelledOrders.filter(o => !o.refunded).length} onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminRiders" icon={Users} label="Riders" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminRiderComplaints" icon={MessageCircle} label="Rider Complaints" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminDrinks" icon={UtensilsCrossed} label="Drinks" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminDrinkOrders" icon={ShoppingBag} label="Drink Orders" count={drinkOrders.filter(o => o.status === 'pending').length} onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="AdminLiveChat" icon={Headset} label="Live Chat" count={activeChatCount} onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" onClick={() => setMobileMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
             <p className="text-gray-500 mt-1">Platform overview and management</p>
           </div>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Restaurants"
             value={restaurants.length}
@@ -221,206 +275,10 @@ export default function SuperAdminDashboard() {
             color="orange"
             subtitle={`${orders.length} total orders`}
           />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
-          <Link to={createPageUrl('SuperAdminRestaurants')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Manage Restaurants</CardTitle>
-                <Store className="w-4 h-4 text-orange-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{restaurants.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {pendingRestaurants.length} pending approval
-                </p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-orange-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminUsers')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Manage Users</CardTitle>
-                <Users className="w-4 h-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <p className="text-xs text-muted-foreground">Total registered users</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-blue-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminOrders')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">View All Orders</CardTitle>
-                <ShoppingBag className="w-4 h-4 text-emerald-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{orders.length}</div>
-                <p className="text-xs text-muted-foreground">Platform-wide orders</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-emerald-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminMessages')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Sent Messages</CardTitle>
-                <ShoppingBag className="w-4 h-4 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Track</div>
-                <p className="text-xs text-muted-foreground">All sent notifications</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-purple-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminRiders')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Dispatch Riders</CardTitle>
-                <Users className="w-4 h-4 text-cyan-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Manage</div>
-                <p className="text-xs text-muted-foreground">Delivery fleet</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-cyan-600">
-                  View All <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('AdminLiveChat')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100 relative">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Live Chat Support</CardTitle>
-                <div className="relative">
-                  <Headset className="w-4 h-4 text-pink-600" />
-                  {activeChatCount > 0 && (
-                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                      {activeChatCount}
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {activeChatCount > 0 ? activeChatCount : 'Chat'}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {activeChatCount > 0 ? `${activeChatCount} active chat${activeChatCount > 1 ? 's' : ''}` : 'Customer messages'}
-                </p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-pink-600">
-                  Open Chat <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminReports')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Generate Reports</CardTitle>
-                <BarChart3 className="w-4 h-4 text-indigo-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Analytics</div>
-                <p className="text-xs text-muted-foreground">Daily, weekly, monthly reports</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-indigo-600">
-                  View Reports <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminDrinks')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Manage Drinks</CardTitle>
-                <UtensilsCrossed className="w-4 h-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Drinks</div>
-                <p className="text-xs text-muted-foreground">Soft drinks & beverages</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-green-600">
-                  Manage <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminDrinkOrders')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Drink Orders</CardTitle>
-                <ShoppingBag className="w-4 h-4 text-teal-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{drinkOrders.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {drinkOrders.filter(o => o.status === 'pending').length} pending
-                </p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-teal-600">
-                  View <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminRiderComplaints')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Rider Complaints</CardTitle>
-                <MessageCircle className="w-4 h-4 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Support</div>
-                <p className="text-xs text-muted-foreground">Rider feedback & issues</p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-purple-600">
-                  View <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to={createPageUrl('SuperAdminCancelledOrders')}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-100">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Cancelled Orders</CardTitle>
-                <XCircle className="w-4 h-4 text-red-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{cancelledOrders.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {cancelledOrders.filter(o => !o.refunded).length} not refunded
-                </p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full text-red-600">
-                  Manage <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
           </div>
 
-        {/* Restaurant Revenue Breakdown */}
-        <Card className="border-orange-100 mb-8">
+          {/* Restaurant Revenue Breakdown */}
+          <Card className="border-orange-100 mb-8">
           <CardHeader>
             <CardTitle>Revenue by Restaurant</CardTitle>
           </CardHeader>
@@ -528,8 +386,8 @@ export default function SuperAdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card className="border-orange-100">
+          {/* Recent Activity */}
+          <Card className="border-orange-100">
           <CardHeader>
             <CardTitle>Recent Restaurants</CardTitle>
           </CardHeader>
@@ -558,8 +416,27 @@ export default function SuperAdminDashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </main>
     </div>
+  );
+}
+
+function SidebarNavLink({ to, icon: Icon, label, count, onClick }) {
+  return (
+    <Link 
+      to={createPageUrl(to)} 
+      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative text-gray-600 hover:bg-orange-50"
+    >
+      <Icon className="w-5 h-5" />
+      <span className="font-medium">{label}</span>
+      {count > 0 && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+          {count}
+        </span>
+      )}
+    </Link>
   );
 }
 
