@@ -16,7 +16,7 @@ import {
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_fe2d121a78d9116d1ae5f12be8ce1ee147bf478e';
+const PAYSTACK_PUBLIC_KEY = 'pk_live_4c5f3d4b8dc71c1c0f835ea8e4b9d5f0f6b55f4d';
 
 export default function Checkout() {
   const [cart, setCart] = useState([]);
@@ -106,7 +106,15 @@ export default function Checkout() {
 
       if (result.data?.success) {
         localStorage.removeItem('cart');
-        window.location.href = createPageUrl('OrderHistory') + '?success=true';
+        setShowSuccess(true);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          window.location.href = createPageUrl('OrderHistory');
+        }, 3000);
       } else {
         toast.error(result.data?.message || 'Payment verification failed');
         setProcessing(false);
