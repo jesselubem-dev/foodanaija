@@ -16,7 +16,7 @@ import {
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_live_4c5f3d4b8dc71c1c0f835ea8e4b9d5f0f6b55f4d';
+const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
 
 export default function Checkout() {
   const [cart, setCart] = useState([]);
