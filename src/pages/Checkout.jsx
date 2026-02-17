@@ -194,12 +194,29 @@ export default function Checkout() {
     const restaurants = Object.values(itemsByRestaurant);
     const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
+    // Calculate total food + drinks before VAS
+    const foodTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
+    const totalBeforeVAS = foodTotal + drinksTotal;
+
+    // Calculate VAS based on tiered pricing
+    let baseVAS = 0;
+    if (totalBeforeVAS > 10000) {
+      baseVAS = 1500;
+    } else if (totalBeforeVAS > 5000) {
+      baseVAS = 600;
+    } else {
+      baseVAS = 300;
+    }
+
+    // Double VAS if ordering from multiple restaurants
+    const finalVAS = restaurants.length > 1 ? baseVAS * 2 : baseVAS;
+    
     // Prepare order data (without drinks)
     const ordersData = restaurants.map(restaurant => {
-      const foodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const deliveryFee = 500;
-      const valueAddedService = 300;
-      const orderTotal = foodTotal + deliveryFee + valueAddedService;
+      const orderTotal = restaurantFoodTotal + deliveryFee + finalVAS;
 
       return {
         restaurant_id: restaurant.restaurant_id,
@@ -209,7 +226,7 @@ export default function Checkout() {
         customer_phone: formData.customer_phone,
         delivery_address: formData.delivery_address,
         items: restaurant.items,
-        subtotal: foodTotal,
+        subtotal: restaurantFoodTotal,
         delivery_fee: deliveryFee,
         total: orderTotal,
         notes: formData.notes,
@@ -223,7 +240,6 @@ export default function Checkout() {
 
     // Add drink order data if drinks selected
     if (selectedDrinks.length > 0) {
-      const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
       ordersData.push({
         isDrinkOrder: true,
         customer_email: formData.customer_email,
@@ -264,7 +280,18 @@ export default function Checkout() {
   const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
   const subtotal = foodSubtotal + drinksSubtotal;
   const deliveryFee = restaurantCount * 500;
-  const valueAddedService = restaurantCount * 300;
+  
+  // Calculate VAS based on tiered pricing
+  let baseVAS = 0;
+  if (subtotal > 10000) {
+    baseVAS = 1500;
+  } else if (subtotal > 5000) {
+    baseVAS = 600;
+  } else {
+    baseVAS = 300;
+  }
+  const valueAddedService = restaurantCount > 1 ? baseVAS * 2 : baseVAS;
+  
   const total = subtotal + deliveryFee + valueAddedService;
 
   if (cart.length === 0) {
