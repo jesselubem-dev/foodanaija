@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -33,6 +33,9 @@ export default function DeleteAccount() {
     }
   };
 
+  const [reason, setReason] = useState('');
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
+
   const handleDelete = async () => {
     if (confirmText !== 'DELETE') {
       toast.error('Please type DELETE to confirm');
@@ -41,17 +44,28 @@ export default function DeleteAccount() {
 
     setDeleting(true);
     try {
-      // Delete user record
-      await base44.entities.User.delete(user.id);
-      
-      toast.success('Account deleted successfully');
-      
-      // Logout and redirect
-      setTimeout(() => {
-        base44.auth.logout();
-      }, 1000);
+      // Check if request already exists
+      const existing = await base44.entities.AccountDeletionRequest.filter({ user_email: user.email });
+      const pendingRequest = existing.find(r => r.status === 'pending');
+      if (pendingRequest) {
+        toast.error('You already have a pending deletion request');
+        setDeleting(false);
+        setShowConfirm(false);
+        return;
+      }
+
+      await base44.entities.AccountDeletionRequest.create({
+        user_email: user.email,
+        user_name: user.full_name || user.email,
+        reason: reason || '',
+        status: 'pending'
+      });
+
+      toast.success('Deletion request submitted. Our team will process it shortly.');
+      setRequestSubmitted(true);
+      setShowConfirm(false);
     } catch (error) {
-      toast.error('Failed to delete account. Please contact support.');
+      toast.error('Failed to submit request. Please try again.');
       setDeleting(false);
     }
   };
