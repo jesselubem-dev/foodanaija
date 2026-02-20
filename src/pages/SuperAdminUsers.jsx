@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Users, User, Mail, Calendar, ArrowLeft, Search, Shield, UserPlus
+  Users, User, Calendar, ArrowLeft, Search, Shield, UserPlus, Trash2, CheckCircle2, XCircle, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
