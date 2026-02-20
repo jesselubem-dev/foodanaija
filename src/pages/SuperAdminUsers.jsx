@@ -33,6 +33,7 @@ export default function SuperAdminUsers() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('user');
+  const [activeTab, setActiveTab] = useState('users');
   const queryClient = useQueryClient();
 
   useEffect(() => {
