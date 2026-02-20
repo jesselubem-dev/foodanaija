@@ -104,6 +104,36 @@ export default function SuperAdminUsers() {
     },
   });
 
+  const { data: deletionRequests = [] } = useQuery({
+    queryKey: ['deletion-requests'],
+    queryFn: () => base44.entities.AccountDeletionRequest.list('-created_date'),
+    enabled: !!user,
+  });
+
+  const processDeletionMutation = useMutation({
+    mutationFn: async ({ requestId, status, userEmail }) => {
+      await base44.entities.AccountDeletionRequest.update(requestId, {
+        status,
+        processed_by: user.email,
+        processed_at: new Date().toISOString()
+      });
+      if (status === 'approved') {
+        const users = await base44.entities.User.filter({ email: userEmail });
+        if (users.length > 0) {
+          await base44.entities.User.delete(users[0].id);
+        }
+      }
+    },
+    onSuccess: (_, { status }) => {
+      toast.success(status === 'approved' ? 'Account deleted successfully' : 'Request rejected');
+      queryClient.invalidateQueries({ queryKey: ['deletion-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['all-users'] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to process request');
+    },
+  });
+
   const handleInviteUser = () => {
     if (!inviteEmail) {
       toast.error('Please enter an email address');
