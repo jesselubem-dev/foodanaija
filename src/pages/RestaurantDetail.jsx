@@ -320,7 +320,7 @@ function RestaurantDetailContent() {
             {filteredItems.map((item) => {
               const quantity = getItemQuantity(item.id);
               return (
-                <Card key={item.id} className="border-orange-100 hover:shadow-lg transition-shadow">
+                <Card key={item.id} className="border-orange-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedItem(item)}>
                   <CardContent className="p-4">
                     {item.images?.[0] && (
                       <img 
@@ -333,7 +333,7 @@ function RestaurantDetailContent() {
                     <h3 className="font-bold text-lg text-gray-900 mb-2">{item.name}</h3>
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
                       <p className="text-base font-bold text-orange-600">
                         ₦{item.price?.toLocaleString()}
                       </p>
@@ -375,6 +375,47 @@ function RestaurantDetailContent() {
             })}
           </div>
         )}
+
+        {/* Item Detail Modal */}
+        <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+          <DialogContent className="p-0 max-w-md overflow-hidden">
+            {selectedItem && (
+              <>
+                {selectedItem.images?.[0] && (
+                  <img src={selectedItem.images[0]} alt={selectedItem.name} className="w-full h-64 object-cover" />
+                )}
+                <div className="p-5">
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedItem.name}</h2>
+                  {selectedItem.description && (
+                    <p className="text-gray-600 text-sm mb-4">{selectedItem.description}</p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-bold text-orange-600">₦{selectedItem.price?.toLocaleString()}</p>
+                    {getItemQuantity(selectedItem.id) === 0 ? (
+                      <Button
+                        onClick={() => { addToCart(selectedItem); setSelectedItem(null); }}
+                        disabled={!restaurant.is_open}
+                        className="bg-gradient-to-r from-orange-500 to-orange-600"
+                      >
+                        {restaurant.is_open ? 'Add to Cart' : 'Closed'}
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Button size="icon" variant="outline" onClick={() => updateQuantity(selectedItem.id, -1)} className="h-8 w-8">
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="font-bold text-base w-6 text-center">{getItemQuantity(selectedItem.id)}</span>
+                        <Button size="icon" className="bg-orange-600 h-8 w-8" onClick={() => updateQuantity(selectedItem.id, 1)} disabled={!restaurant.is_open}>
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Reviews Section */}
         <div className="mt-12">
