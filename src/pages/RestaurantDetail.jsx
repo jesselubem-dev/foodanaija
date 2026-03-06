@@ -22,6 +22,7 @@ function RestaurantDetailContent() {
   const [user, setUser] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     checkAuth();
