@@ -231,7 +231,18 @@ function RestaurantDetailContent() {
                 )}
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant.name}</h1>
-                  <p className="text-gray-600 mb-4">{restaurant.description}</p>
+                  {restaurant.description && (
+                   <div className="mb-4">
+                     <p className="text-gray-600 text-sm">
+                       {descExpanded ? restaurant.description : restaurant.description.slice(0, 100)}{!descExpanded && restaurant.description.length > 100 ? '...' : ''}
+                     </p>
+                     {restaurant.description.length > 100 && (
+                       <button onClick={() => setDescExpanded(!descExpanded)} className="text-orange-500 text-sm font-medium mt-1">
+                         {descExpanded ? 'Read less' : 'Read more'}
+                       </button>
+                     )}
+                   </div>
+                  )}
                   
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                     <div>
