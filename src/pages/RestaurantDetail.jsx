@@ -86,9 +86,18 @@ function RestaurantDetailContent() {
     refetchOnWindowFocus: false,
   });
 
+  const shuffledItems = useMemo(() => {
+    const arr = [...menuItems];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [menuItems]);
+
   const filteredItems = selectedCategory === 'all' 
-    ? menuItems 
-    : menuItems.filter(item => item.category_id === selectedCategory);
+    ? shuffledItems 
+    : shuffledItems.filter(item => item.category_id === selectedCategory);
 
   const addToCart = (item) => {
     if (!restaurant.is_open) {
