@@ -402,30 +402,6 @@ function CustomerHomeContent() {
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
-      {/* Top Header */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png"
-              alt="Fooda Naija"
-              className="h-10 w-auto object-contain"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell userEmail={user?.email} />
-          </div>
-        </div>
-        {user && (
-          <div className="max-w-7xl mx-auto px-4 pb-3">
-            <h2 className="text-xl font-bold text-gray-900">
-              {t('hi')}, {user.full_name.split(' ')[0]}! <span className="inline-block animate-wave">👋</span>
-            </h2>
-            <p className="text-sm text-gray-500">{t('whatToEat')}</p>
-          </div>
-        )}
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-28">
 
         {/* Search Bar */}
