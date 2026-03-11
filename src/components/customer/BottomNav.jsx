@@ -17,7 +17,8 @@ export default function BottomNav({ unreadChatCount = 0 }) {
       <div className="bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map(({ label, icon: Icon, page }) => {
-            const isActive = location.pathname === createPageUrl(page) || location.search.includes(page);
+            const pageUrl = createPageUrl(page);
+            const isActive = location.pathname === pageUrl || location.pathname.startsWith(pageUrl);
             const hasUnread = page === 'LiveChat' && unreadChatCount > 0;
             return (
               <Link
