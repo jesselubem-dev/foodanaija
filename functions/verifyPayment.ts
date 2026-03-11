@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -34,17 +34,25 @@ Deno.serve(async (req) => {
 
     const paystackData = await verifyResponse.json();
 
-    if (!paystackData.status || paystackData.data.status !== 'success') {
+    if (!paystackData.status || paystackData.data?.status !== 'success') {
       return Response.json({ success: false, message: 'Payment not verified' });
     }
 
-    // Create orders in database
+    // Check for duplicate: if orders with this payment_reference already exist, return them
+    const existingOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference });
+    if (existingOrders && existingOrders.length > 0) {
+      console.log(`Orders already exist for reference ${reference}, returning existing orders`);
+      return Response.json({ success: true, orders: existingOrders });
+    }
+
+    // Create orders in database using service role for reliability
     const createdOrders = [];
+    const errors = [];
+
     for (const orderData of ordersData) {
       try {
-        // Check if it's a drink order
         if (orderData.isDrinkOrder) {
-          const drinkOrder = await base44.entities.DrinkOrder.create({
+          const drinkOrder = await base44.asServiceRole.entities.DrinkOrder.create({
             customer_email: orderData.customer_email,
             customer_name: orderData.customer_name,
             customer_phone: orderData.customer_phone,
@@ -58,7 +66,7 @@ Deno.serve(async (req) => {
           });
           createdOrders.push(drinkOrder);
         } else {
-          const order = await base44.entities.Order.create({
+          const order = await base44.asServiceRole.entities.Order.create({
             restaurant_id: orderData.restaurant_id,
             restaurant_name: orderData.restaurant_name,
             customer_email: orderData.customer_email,
@@ -81,24 +89,39 @@ Deno.serve(async (req) => {
           createdOrders.push(order);
 
           // Create notification for customer
-          await base44.asServiceRole.entities.Notification.create({
-            user_email: orderData.customer_email,
-            title: 'Order Placed Successfully! 🎉',
-            message: `Your order from ${orderData.restaurant_name} has been placed. Total: ₦${orderData.total.toLocaleString()}`,
-            type: 'order_accepted',
-            order_id: order.id,
-            metadata: {
-              image_url: orderData.items[0]?.image_url || ''
-            }
-          });
+          try {
+            await base44.asServiceRole.entities.Notification.create({
+              user_email: orderData.customer_email,
+              title: 'Order Placed Successfully! 🎉',
+              message: `Your order from ${orderData.restaurant_name} has been placed. Total: ₦${orderData.total.toLocaleString()}`,
+              type: 'order_accepted',
+              order_id: order.id,
+              metadata: {
+                image_url: orderData.items[0]?.image_url || ''
+              }
+            });
+          } catch (notifError) {
+            console.error('Failed to create notification (non-critical):', notifError);
+          }
         }
       } catch (orderError) {
-        console.error('Failed to create order:', orderError);
-        throw new Error(`Failed to create order: ${orderError.message}`);
+        console.error('Failed to create individual order:', orderError);
+        errors.push({ orderData, error: orderError.message });
       }
     }
 
-    return Response.json({ success: true, orders: createdOrders });
+    // As long as at least one order was created (or there were no errors), return success
+    if (createdOrders.length > 0 || errors.length === 0) {
+      return Response.json({ success: true, orders: createdOrders, errors });
+    }
+
+    // All orders failed
+    return Response.json({ 
+      success: false, 
+      error: 'Failed to create any orders',
+      errors
+    }, { status: 500 });
+
   } catch (error) {
     console.error('Payment verification error:', error);
     return Response.json({ 
