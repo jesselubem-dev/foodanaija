@@ -10,13 +10,14 @@ const navItems = [
   { label: 'Settings', icon: Settings, page: 'CustomerSettings' },
 ];
 
-export default function BottomNav({ currentPage, unreadChatCount = 0 }) {
+export default function BottomNav({ unreadChatCount = 0 }) {
+  const location = useLocation();
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom">
       <div className="bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map(({ label, icon: Icon, page }) => {
-            const isActive = currentPage === page;
+            const isActive = location.pathname === createPageUrl(page) || location.search.includes(page);
             const hasUnread = page === 'LiveChat' && unreadChatCount > 0;
             return (
               <Link
