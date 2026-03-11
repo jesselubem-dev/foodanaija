@@ -97,10 +97,10 @@ export default function SuperAdminDashboard() {
     return orderDate.toDateString() === today.toDateString();
   });
 
-  // Calculate revenue per restaurant
+  // Calculate revenue per restaurant (include all paid orders)
   const restaurantRevenue = restaurants.map(restaurant => {
     const restaurantOrders = orders.filter(o => 
-      o.restaurant_id === restaurant.id && o.status === 'accepted'
+      o.restaurant_id === restaurant.id && o.payment_status === 'paid'
     );
     const revenue = restaurantOrders.reduce((sum, o) => sum + (o.total || 0), 0);
     return {
