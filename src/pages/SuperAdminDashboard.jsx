@@ -277,6 +277,52 @@ export default function SuperAdminDashboard() {
           />
           </div>
 
+          {/* Today's Orders */}
+          <Card className="border-orange-100 mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Today's Orders</span>
+                <Badge className="bg-orange-100 text-orange-700">{todayOrders.length} orders</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {todayOrders.length === 0 ? (
+                <p className="text-center text-gray-500 py-4">No orders today yet</p>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {todayOrders.map((order) => (
+                    <div key={order.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl gap-4">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{order.restaurant_name}</p>
+                        <p className="text-sm text-gray-500">
+                          {order.customer_name} • {order.customer_phone || order.customer_email}
+                        </p>
+                        <p className="text-xs text-gray-400">{new Date(order.created_date).toLocaleTimeString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-orange-600">₦{order.total?.toLocaleString()}</p>
+                        <div className="flex gap-1 justify-end mt-1">
+                          <Badge className={
+                            order.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                            order.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
+                            order.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                            order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          }>
+                            {order.status}
+                          </Badge>
+                          <Badge className={order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                            {order.payment_status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Restaurant Revenue Breakdown */}
           <Card className="border-orange-100 mb-8">
           <CardHeader>
