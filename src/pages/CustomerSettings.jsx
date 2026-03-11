@@ -133,8 +133,13 @@ function CustomerSettingsContent() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this address?')) {
-      deleteMutation.mutate(id);
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmId) {
+      deleteMutation.mutate(deleteConfirmId);
+      setDeleteConfirmId(null);
     }
   };
 
