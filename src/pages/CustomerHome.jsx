@@ -4,8 +4,9 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
-  Search, MapPin, Star, Clock, Bike, ChefHat, ShoppingBag, History, LogOut, ChevronRight, MessageSquare, Headset
+  Search, Star, Bike, ShoppingBag, Bell, Settings
 } from 'lucide-react';
+import BottomNav from '../components/customer/BottomNav';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
