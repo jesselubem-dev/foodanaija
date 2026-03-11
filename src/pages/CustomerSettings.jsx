@@ -323,6 +323,8 @@ function CustomerSettingsContent() {
         </DialogContent>
       </Dialog>
 
+      <BottomNav />
+
       {/* Add/Edit Address Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>

@@ -281,6 +281,8 @@ function OrderHistoryContent() {
           )}
         </div>
 
+        <BottomNav />
+
         {/* Cancel Order Modal */}
         <CancelOrderModal
           isOpen={!!cancelOrderId}

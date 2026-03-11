@@ -349,6 +349,7 @@ function LiveChatContent() {
 
       {/* Message Input */}
       <div className="bg-white border-t border-orange-100 sticky bottom-16 pb-safe">
+
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Button 
             onClick={startNewChat}
@@ -378,6 +379,7 @@ function LiveChatContent() {
       </div>
 
 
+      <BottomNav />
     </div>
   );
 }
