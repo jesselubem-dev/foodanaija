@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 import NoInternet from '../components/NoInternet';
+import BottomNav from '../components/customer/BottomNav';
 
 function CustomerSettingsContent() {
   const { t } = useLanguage();

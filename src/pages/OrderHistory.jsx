@@ -14,6 +14,7 @@ import moment from 'moment';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
 import ErrorBoundary from '../components/ErrorBoundary';
+import BottomNav from '../components/customer/BottomNav';
 
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);

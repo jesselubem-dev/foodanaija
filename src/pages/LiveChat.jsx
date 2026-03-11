@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 import { LanguageProvider } from '../components/LanguageContext';
 import ChatPaymentCard from '../components/customer/ChatPaymentCard';
+import BottomNav from '../components/customer/BottomNav';
 
 function LiveChatContent() {
   const [user, setUser] = useState(null);
