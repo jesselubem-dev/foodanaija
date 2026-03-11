@@ -18,6 +18,7 @@ function CustomerSettingsContent() {
   const [user, setUser] = useState(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [formData, setFormData] = useState({
     label: '',
     address: '',
