@@ -402,6 +402,16 @@ function CustomerHomeContent() {
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
+      {/* Top Header - Welcome Message */}
+      {user && (
+        <div className="px-4 pt-4 pb-2">
+          <h2 className="text-xl font-bold text-gray-900">
+            {t('hi')}, {user.full_name.split(' ')[0]}! <span className="inline-block animate-wave">👋</span>
+          </h2>
+          <p className="text-sm text-gray-500">{t('whatToEat')}</p>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-28">
 
         {/* Search Bar */}
