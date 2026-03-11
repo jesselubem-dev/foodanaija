@@ -138,6 +138,10 @@ function CustomerSettingsContent() {
   };
 
   const handleLogout = () => {
+    // Clear all local data before logout so new users start fresh
+    localStorage.removeItem('onboarding_completed');
+    localStorage.removeItem('cart');
+    sessionStorage.clear();
     base44.auth.logout();
   };
 
