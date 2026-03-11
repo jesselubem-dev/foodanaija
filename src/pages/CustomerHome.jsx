@@ -200,10 +200,8 @@ function CustomerHomeContent() {
         setCart(JSON.parse(savedCart));
       }
     } catch (e) {
-      // Only redirect to login on actual auth errors (401/403), not network errors
-      if (e?.status === 401 || e?.status === 403) {
-        base44.auth.redirectToLogin(window.location.href);
-      }
+      // Redirect to login if not authenticated
+      base44.auth.redirectToLogin(window.location.href);
     }
   };
 
