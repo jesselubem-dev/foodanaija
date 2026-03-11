@@ -87,7 +87,7 @@ export default function SuperAdminDashboard() {
 
   const pendingRestaurants = restaurants.filter(r => !r.is_approved);
   const activeRestaurants = restaurants.filter(r => r.is_approved);
-  const totalRevenue = orders.filter(o => o.status === 'accepted').reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalRevenue = orders.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + (o.total || 0), 0);
   const deliveredOrders = orders.filter(o => o.delivery_status === 'delivered');
   const cancelledOrders = orders.filter(o => o.status === 'cancelled');
   const totalRiderEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
