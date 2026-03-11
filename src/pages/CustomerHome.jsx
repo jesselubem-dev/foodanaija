@@ -664,6 +664,9 @@ function CustomerHomeContent() {
           onUpdateQuantity={updateCartQuantity}
           onRemoveItem={removeFromCart}
         />
+
+        {/* Bottom Navigation */}
+        <BottomNav currentPage="CustomerHome" unreadChatCount={unreadChatCount} />
       </div>
     </ErrorBoundary>
   );
