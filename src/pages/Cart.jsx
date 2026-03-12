@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 import { LanguageProvider } from '../components/LanguageContext';
+import BottomNav from '../components/customer/BottomNav';
 
 function CartContent() {
   const [cart, setCart] = useState([]);
