@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-import { Home, ClipboardList, MessageSquare, Settings } from 'lucide-react';
+import { Home, ClipboardList, ShoppingCart, Settings } from 'lucide-react';
 
 const navItems = [
   { label: 'Home', icon: Home, page: 'CustomerHome' },
   { label: 'Orders', icon: ClipboardList, page: 'OrderHistory' },
-  { label: 'Support', icon: MessageSquare, page: 'LiveChat' },
+  { label: 'Cart', icon: ShoppingCart, page: 'Cart' },
   { label: 'Settings', icon: Settings, page: 'CustomerSettings' },
 ];
 
