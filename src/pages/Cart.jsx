@@ -211,7 +211,7 @@ function CartContent() {
         )}
       </div>
 
-
+      <BottomNav />
     </div>
   );
 }
