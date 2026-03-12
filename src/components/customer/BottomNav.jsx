@@ -12,6 +12,11 @@ const navItems = [
 
 export default function BottomNav({ unreadChatCount = 0 }) {
   const location = useLocation();
+
+  const handleClick = () => {
+    if (navigator.vibrate) navigator.vibrate(30);
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom">
       <div className="bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-2xl">
