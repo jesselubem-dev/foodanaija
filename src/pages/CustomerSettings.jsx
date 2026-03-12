@@ -276,6 +276,24 @@ function CustomerSettingsContent() {
           </CardContent>
         </Card>
 
+        {/* Support */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Support</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link to={createPageUrl('LiveChat')} className="block">
+              <Button
+                variant="outline"
+                className="w-full justify-start text-gray-700 hover:bg-orange-50 hover:border-orange-200"
+              >
+                <MessageSquare className="w-5 h-5 mr-3 text-orange-500" />
+                Chat with Support
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
         {/* Account Actions */}
         <Card>
           <CardHeader>
