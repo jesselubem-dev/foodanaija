@@ -29,6 +29,7 @@ export default function BottomNav({ unreadChatCount = 0 }) {
               <Link
                 key={page}
                 to={createPageUrl(page)}
+                onClick={handleClick}
                 className="flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-200 relative"
               >
                 <div className={`p-2 rounded-xl transition-all duration-200 ${
