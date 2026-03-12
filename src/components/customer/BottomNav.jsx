@@ -63,6 +63,11 @@ export default function BottomNav({ unreadChatCount = 0 }) {
                       {unreadChatCount > 9 ? '9+' : unreadChatCount}
                     </span>
                   )}
+                  {page === 'Cart' && cartCount > 0 && (
+                    <span className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
                 </div>
                 <span className={`text-[11px] font-medium transition-colors ${isActive ? 'text-orange-500' : 'text-gray-400'}`}>
                   {label}
