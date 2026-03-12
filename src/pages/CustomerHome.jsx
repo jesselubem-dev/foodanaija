@@ -586,6 +586,9 @@ function CustomerHomeContent() {
         )}
       </div>
 
+        {/* Ramadan Banner */}
+        <RamadanBanner />
+
         {/* Promo Modal */}
         {showPromo && promoItems.length > 0 && (
           <PromoModal 
