@@ -19,7 +19,7 @@ export default function BottomNav({ unreadChatCount = 0 }) {
           {navItems.map(({ label, icon: Icon, page }) => {
             const pageUrl = createPageUrl(page);
             const isActive = location.pathname === pageUrl || location.pathname.startsWith(pageUrl);
-            const hasUnread = page === 'LiveChat' && unreadChatCount > 0;
+            const hasUnread = false;
             return (
               <Link
                 key={page}
