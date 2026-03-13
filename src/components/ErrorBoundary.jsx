@@ -25,7 +25,10 @@ class ErrorBoundary extends React.Component {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h1>
             <p className="text-gray-600 mb-6">Don't worry, we've got you covered.</p>
             <Button
-              onClick={() => window.location.href = '/'}
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.href = '/CustomerHome';
+              }}
               className="bg-gradient-to-r from-orange-500 to-orange-600 w-full"
             >
               Go to Home
