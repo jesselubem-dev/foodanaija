@@ -23,7 +23,6 @@ import DeleteAccount from './pages/DeleteAccount';
 import LiveChat from './pages/LiveChat';
 import Profile from './pages/Profile';
 import CustomerSupport from './pages/CustomerSupport';
-import PaymentVerification from './pages/PaymentVerification';
 
 import RestaurantSetup from './pages/RestaurantSetup';
 import DashboardHome from './pages/DashboardHome';
