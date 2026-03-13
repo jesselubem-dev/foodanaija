@@ -149,12 +149,28 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1" onClick={e => e.stopPropagation()}>
-              <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-              <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-              <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} onClick={() => setMobileMenuOpen(false)} restaurant={restaurant} />
-              <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
-              <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1 flex flex-col" onClick={e => e.stopPropagation()}>
+              <div className="flex-1 space-y-1">
+                <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+                <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+                <DashboardNavLink to="DashboardOrders" icon={ClipboardList} label="Orders" current={currentPageName} onClick={() => setMobileMenuOpen(false)} restaurant={restaurant} />
+                <DashboardNavLink to="DashboardAnalytics" icon={BarChart3} label="Analytics" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+                <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
+              </div>
+              <div className="border-t border-orange-100 pt-3 space-y-3">
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-gray-700 mb-1">Need Help?</p>
+                  <p className="text-xs text-blue-600">📧 support@foodanaija.com</p>
+                  <p className="text-xs text-blue-600 mt-0.5">📞 090333455557</p>
+                </div>
+                <button
+                  onClick={() => base44.auth.logout()}
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
+                </button>
+              </div>
             </div>
         </div>
       )}
