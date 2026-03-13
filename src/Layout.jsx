@@ -57,9 +57,38 @@ export default function Layout({ children, currentPageName }) {
 
   // Allow RestaurantSetup page to render without restaurant
   if (!restaurant && currentPageName !== 'RestaurantSetup') {
+    // If user is loaded but has no restaurant, show sign in / get started page
+    if (user !== null) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png"
+              alt="Fooda Naija"
+              className="h-16 w-auto object-contain mx-auto mb-4"
+            />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">No Restaurant Found</h2>
+            <p className="text-gray-500 text-sm mb-6">You don't have a restaurant registered yet. Set one up to access your dashboard.</p>
+            <a
+              href={createPageUrl('RestaurantSetup')}
+              className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 rounded-xl mb-3 hover:opacity-90 transition-opacity"
+            >
+              Register Your Restaurant
+            </a>
+            <button
+              onClick={() => base44.auth.logout()}
+              className="block w-full text-sm text-gray-400 hover:text-red-500 transition-colors py-2"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      );
+    }
+    // Still loading user
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
   }
