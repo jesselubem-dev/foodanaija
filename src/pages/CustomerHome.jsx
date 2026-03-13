@@ -436,16 +436,15 @@ function CustomerHomeContent() {
         </div>
 
         {/* Search Bar */}
-        <div className="pt-2 pb-4">
-          <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-              <Input
-                placeholder={t('searchRestaurants')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 h-14 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-gray-900 transition-colors text-base"
-              />
-            </div>
+        <div className="pb-4">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input
+              placeholder={t('searchRestaurants')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-11 h-12 rounded-2xl border-gray-200 bg-white text-gray-900 transition-colors text-base shadow-sm"
+            />
           </div>
         </div>
 
