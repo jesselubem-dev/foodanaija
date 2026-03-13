@@ -77,7 +77,7 @@ export default function SuperAdminOrders() {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }) => {
-      return base44.asServiceRole.entities.Order.update(orderId, { status });
+      return base44.entities.Order.update(orderId, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['all-orders']);
