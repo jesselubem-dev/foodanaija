@@ -96,30 +96,38 @@ export default function Layout({ children, currentPageName }) {
           <DashboardNavLink to="DashboardSettings" icon={Settings} label="Settings" current={currentPageName} />
         </nav>
 
-        {/* Contact Support */}
-        <div className="mx-4 mb-4 bg-blue-50 border border-blue-100 rounded-xl p-3">
-          <p className="text-xs font-semibold text-gray-700 mb-1">Need Help?</p>
-          <p className="text-xs text-blue-600">
-            📧 <a href="mailto:support@foodanaija.com" className="hover:underline">support@foodanaija.com</a>
-          </p>
-          <p className="text-xs text-blue-600 mt-0.5">
-            📞 <a href="tel:090333455557" className="hover:underline">090333455557</a>
-          </p>
-        </div>
+        <div className="absolute bottom-0 left-0 right-0 border-t border-orange-100 bg-white/80 p-4 space-y-3">
+          {/* Contact Support */}
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+            <p className="text-xs font-semibold text-gray-700 mb-1">Need Help?</p>
+            <p className="text-xs text-blue-600">
+              📧 <a href="mailto:support@foodanaija.com" className="hover:underline">support@foodanaija.com</a>
+            </p>
+            <p className="text-xs text-blue-600 mt-0.5">
+              📞 <a href="tel:090333455557" className="hover:underline">090333455557</a>
+            </p>
+          </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-orange-100">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+          {/* Restaurant profile + logout */}
+          <div className="flex items-center gap-3 px-1">
+            <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
               {restaurant.logo_url ? (
-                <img src={restaurant.logo_url} alt="" className="w-10 h-10 rounded-full object-cover" />
+                <img src={restaurant.logo_url} alt="" className="w-9 h-9 rounded-full object-cover" />
               ) : (
-                <ChefHat className="w-5 h-5 text-orange-600" />
+                <ChefHat className="w-4 h-4 text-orange-600" />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{restaurant.name}</p>
               <p className="text-xs text-gray-500 truncate">{restaurant.city}</p>
             </div>
+            <button
+              onClick={() => base44.auth.logout()}
+              className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>
