@@ -4,7 +4,7 @@ import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { 
   ChefHat, LayoutDashboard, UtensilsCrossed, ClipboardList, 
-  BarChart3, Settings, Menu, X
+  BarChart3, Settings, Menu, X, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
