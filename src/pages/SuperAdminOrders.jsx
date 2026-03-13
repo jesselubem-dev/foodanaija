@@ -244,7 +244,7 @@ export default function SuperAdminOrders() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm text-gray-600">
                       {order.items?.length || 0} item{order.items?.length !== 1 ? 's' : ''}
                     </p>
@@ -252,31 +252,52 @@ export default function SuperAdminOrders() {
                     <p className="text-sm text-gray-600">
                       Payment: {order.payment_method || 'N/A'}
                     </p>
-                    {order.status === 'accepted' && !order.rider_id && (
+                    <div className="ml-auto flex items-center gap-2 flex-wrap">
+                      {order.status === 'pending' && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-500 hover:bg-green-600 text-white"
+                            onClick={() => updateOrderStatusMutation.mutate({ orderId: order.id, status: 'accepted' })}
+                            disabled={updateOrderStatusMutation.isPending}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={() => updateOrderStatusMutation.mutate({ orderId: order.id, status: 'declined' })}
+                            disabled={updateOrderStatusMutation.isPending}
+                          >
+                            Decline
+                          </Button>
+                        </>
+                      )}
+                      {order.status === 'accepted' && !order.rider_id && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setAssignRider(order)}
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Assign Rider
+                        </Button>
+                      )}
+                      {order.rider_name && (
+                        <Badge className="bg-orange-100 text-orange-700">
+                          Rider: {order.rider_name}
+                        </Badge>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setAssignRider(order)}
-                        className="ml-auto mr-2"
+                        onClick={() => setSelectedOrder(order)}
                       >
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Assign Rider
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
                       </Button>
-                    )}
-                    {order.rider_name && (
-                      <Badge className="bg-orange-100 text-orange-700 mr-2">
-                        Rider: {order.rider_name}
-                      </Badge>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedOrder(order)}
-                      className="ml-auto"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
