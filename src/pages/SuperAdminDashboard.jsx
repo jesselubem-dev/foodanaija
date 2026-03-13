@@ -203,7 +203,7 @@ export default function SuperAdminDashboard() {
             <SidebarNavLink to="SuperAdminDashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminRestaurants" icon={Store} label="Restaurants" count={pendingRestaurants.length} onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminUsers" icon={Users} label="Users" onClick={() => setMobileMenuOpen(false)} />
-            <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" count={orders.filter(o => o.status === 'pending').length} onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminCancelledOrders" icon={XCircle} label="Cancelled Orders" count={cancelledOrders.filter(o => !o.refunded).length} onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminRiders" icon={Users} label="Riders" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminRiderComplaints" icon={MessageCircle} label="Rider Complaints" onClick={() => setMobileMenuOpen(false)} />
