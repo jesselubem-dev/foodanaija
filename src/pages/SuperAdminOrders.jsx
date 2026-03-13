@@ -91,7 +91,7 @@ export default function SuperAdminOrders() {
   const assignRiderMutation = useMutation({
     mutationFn: async ({ orderId, riderId }) => {
       const rider = riders.find(r => r.id === riderId);
-      return base44.asServiceRole.entities.Order.update(orderId, {
+      return base44.entities.Order.update(orderId, {
         rider_id: riderId,
         rider_name: rider?.full_name,
         delivery_status: 'assigned'
