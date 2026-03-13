@@ -60,6 +60,7 @@ function CustomerHomeContent() {
   const [showVoiceOrder, setShowVoiceOrder] = useState(false);
   const [riderRatingOrder, setRiderRatingOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartPosition, setCartPosition] = useState({ x: window.innerWidth - 80, y: window.innerHeight / 2 });
   const [isDragging, setIsDragging] = useState(false);
