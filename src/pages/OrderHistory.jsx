@@ -37,11 +37,13 @@ function OrderHistoryContent() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['my-orders', user?.email],
     queryFn: async () => {
+      if (!user?.email) return [];
       const results = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date');
       return results;
     },
-    enabled: !!user,
+    enabled: !!user?.email,
     refetchInterval: 5000,
+    staleTime: 0,
   });
 
   const cancelOrderMutation = useMutation({
