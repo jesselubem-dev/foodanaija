@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useQueryClient as useQC } from '@tanstack/react-query';
 import { 
   ArrowLeft, Clock, CheckCircle, XCircle, Package, RotateCcw, Bike
 } from 'lucide-react';
@@ -38,8 +38,8 @@ function OrderHistoryContent() {
     queryKey: ['my-orders', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      const results = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date');
-      return results;
+      const res = await base44.functions.invoke('getMyOrders', {});
+      return res.data?.orders || [];
     },
     enabled: !!user?.email,
     refetchInterval: 5000,
