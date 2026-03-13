@@ -75,6 +75,19 @@ export default function SuperAdminOrders() {
     enabled: !!user,
   });
 
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ orderId, status }) => {
+      return base44.asServiceRole.entities.Order.update(orderId, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['all-orders']);
+      toast.success('Order status updated');
+    },
+    onError: (error) => {
+      toast.error('Failed to update order: ' + error.message);
+    }
+  });
+
   const assignRiderMutation = useMutation({
     mutationFn: async ({ orderId, riderId }) => {
       const rider = riders.find(r => r.id === riderId);
