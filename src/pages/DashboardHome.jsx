@@ -141,132 +141,132 @@ export default function DashboardHome() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Welcome back, {restaurant.owner_name}! 👋
+    <div className="pb-6 max-w-7xl mx-auto">
+      {/* Mobile Hero Header */}
+      <div className="bg-gradient-to-br from-orange-500 to-orange-600 px-4 pt-10 pb-8 md:px-6 md:pt-8 md:rounded-b-3xl">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-orange-100 text-sm font-medium">Good day 👋</p>
+            <h1 className="text-white text-xl md:text-2xl font-bold truncate mt-0.5">
+              {restaurant.owner_name}
             </h1>
-            <p className="text-gray-500 text-sm mt-1">Here's what's happening at {restaurant.name} today.</p>
+            <p className="text-orange-200 text-xs mt-0.5 truncate">{restaurant.name}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-3 flex-shrink-0">
             {restaurant.is_approved ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border-2 border-green-200 rounded-xl">
-                <div className="relative">
-                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-                  <div className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping opacity-75" />
-                </div>
-                <span className="text-green-700 font-semibold text-sm">LIVE</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/20 rounded-full">
+                <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
+                <span className="text-white font-semibold text-xs">LIVE</span>
               </div>
             ) : (
-              <Badge className="bg-amber-100 text-amber-700">Pending Approval</Badge>
+              <div className="px-2.5 py-1 bg-amber-400/30 rounded-full">
+                <span className="text-amber-100 text-xs font-medium">Pending</span>
+              </div>
             )}
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="relative"
+            <button
+              className="relative w-10 h-10 bg-white/20 rounded-full flex items-center justify-center active:scale-95 transition-transform"
               onClick={() => setNotificationsOpen(true)}
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-5 h-5 text-white" />
               {unreadMessages.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
                   {unreadMessages.length}
                 </span>
               )}
-            </Button>
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Row inside header */}
+        <div className="grid grid-cols-2 gap-3 mt-5">
+          <div className="bg-white/15 rounded-2xl p-3">
+            <p className="text-orange-100 text-xs mb-0.5">Today's Orders</p>
+            <p className="text-white text-2xl font-bold">{todayOrders.length}</p>
+          </div>
+          <div className="bg-white/15 rounded-2xl p-3">
+            <p className="text-orange-100 text-xs mb-0.5">Today's Revenue</p>
+            <p className="text-white text-2xl font-bold">₦{todayRevenue.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
-      {/* Notifications Section */}
-      {unreadMessages.length > 0 && (
-        <Card className="mb-6 border-orange-200 bg-orange-50">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-orange-600" />
-              <CardTitle className="text-orange-900">Messages ({unreadMessages.length} unread)</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {unreadMessages.slice(0, 3).map((message) => (
-              <div key={message.id} className="bg-white p-4 rounded-xl border border-orange-200">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-gray-900">{message.title}</h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => markAsReadMutation.mutate(message.id)}
-                    className="text-xs"
-                  >
-                    Mark as read
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-600">{message.content}</p>
-                <p className="text-xs text-gray-400 mt-2">
-                  From Admin • {new Date(message.created_date).toLocaleDateString()}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <div className="px-4 md:px-6 mt-5 space-y-5">
 
-      {/* Contact Support */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Bell className="w-5 h-5 text-blue-600" />
+        {/* Notifications Banner */}
+        {unreadMessages.length > 0 && (
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Bell className="w-4 h-4 text-orange-600" />
+              <span className="font-semibold text-orange-900 text-sm">Messages ({unreadMessages.length} unread)</span>
             </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Need Help? Contact Foodanaija</h4>
-              <div className="space-y-1 text-sm text-gray-700">
-                <p>📧 Email: <a href="mailto:support@foodanaija.com" className="text-blue-600 hover:underline">support@foodanaija.com</a></p>
-                <p>📞 Phone: <a href="tel:090333455557" className="text-blue-600 hover:underline">090333455557</a></p>
-              </div>
+            <div className="space-y-2">
+              {unreadMessages.slice(0, 2).map((message) => (
+                <div key={message.id} className="bg-white p-3 rounded-xl border border-orange-100">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">{message.title}</p>
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{message.content}</p>
+                    </div>
+                    <button
+                      onClick={() => markAsReadMutation.mutate(message.id)}
+                      className="text-xs text-orange-600 font-medium whitespace-nowrap active:opacity-70"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard 
-          title="Today's Orders" 
-          value={todayOrders.length}
-          icon={ShoppingBag}
-          color="emerald"
-        />
-        <StatCard 
-          title="Today's Revenue" 
-          value={`₦${todayRevenue.toLocaleString()}`}
-          icon={DollarSign}
-          color="blue"
-        />
-        <StatCard 
-          title="Total Revenue" 
-          value={`₦${totalRevenue.toLocaleString()}`}
-          icon={TrendingUp}
-          color="amber"
-        />
-        <StatCard 
-          title="Menu Items" 
-          value={menuItems.length}
-          icon={UtensilsCrossed}
-          color="purple"
-        />
-      </div>
+        {/* Quick Actions Grid */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Quick Actions</p>
+          <div className="grid grid-cols-4 gap-3">
+            <Link to={createPageUrl('DashboardMenu')} className="flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <UtensilsCrossed className="w-5 h-5 text-purple-600" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center leading-tight">Menu</span>
+            </Link>
+            <Link to={createPageUrl('DashboardOrders')} className="flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform relative">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-orange-600" />
+                {pendingOrders.length > 0 && (
+                  <span className="absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">{pendingOrders.length}</span>
+                )}
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center leading-tight">Orders</span>
+            </Link>
+            <Link to={createPageUrl('DashboardAnalytics')} className="flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center leading-tight">Analytics</span>
+            </Link>
+            <Link to={createPageUrl('DashboardSettings')} className="flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-green-600" />
+              </div>
+              <span className="text-xs font-medium text-gray-700 text-center leading-tight">Settings</span>
+            </Link>
+          </div>
+        </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard title="Total Revenue" value={`₦${totalRevenue.toLocaleString()}`} icon={TrendingUp} color="amber" />
+          <StatCard title="Menu Items" value={menuItems.length} icon={UtensilsCrossed} color="purple" />
+        </div>
+
         {/* Chart */}
-        <Card className="lg:col-span-2 border-orange-100">
-          <CardHeader>
-            <CardTitle className="text-lg">Weekly Overview</CardTitle>
+        <Card className="border-orange-100 rounded-2xl">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-base font-bold">Weekly Revenue</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64">
+          <CardContent className="px-2 pb-4">
+            <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -276,23 +276,16 @@ export default function DashboardHome() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="day" stroke="#9ca3af" fontSize={12} />
-                  <YAxis stroke="#9ca3af" fontSize={12} />
+                  <XAxis dataKey="day" stroke="#9ca3af" fontSize={11} />
+                  <YAxis stroke="#9ca3af" fontSize={11} width={40} />
                   <Tooltip 
                     formatter={(value, name) => [
                       name === 'revenue' ? `₦${value.toLocaleString()}` : value,
                       name === 'revenue' ? 'Revenue' : 'Orders'
                     ]}
-                    contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb' }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '12px' }}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#ff6b35" 
-                    strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorRevenue)" 
-                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#ff6b35" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -300,48 +293,46 @@ export default function DashboardHome() {
         </Card>
 
         {/* Recent Orders */}
-        <Card className="border-orange-100">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Recent Orders</CardTitle>
+        <Card className="border-orange-100 rounded-2xl">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4">
+            <CardTitle className="text-base font-bold">Recent Orders</CardTitle>
             <Link to={createPageUrl('DashboardOrders')}>
-              <Button variant="ghost" size="sm" className="text-orange-600">
-                View All <ChevronRight className="w-4 h-4 ml-1" />
+              <Button variant="ghost" size="sm" className="text-orange-600 -mr-2 h-8 text-xs">
+                View All <ChevronRight className="w-3 h-3 ml-0.5" />
               </Button>
             </Link>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="px-4 pb-4 space-y-2">
             {ordersLoading ? (
-              [1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-xl" />
-              ))
+              [1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)
             ) : orders.slice(0, 5).length === 0 ? (
               <div className="text-center py-8">
                 <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-2" />
                 <p className="text-gray-500 text-sm">No orders yet</p>
               </div>
             ) : (
-              orders.slice(0, 5).map((order) => (
-                <OrderItem key={order.id} order={order} />
-              ))
+              orders.slice(0, 5).map((order) => <OrderItem key={order.id} order={order} />)
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-        <Link to={createPageUrl('DashboardMenu')}>
-          <QuickAction icon={UtensilsCrossed} label="Manage Menu" />
-        </Link>
-        <Link to={createPageUrl('DashboardOrders')}>
-          <QuickAction icon={ShoppingBag} label="View Orders" count={pendingOrders.length} />
-        </Link>
-        <Link to={createPageUrl('DashboardAnalytics')}>
-          <QuickAction icon={TrendingUp} label="Analytics" />
-        </Link>
-        <Link to={createPageUrl('DashboardSettings')}>
-          <QuickAction icon={Clock} label="Settings" />
-        </Link>
+        {/* Contact Support */}
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <Bell className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">Need Help?</p>
+              <p className="text-xs text-blue-600 mt-0.5">
+                📧 <a href="mailto:support@foodanaija.com" className="hover:underline">support@foodanaija.com</a>
+                {' · '}
+                📞 <a href="tel:090333455557" className="hover:underline">090333455557</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Notifications Dialog */}
