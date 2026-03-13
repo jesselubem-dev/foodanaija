@@ -402,7 +402,7 @@ function StatCard({ title, value, icon: Icon, color }) {
   };
 
   return (
-    <Card className="border-orange-50 hover:shadow-lg transition-shadow">
+    <Card className="border-orange-50 rounded-2xl">
       <CardContent className="p-4">
         <div className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center mb-3`}>
           <Icon className="w-5 h-5" />
