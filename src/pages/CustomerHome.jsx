@@ -197,8 +197,8 @@ function CustomerHomeContent() {
         setCart(JSON.parse(savedCart));
       }
     } catch (e) {
-      // Redirect to login if not authenticated
-      base44.auth.redirectToLogin(window.location.href);
+      // Show sign-in screen instead of redirecting (safe for WebView)
+      setIsLoggedOut(true);
     }
   };
 
