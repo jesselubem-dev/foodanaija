@@ -316,22 +316,7 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        {/* Contact Support */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Bell className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900 text-sm">Need Help?</p>
-              <p className="text-xs text-blue-600 mt-0.5">
-                📧 <a href="mailto:support@foodanaija.com" className="hover:underline">support@foodanaija.com</a>
-                {' · '}
-                📞 <a href="tel:090333455557" className="hover:underline">090333455557</a>
-              </p>
-            </div>
-          </div>
-        </div>
+
 
       </div>
 
