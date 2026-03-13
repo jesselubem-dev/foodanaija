@@ -106,7 +106,6 @@ const AuthenticatedApp = () => {
       <Route path="/LiveChat" element={<LayoutWrapper currentPageName="LiveChat"><LiveChat /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/CustomerSupport" element={<LayoutWrapper currentPageName="CustomerSupport"><CustomerSupport /></LayoutWrapper>} />
-      <Route path="/PaymentVerification" element={<LayoutWrapper currentPageName="PaymentVerification"><PaymentVerification /></LayoutWrapper>} />
       <Route path="/RestaurantSetup" element={<LayoutWrapper currentPageName="RestaurantSetup"><RestaurantSetup /></LayoutWrapper>} />
       <Route path="/DashboardHome" element={<LayoutWrapper currentPageName="DashboardHome"><DashboardHome /></LayoutWrapper>} />
       <Route path="/DashboardMenu" element={<LayoutWrapper currentPageName="DashboardMenu"><DashboardMenu /></LayoutWrapper>} />
