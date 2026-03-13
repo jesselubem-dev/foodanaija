@@ -4,13 +4,10 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, Home, MessageSquare
+  Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, MessageSquare
 } from 'lucide-react';
 import ComplaintsSheet from '../components/rider/ComplaintsSheet';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Sheet,
@@ -20,6 +17,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import NoInternet from '../components/NoInternet';
+
+const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/9ad72bcd8_20260225_165100.png";
 
 export default function RiderDashboard() {
   const [user, setUser] = useState(null);
@@ -32,19 +31,11 @@ export default function RiderDashboard() {
   useEffect(() => {
     checkRider();
     requestNotificationPermission();
-    
-    // Create audio element for continuous alert
     const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
     audio.loop = true;
     audio.volume = 0.5;
     setAudioElement(audio);
-    
-    return () => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    };
+    return () => { if (audio) { audio.pause(); audio.currentTime = 0; } };
   }, []);
 
   const requestNotificationPermission = async () => {
@@ -56,63 +47,28 @@ export default function RiderDashboard() {
   const checkRider = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const isDemo = urlParams.get('demo') === 'true';
-
     if (isDemo) {
-      // Demo mode - show sample rider data
-      setRider({
-        id: 'demo-123',
-        full_name: 'Chioma Adeyemi',
-        email: 'chioma@example.com',
-        phone: '08012345678',
-        vehicle_type: 'motorcycle',
-        vehicle_number: 'KJA-456-AA',
-        is_active: true,
-        is_available: true,
-        total_deliveries: 24,
-        rating: 4.8
-      });
+      setRider({ id: 'demo-123', full_name: 'Chioma Adeyemi', email: 'chioma@example.com', phone: '08012345678', vehicle_type: 'motorcycle', vehicle_number: 'KJA-456-AA', is_active: true, is_available: true, total_deliveries: 24, rating: 4.8 });
       return;
     }
-
     try {
       const isAuth = await base44.auth.isAuthenticated();
-      
-      if (!isAuth) {
-        base44.auth.redirectToLogin(window.location.href);
-        return;
-      }
-
+      if (!isAuth) { base44.auth.redirectToLogin(window.location.href); return; }
       const userData = await base44.auth.me();
       setUser(userData);
-      
       let riders = await base44.entities.Rider.filter({ email: userData.email });
-      
-      // Auto-create rider profile if doesn't exist
       if (riders.length === 0) {
-        const newRider = await base44.entities.Rider.create({
-          full_name: userData.full_name || 'Rider',
-          email: userData.email,
-          phone: userData.phone || '',
-          vehicle_type: 'motorcycle',
-          is_active: true,
-          is_available: true,
-          total_deliveries: 0,
-          rating: 5
-        });
+        const newRider = await base44.entities.Rider.create({ full_name: userData.full_name || 'Rider', email: userData.email, phone: userData.phone || '', vehicle_type: 'motorcycle', is_active: true, is_available: true, total_deliveries: 0, rating: 5 });
         setRider(newRider);
         return;
       }
-      
       setRider(riders[0]);
-    } catch (e) {
-      console.error('Rider check failed:', e);
-    }
+    } catch (e) { console.error('Rider check failed:', e); }
   };
 
   const { data: orders = [] } = useQuery({
     queryKey: ['all-orders'],
     queryFn: async () => {
-      // Get all accepted orders that haven't been delivered or cancelled
       const acceptedOrders = await base44.entities.Order.filter({ status: 'accepted' }, '-created_date');
       return acceptedOrders.filter(o => o.delivery_status !== 'delivered');
     },
@@ -127,131 +83,112 @@ export default function RiderDashboard() {
   });
 
   const toggleAvailability = async () => {
-    await base44.entities.Rider.update(rider.id, {
-      is_available: !rider.is_available
-    });
+    await base44.entities.Rider.update(rider.id, { is_available: !rider.is_available });
     setRider({ ...rider, is_available: !rider.is_available });
   };
 
   const myActiveOrders = rider ? orders.filter(o => o.rider_id === rider.id && ['assigned', 'picked_up', 'on_the_way'].includes(o.delivery_status)) : [];
   const unassignedOrders = orders.filter(o => !o.rider_id && o.delivery_status === 'unassigned');
-  const todayCompleted = deliveredOrders.filter(o => {
-    const orderDate = new Date(o.updated_date);
-    const today = new Date();
-    return orderDate.toDateString() === today.toDateString();
-  });
-  const todayEarnings = todayCompleted.reduce((sum, o) => {
-    const baseDeliveryFee = o.delivery_fee || 500;
-    const multiplier = o.total_restaurants_in_batch || 1;
-    return sum + (baseDeliveryFee * multiplier);
-  }, 0);
-  const allTimeEarnings = deliveredOrders.reduce((sum, o) => {
-    const baseDeliveryFee = o.delivery_fee || 500;
-    const multiplier = o.total_restaurants_in_batch || 1;
-    return sum + (baseDeliveryFee * multiplier);
-  }, 0);
+  const todayCompleted = deliveredOrders.filter(o => new Date(o.updated_date).toDateString() === new Date().toDateString());
+  const todayEarnings = todayCompleted.reduce((sum, o) => sum + ((o.delivery_fee || 500) * (o.total_restaurants_in_batch || 1)), 0);
+  const allTimeEarnings = deliveredOrders.reduce((sum, o) => sum + ((o.delivery_fee || 500) * (o.total_restaurants_in_batch || 1)), 0);
 
-  // Notify rider of new orders and play continuous alert
   useEffect(() => {
     if (unassignedOrders.length > previousOrderCount && previousOrderCount > 0) {
-      // Show browser notification
       if ('Notification' in window && Notification.permission === 'granted') {
         const latestOrder = unassignedOrders[0];
-        new Notification('🚨 New Delivery Available!', {
-          body: `${latestOrder.restaurant_name}\n₦${latestOrder.total?.toLocaleString()} • ${latestOrder.items?.length} items`,
-          icon: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=200',
-          badge: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=200',
-          tag: 'new-order',
-          requireInteraction: true,
-          vibrate: [200, 100, 200]
-        });
+        new Notification('🚨 New Delivery Available!', { body: `${latestOrder.restaurant_name}\n₦${latestOrder.total?.toLocaleString()} • ${latestOrder.items?.length} items`, tag: 'new-order', requireInteraction: true });
       }
     }
     setPreviousOrderCount(unassignedOrders.length);
   }, [unassignedOrders.length]);
 
-  // Continuous alert sound when there are unassigned orders
   useEffect(() => {
     if (audioElement) {
-      if (unassignedOrders.length > 0 && rider?.is_available) {
-        audioElement.play().catch(() => {});
-      } else {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-      }
+      if (unassignedOrders.length > 0 && rider?.is_available) { audioElement.play().catch(() => {}); }
+      else { audioElement.pause(); audioElement.currentTime = 0; }
     }
   }, [unassignedOrders.length, rider?.is_available, audioElement]);
 
   if (!rider) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <img src={LOGO} alt="Fooda Naija" className="h-16 w-auto mb-6" />
+        <div className="animate-spin w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 safe-area-inset-bottom">
+    <div className="min-h-screen bg-gray-50" style={{ maxWidth: 480, margin: '0 auto' }}>
       <NoInternet />
-      {/* Mobile-First Header */}
-      <header className="bg-white/95 backdrop-blur-xl border-b border-blue-100 shadow-lg sticky top-0 z-50">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
-                alt="Fooda Naija" 
-                className="h-10 w-auto object-contain"
-              />
-              <div>
-                <p className="text-xs text-gray-600 font-medium">{rider.full_name}</p>
-              </div>
+
+      {/* Header */}
+      <header className="bg-white sticky top-0 z-50 shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src={LOGO} alt="Fooda Naija" className="h-9 w-auto object-contain" />
+            <div>
+              <p className="text-xs text-gray-400">Welcome back,</p>
+              <p className="text-sm font-bold text-gray-900 leading-tight">{rider.full_name}</p>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Online/Offline toggle pill */}
+            <button
+              onClick={toggleAvailability}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                rider.is_available 
+                  ? 'bg-green-100 text-green-700 border border-green-200' 
+                  : 'bg-gray-100 text-gray-500 border border-gray-200'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${rider.is_available ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+              {rider.is_available ? 'Online' : 'Offline'}
+            </button>
+
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl">
-                  <Menu className="w-5 h-5" />
-                </Button>
+                <button className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Menu className="w-4 h-4 text-gray-700" />
+                </button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px]">
                 <SheetHeader className="mb-6">
-                  <SheetTitle className="text-left">Profile</SheetTitle>
+                  <SheetTitle className="text-left flex items-center gap-2">
+                    <img src={LOGO} alt="Fooda Naija" className="h-8 w-auto" />
+                  </SheetTitle>
                 </SheetHeader>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                  <div className="flex items-center gap-3 p-4 bg-red-50 rounded-2xl">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
                       <User className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{rider.full_name}</p>
-                      <p className="text-xs text-gray-600">{rider.email}</p>
+                      <p className="font-bold text-gray-900">{rider.full_name}</p>
+                      <p className="text-xs text-gray-500">{rider.email}</p>
                     </div>
                   </div>
-
-                  <div className="space-y-2 pt-4 border-t">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <span className="text-sm font-medium text-gray-700">Total Deliveries</span>
-                      <span className="text-lg font-bold text-blue-600">{rider.total_deliveries}</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 bg-gray-50 rounded-2xl text-center">
+                      <p className="text-2xl font-bold text-gray-900">{rider.total_deliveries}</p>
+                      <p className="text-xs text-gray-500">Deliveries</p>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <span className="text-sm font-medium text-gray-700">Rating</span>
-                      <div className="flex items-center gap-1">
+                    <div className="p-3 bg-gray-50 rounded-2xl text-center">
+                      <div className="flex items-center justify-center gap-1 mb-0.5">
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-lg font-bold text-gray-900">{rider.rating}</span>
+                        <p className="text-2xl font-bold text-gray-900">{rider.rating}</p>
                       </div>
+                      <p className="text-xs text-gray-500">Rating</p>
                     </div>
                   </div>
-
-                  <div className="pt-4 border-t">
-                    <Button
-                      onClick={() => base44.auth.logout(createPageUrl('RiderHome'))}
-                      variant="outline"
-                      className="w-full border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </div>
+                  <button
+                    onClick={() => base44.auth.logout(createPageUrl('RiderHome'))}
+                    className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors font-medium text-sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -259,405 +196,284 @@ export default function RiderDashboard() {
         </div>
       </header>
 
-      <div className="px-4 py-4 pb-24">
-        {/* Mobile-First Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <StatCard
-            icon={Package}
-            title="Available Orders"
-            value={unassignedOrders.length}
-            subtitle="Ready to pick"
-            color="blue"
-          />
-          <StatCard
-            icon={Navigation}
-            title="Active Deliveries"
-            value={myActiveOrders.length}
-            subtitle="In progress"
-            color="orange"
-          />
-          <StatCard
-            icon={CheckCircle}
-            title="Completed Today"
-            value={todayCompleted.length}
-            subtitle="Deliveries done"
-            color="green"
-          />
-          <StatCard
-            icon={TrendingUp}
-            title="Today's Earnings"
-            value={`₦${todayEarnings.toLocaleString()}`}
-            subtitle={`₦${rider.total_deliveries ? Math.round(todayEarnings / (todayCompleted.length || 1)) : 0}/order`}
-            color="purple"
-          />
-          <StatCard
-            icon={TrendingUp}
-            title="All Time Earnings"
-            value={`₦${allTimeEarnings.toLocaleString()}`}
-            subtitle={`${deliveredOrders.length} total deliveries`}
-            color="blue"
-          />
+      {/* Stats Row */}
+      <div className="px-4 pt-4 pb-2">
+        <div className="grid grid-cols-4 gap-2">
+          <MiniStat label="Available" value={unassignedOrders.length} color="red" />
+          <MiniStat label="Active" value={myActiveOrders.length} color="orange" />
+          <MiniStat label="Today" value={todayCompleted.length} color="green" />
+          <MiniStat label="Earnings" value={`₦${(todayEarnings/1000).toFixed(0)}k`} color="blue" />
         </div>
+      </div>
 
-        {/* Mobile-First Tabbed Interface */}
+      {/* Tabs */}
+      <div className="px-4 pb-24">
         <Tabs defaultValue="available" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-4 bg-white rounded-xl p-1 shadow-sm">
-            <TabsTrigger value="available" className="rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs">
-              <Package className="w-3 h-3 mr-1" />
-              Available ({unassignedOrders.length})
+          <TabsList className="grid w-full grid-cols-4 mb-4 bg-white rounded-2xl p-1 shadow-sm border border-gray-100 h-auto">
+            <TabsTrigger value="available" className="rounded-xl py-2 text-xs data-[state=active]:bg-red-500 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="flex flex-col items-center gap-0.5">
+                <Package className="w-3.5 h-3.5" />
+                <span>{unassignedOrders.length}</span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white text-xs">
-              <Navigation className="w-3 h-3 mr-1" />
-              Active ({myActiveOrders.length})
+            <TabsTrigger value="active" className="rounded-xl py-2 text-xs data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="flex flex-col items-center gap-0.5">
+                <Navigation className="w-3.5 h-3.5" />
+                <span>{myActiveOrders.length}</span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="today" className="rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white text-xs">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Today ({todayCompleted.length})
+            <TabsTrigger value="today" className="rounded-xl py-2 text-xs data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="flex flex-col items-center gap-0.5">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>{todayCompleted.length}</span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-purple-500 data-[state=active]:text-white text-xs">
-              <Clock className="w-3 h-3 mr-1" />
-              All Recent
+            <TabsTrigger value="history" className="rounded-xl py-2 text-xs data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:shadow-none">
+              <span className="flex flex-col items-center gap-0.5">
+                <Clock className="w-3.5 h-3.5" />
+                <span>All</span>
+              </span>
             </TabsTrigger>
           </TabsList>
 
-          {/* Active Deliveries Tab */}
-          <TabsContent value="active">
-            {myActiveOrders.length === 0 ? (
-              <Card className="border-orange-100">
-                <CardContent className="text-center py-12">
-                  <Navigation className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Active Deliveries</h3>
-                  <p className="text-gray-500">Accept an order to start delivering</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {myActiveOrders.map((order) => (
-                  <Card key={order.id} className="border-orange-200 bg-gradient-to-br from-orange-50 to-white hover:shadow-xl transition-all">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className="bg-orange-500 text-white px-3 py-1">
-                              {order.delivery_status === 'picked_up' ? '📦 Picked Up' : '🚴 On The Way'}
-                            </Badge>
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">{order.restaurant_name}</h3>
-                          {order.batch_order_id && (
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
-                                🔗 Batch ({order.total_restaurants_in_batch} restaurants)
-                              </span>
-                            </div>
-                          )}
-                          <p className="text-gray-600 flex items-center gap-1">
-                            <User className="w-4 h-4" />
-                            {order.customer_name} • {order.customer_phone}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-sm text-gray-500">{order.items?.length} items</p>
-                        </div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 mb-4 border border-orange-100">
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{order.delivery_address}</span>
-                        </div>
-                      </div>
-                      <Link to={createPageUrl(`RiderDelivery?id=${order.id}`)}>
-                        <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl h-12">
-                          <Navigation className="w-4 h-4 mr-2" />
-                          Continue Delivery
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Available Orders Tab */}
+          {/* Available Orders */}
           <TabsContent value="available">
             {unassignedOrders.length === 0 ? (
-              <Card className="border-blue-100">
-                <CardContent className="text-center py-12">
-                  <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Available Orders</h3>
-                  <p className="text-gray-500">Check back soon for new deliveries</p>
-                </CardContent>
-              </Card>
+              <EmptyState icon={Package} title="No Available Orders" subtitle="Check back soon for new deliveries" />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {unassignedOrders.map((order) => (
-                  <Card key={order.id} className="border-red-300 bg-gradient-to-br from-red-50 to-white hover:shadow-xl transition-all relative">
-                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
-                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-ping" />
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className="bg-red-500 text-white px-3 py-1 animate-pulse">🚨 New Order</Badge>
-                            <span className="text-xs text-gray-500">
-                              {new Date(order.created_date).toLocaleTimeString('en-NG', { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
-                            </span>
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">{order.restaurant_name}</h3>
+                  <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden relative">
+                    <div className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
+                    <div className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 pr-6">
+                          <span className="inline-block text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full mb-1">🚨 New Order</span>
+                          <h3 className="text-base font-bold text-gray-900">{order.restaurant_name}</h3>
                           {order.batch_order_id && (
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
-                                🔗 Batch Order ({order.total_restaurants_in_batch} restaurants)
-                              </span>
-                            </div>
+                            <span className="inline-block text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full mt-1">🔗 Batch ({order.total_restaurants_in_batch} restaurants)</span>
                           )}
-                          <div className="space-y-1">
-                            <p className="text-gray-600 flex items-center gap-2">
-                              <User className="w-4 h-4" />
-                              {order.customer_name}
-                            </p>
-                            <p className="text-gray-600 flex items-center gap-2">
-                              <Phone className="w-4 h-4" />
-                              {order.customer_phone}
-                            </p>
-                          </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-red-600">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-sm text-gray-500">{order.items?.length} items</p>
-                          <p className="text-xs text-green-600 font-medium mt-1">
-                            +₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()} fee
-                          </p>
+                          <p className="text-xl font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
+                          <p className="text-xs text-green-600 font-semibold">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()} fee</p>
                         </div>
                       </div>
-                      <div className="bg-white rounded-lg p-3 mb-4 border border-blue-100">
-                        <div className="flex items-start gap-2">
-                          <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-700">{order.delivery_address}</span>
-                        </div>
+                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                        <span className="flex items-center gap-1"><User className="w-3 h-3" />{order.customer_name}</span>
+                        <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{order.customer_phone}</span>
+                        <span className="flex items-center gap-1"><Package className="w-3 h-3" />{order.items?.length} items</span>
                       </div>
-                      <Button 
-                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-xl h-12 font-semibold"
+                      <div className="flex items-start gap-2 bg-gray-50 rounded-xl p-2.5 mb-3">
+                        <MapPin className="w-3.5 h-3.5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-gray-600">{order.delivery_address}</span>
+                      </div>
+                      <button
+                        className="w-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
                         onClick={async (e) => {
                           e.preventDefault();
                           try {
-                            // Check if order is still unassigned
                             const currentOrder = await base44.entities.Order.filter({ id: order.id });
                             if (currentOrder[0].delivery_status !== 'unassigned') {
                               setShowAlreadyTaken(true);
                               setTimeout(() => window.location.reload(), 2000);
                               return;
                             }
-
-                            await base44.entities.Order.update(order.id, {
-                              rider_id: rider.id,
-                              rider_name: rider.full_name,
-                              delivery_status: 'assigned',
-                              accepted_at: new Date().toISOString()
-                            });
+                            await base44.entities.Order.update(order.id, { rider_id: rider.id, rider_name: rider.full_name, delivery_status: 'assigned', accepted_at: new Date().toISOString() });
                             window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
-                          } catch (error) {
-                            alert('Failed to accept order. Please try again.');
-                          }
+                          } catch (error) { alert('Failed to accept order. Please try again.'); }
                         }}
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-4 h-4" />
                         Accept & Start Delivery
-                      </Button>
-                    </CardContent>
-                  </Card>
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </TabsContent>
 
-          {/* Today's Completed Orders Tab */}
+          {/* Active Deliveries */}
+          <TabsContent value="active">
+            {myActiveOrders.length === 0 ? (
+              <EmptyState icon={Navigation} title="No Active Deliveries" subtitle="Accept an order to start delivering" />
+            ) : (
+              <div className="space-y-3">
+                {myActiveOrders.map((order) => (
+                  <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <span className="inline-block text-xs font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full mb-1">
+                            {order.delivery_status === 'picked_up' ? '📦 Picked Up' : '🚴 On The Way'}
+                          </span>
+                          <h3 className="text-base font-bold text-gray-900">{order.restaurant_name}</h3>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">{order.items?.length} items</p>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 mb-3 flex items-center gap-2">
+                        <User className="w-3 h-3" />{order.customer_name} • {order.customer_phone}
+                      </div>
+                      <div className="flex items-start gap-2 bg-gray-50 rounded-xl p-2.5 mb-3">
+                        <MapPin className="w-3.5 h-3.5 text-orange-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs text-gray-600">{order.delivery_address}</span>
+                      </div>
+                      <Link to={createPageUrl(`RiderDelivery?id=${order.id}`)}>
+                        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                          <Navigation className="w-4 h-4" />
+                          Continue Delivery
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Today's Completed */}
           <TabsContent value="today">
             {todayCompleted.length === 0 ? (
-              <Card className="border-green-100">
-                <CardContent className="text-center py-12">
-                  <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Completed Deliveries Today</h3>
-                  <p className="text-gray-500">Start delivering to see your completed orders</p>
-                </CardContent>
-              </Card>
+              <EmptyState icon={CheckCircle} title="No Completed Deliveries Today" subtitle="Start delivering to see your completed orders" />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {todayCompleted.map((order) => (
-                  <Card key={order.id} className="border-green-100 bg-gradient-to-br from-green-50 to-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                            <CheckCircle className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-gray-900">{order.restaurant_name}</h4>
-                            <p className="text-sm text-gray-600">{order.customer_name}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-green-600">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()} earned</p>
-                        </div>
+                  <div key={order.id} className="bg-white rounded-2xl p-4 flex items-center justify-between border border-green-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-green-100 flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm">{order.restaurant_name}</p>
+                        <p className="text-xs text-gray-500">{order.customer_name}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600 text-sm">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()}</p>
+                      <p className="text-xs text-gray-400">earned</p>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </TabsContent>
 
-          {/* All Recent Deliveries Tab */}
+          {/* History */}
           <TabsContent value="history">
             {deliveredOrders.length === 0 ? (
-              <Card className="border-purple-100">
-                <CardContent className="text-center py-12">
-                  <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Delivery History</h3>
-                  <p className="text-gray-500">Your completed deliveries will appear here</p>
-                </CardContent>
-              </Card>
+              <EmptyState icon={Clock} title="No Delivery History" subtitle="Your completed deliveries will appear here" />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {deliveredOrders.map((order) => (
-                  <Card key={order.id} className="border-purple-100 bg-gradient-to-br from-purple-50 to-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
-                            <CheckCircle className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-gray-900">{order.restaurant_name}</h4>
-                            <p className="text-sm text-gray-600">{order.customer_name}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(order.updated_date).toLocaleDateString('en-NG', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                          </div>
+                  <div key={order.id} className="bg-white rounded-2xl p-4 border border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle className="w-5 h-5 text-purple-600" />
                         </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">₦{order.total?.toLocaleString()}</p>
-                          <p className="text-xs text-green-600 font-medium">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()}</p>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">{order.restaurant_name}</p>
+                          <p className="text-xs text-gray-500">{order.customer_name}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{new Date(order.updated_date).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-600 flex items-start gap-1">
-                          <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                          {order.delivery_address}
-                        </p>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900 text-sm">₦{order.total?.toLocaleString()}</p>
+                        <p className="text-xs text-green-600 font-medium">+₦{((order.delivery_fee || 500) * (order.total_restaurants_in_batch || 1)).toLocaleString()}</p>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="mt-2 flex items-start gap-1.5 bg-gray-50 rounded-xl p-2">
+                      <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs text-gray-500">{order.delivery_address}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Bottom Nav */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full bg-white border-t border-gray-100 shadow-2xl z-50 safe-area-inset-bottom" style={{ maxWidth: 480 }}>
+        <div className="grid grid-cols-3 gap-1 px-4 py-2">
+          <button
+            onClick={toggleAvailability}
+            className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl"
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${rider.is_available ? 'bg-green-100' : 'bg-gray-100'}`}>
+              <Bike className={`w-4 h-4 ${rider.is_available ? 'text-green-600' : 'text-gray-400'}`} />
+            </div>
+            <span className={`text-xs font-medium ${rider.is_available ? 'text-green-600' : 'text-gray-400'}`}>
+              {rider.is_available ? 'Online' : 'Offline'}
+            </span>
+          </button>
+
+          <ComplaintsSheet rider={rider} />
+
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl"
+          >
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              <User className="w-4 h-4 text-gray-600" />
+            </div>
+            <span className="text-xs font-medium text-gray-600">Profile</span>
+          </button>
         </div>
-
-        {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-blue-100 shadow-2xl z-50 safe-area-inset-bottom">
-          <div className="grid grid-cols-3 gap-1 px-4 py-3">
-            {/* Available Toggle */}
-            <button
-              onClick={toggleAvailability}
-              className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
-            >
-              <div className={`flex items-center justify-center w-5 h-5 rounded-full ${
-                rider.is_available ? 'bg-green-500' : 'bg-gray-400'
-              }`}>
-                <div className={`w-2.5 h-2.5 rounded-full bg-white ${rider.is_available ? 'animate-pulse' : ''}`} />
-              </div>
-              <span className={`text-xs font-medium ${rider.is_available ? 'text-green-600' : 'text-gray-600'}`}>
-                {rider.is_available ? 'Available' : 'Offline'}
-              </span>
-            </button>
-
-            {/* Complaints Button */}
-            <ComplaintsSheet rider={rider} />
-
-            {/* Profile Button */}
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 py-2 rounded-xl hover:bg-blue-50 transition-colors"
-            >
-              <User className="w-5 h-5 text-gray-600" />
-              <span className="text-xs font-medium text-gray-700">Profile</span>
-            </button>
-          </div>
-        </div>
+      </div>
 
       {/* Already Taken Modal */}
       {showAlreadyTaken && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform animate-in zoom-in-95 duration-200">
-            {/* Header with gradient */}
-            <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVHJhbnNmb3JtPSJyb3RhdGUoNDUpIj48cGF0aCBkPSJNLTEwIDMwaDYwdjJoLTYweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNhKSIvPjwvc3ZnPg==')] opacity-30" />
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto mb-4 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl">
-                    <span className="text-4xl">😔</span>
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-1">Order Already Taken</h3>
-                <p className="text-orange-100 text-sm">Another rider beat you to it!</p>
-              </div>
+        <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-50 p-4" style={{ maxWidth: 480, margin: '0 auto', left: '50%', transform: 'translateX(-50%)' }}>
+          <div className="bg-white rounded-3xl shadow-2xl w-full overflow-hidden mb-4">
+            <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 text-center">
+              <p className="text-4xl mb-2">😔</p>
+              <h3 className="text-xl font-bold text-white">Order Already Taken</h3>
+              <p className="text-red-100 text-sm">Another rider got there first!</p>
             </div>
-            
-            {/* Content */}
-            <div className="p-6 text-center">
-              <div className="mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 rounded-full mb-4">
-                  <Package className="w-4 h-4 text-orange-600" />
-                  <span className="text-sm font-medium text-orange-700">This delivery has been assigned</span>
-                </div>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Don't worry! More orders are coming your way. Keep your status as <span className="font-semibold text-green-600">Available</span> to get the next one.
-                </p>
-              </div>
-              
-              {/* Refreshing indicator */}
-              <div className="flex items-center justify-center gap-2 text-gray-500">
-                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm">Refreshing orders...</span>
+            <div className="p-5 text-center">
+              <p className="text-gray-600 text-sm mb-4">Keep your status as <span className="font-semibold text-green-600">Online</span> to catch the next one.</p>
+              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+                <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                Refreshing orders...
               </div>
             </div>
           </div>
         </div>
       )}
-        </div>
-        );
-        }
+    </div>
+  );
+}
 
-function StatCard({ icon: Icon, title, value, subtitle, color }) {
-  const colors = {
-    blue: 'from-blue-500 to-blue-600',
-    orange: 'from-orange-500 to-orange-600',
-    green: 'from-green-500 to-green-600',
-    purple: 'from-purple-500 to-purple-600',
-  };
-
+function EmptyState({ icon: Icon, title, subtitle }) {
   return (
-    <Card className="border-gray-100 hover:shadow-lg transition-all">
-      <CardContent className="p-4">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[color]} flex items-center justify-center mb-3 shadow-lg`}>
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <p className="text-2xl font-bold text-gray-900 mb-0.5">{value}</p>
-        <p className="text-xs font-medium text-gray-700">{title}</p>
-        {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
-      </CardContent>
-    </Card>
+    <div className="bg-white rounded-2xl p-10 text-center border border-gray-100">
+      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <Icon className="w-8 h-8 text-gray-300" />
+      </div>
+      <h3 className="text-base font-bold text-gray-700 mb-1">{title}</h3>
+      <p className="text-sm text-gray-400">{subtitle}</p>
+    </div>
+  );
+}
+
+function MiniStat({ label, value, color }) {
+  const colors = {
+    red: 'bg-red-50 text-red-600',
+    orange: 'bg-orange-50 text-orange-600',
+    green: 'bg-green-50 text-green-600',
+    blue: 'bg-blue-50 text-blue-600',
+  };
+  return (
+    <div className={`rounded-2xl p-2.5 text-center ${colors[color]}`}>
+      <p className="text-lg font-bold leading-tight">{value}</p>
+      <p className="text-xs opacity-80 mt-0.5">{label}</p>
+    </div>
   );
 }
