@@ -172,7 +172,7 @@ export default function SuperAdminDashboard() {
           <SidebarNavLink to="SuperAdminDashboard" icon={LayoutDashboard} label="Dashboard" />
           <SidebarNavLink to="SuperAdminRestaurants" icon={Store} label="Restaurants" count={pendingRestaurants.length} />
           <SidebarNavLink to="SuperAdminUsers" icon={Users} label="Users" />
-          <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" />
+          <SidebarNavLink to="SuperAdminOrders" icon={ShoppingBag} label="Orders" count={orders.filter(o => o.status === 'pending').length} />
           <SidebarNavLink to="SuperAdminCancelledOrders" icon={XCircle} label="Cancelled Orders" count={cancelledOrders.filter(o => !o.refunded).length} />
           <SidebarNavLink to="SuperAdminRiders" icon={Users} label="Riders" />
           <SidebarNavLink to="SuperAdminRiderComplaints" icon={MessageCircle} label="Rider Complaints" />
