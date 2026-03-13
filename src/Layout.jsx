@@ -31,7 +31,8 @@ export default function Layout({ children, currentPageName }) {
         setRestaurant(restaurants[0]);
       }
     } catch (e) {
-      // Not logged in
+      // Not logged in - redirect to login
+      base44.auth.redirectToLogin(window.location.href);
     }
   };
 
