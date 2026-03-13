@@ -429,7 +429,7 @@ function CustomerHomeContent() {
       {/* Top Header - Welcome Message */}
       <div className="px-4 pt-4 pb-2">
         <h2 className="text-xl font-bold text-gray-900">
-          {t('hi')}{user ? `, ${user.full_name.split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
+          {t('hi')}{user ? `, ${(user.full_name || '').split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
         </h2>
         <p className="text-sm text-gray-500">{t('whatToEat')}</p>
       </div>
