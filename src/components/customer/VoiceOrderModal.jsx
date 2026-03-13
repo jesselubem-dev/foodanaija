@@ -79,7 +79,12 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
         resolve();
       };
       
-      synthRef.current.speak(utterance);
+      if (synthRef.current) {
+        synthRef.current.speak(utterance);
+      } else {
+        setAiSpeaking(false);
+        resolve();
+      }
     });
   };
 
