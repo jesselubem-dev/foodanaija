@@ -81,7 +81,7 @@ export default function Layout({ children, currentPageName }) {
         <div className="p-6">
           <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png" 
               alt="Fooda Naija" 
               className="h-12 w-auto object-contain"
             />
@@ -136,7 +136,7 @@ export default function Layout({ children, currentPageName }) {
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
         <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png" 
             alt="Fooda Naija" 
             className="h-10 w-auto object-contain"
           />
