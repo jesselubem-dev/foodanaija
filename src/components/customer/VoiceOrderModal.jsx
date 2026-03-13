@@ -84,7 +84,7 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
   };
 
   const stopSpeaking = () => {
-    if (synthRef.current.speaking) {
+    if (synthRef.current?.speaking) {
       synthRef.current.cancel();
       setAiSpeaking(false);
     }
