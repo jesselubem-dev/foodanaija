@@ -15,7 +15,7 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [userName, setUserName] = useState('');
   const recognitionRef = useRef(null);
-  const synthRef = useRef(window.speechSynthesis);
+  const synthRef = useRef(typeof window !== 'undefined' ? window.speechSynthesis : null);
   const silenceTimerRef = useRef(null);
   const fullTranscriptRef = useRef('');
 
