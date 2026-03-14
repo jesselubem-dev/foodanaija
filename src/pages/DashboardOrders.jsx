@@ -124,8 +124,36 @@ export default function DashboardOrders() {
 
   const activeOrders = orders.filter(o => o.status === 'pending');
   const completedOrders = orders.filter(o => ['accepted', 'declined'].includes(o.status));
+  const historyOrders = orders; // all orders
 
-  const filteredOrders = (activeTab === 'active' ? activeOrders : completedOrders).filter(order =>
+  const getDateRange = (filter) => {
+    const now = new Date();
+    if (filter === 'today') return { from: startOfDay(now), to: endOfDay(now) };
+    if (filter === 'week') return { from: startOfWeek(now), to: endOfDay(now) };
+    if (filter === 'month') return { from: startOfMonth(now), to: endOfDay(now) };
+    if (filter === '7days') return { from: startOfDay(subDays(now, 7)), to: endOfDay(now) };
+    if (filter === '30days') return { from: startOfDay(subDays(now, 30)), to: endOfDay(now) };
+    return null;
+  };
+
+  const filteredHistoryOrders = historyOrders.filter(order => {
+    const matchesSearch = !searchQuery ||
+      order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.id?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = historyStatusFilter === 'all' || order.status === historyStatusFilter;
+    
+    const dateRange = getDateRange(historyDateFilter);
+    const matchesDate = !dateRange || (
+      new Date(order.created_date) >= dateRange.from &&
+      new Date(order.created_date) <= dateRange.to
+    );
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const filteredOrders = (activeTab === 'active' ? activeOrders : activeTab === 'completed' ? completedOrders : filteredHistoryOrders).filter(order =>
+    activeTab === 'history' ? true :
     !searchQuery || 
     order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.id?.toLowerCase().includes(searchQuery.toLowerCase())
