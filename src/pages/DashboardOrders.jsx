@@ -426,13 +426,9 @@ function StatCard({ label, count, color }) {
   );
 }
 
-function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
-  const status = statusConfig[order.status];
+function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating, showDate }) {
+  const status = statusConfig[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-700 border-gray-200', icon: Package };
   const StatusIcon = status?.icon || Clock;
-
-  const handleStatusUpdate = (newStatus) => {
-    onUpdateStatus(newStatus, order.customer_email);
-  };
 
   return (
     <Card className="border-emerald-50 hover:shadow-lg transition-shadow">
@@ -446,7 +442,7 @@ function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating }) {
                 {status?.label}
               </Badge>
               <span className="text-sm text-gray-500">
-                {order.created_date && format(new Date(order.created_date), 'h:mm a')}
+                {order.created_date && format(new Date(order.created_date), showDate ? 'MMM d, yyyy • h:mm a' : 'h:mm a')}
               </span>
             </div>
             <h4 className="font-semibold text-gray-900">{order.customer_name || 'Customer'}</h4>
