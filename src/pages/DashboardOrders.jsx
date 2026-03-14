@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth } from 'date-fns';
 import { 
   Clock, CheckCircle, Package, Truck, XCircle,
-  Phone, MapPin, User, ChevronDown, RefreshCw, Search
+  Phone, MapPin, User, ChevronDown, RefreshCw, Search, History, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,8 @@ const statusConfig = {
   pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock },
   accepted: { label: 'Accepted', color: 'bg-green-100 text-green-700 border-green-200', icon: CheckCircle },
   declined: { label: 'Declined', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
+  delivered: { label: 'Delivered', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: Truck },
+  cancelled: { label: 'Cancelled', color: 'bg-gray-100 text-gray-700 border-gray-200', icon: XCircle },
 };
 
 export default function DashboardOrders() {
