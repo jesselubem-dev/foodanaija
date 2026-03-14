@@ -478,7 +478,7 @@ function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating, showDate 
                 <Button 
                   size="sm"
                   variant="outline"
-                  onClick={() => handleStatusUpdate('declined')}
+                  onClick={() => onUpdateStatus('declined')}
                   disabled={isUpdating}
                   className="border-red-200 text-red-600 hover:bg-red-50"
                 >
@@ -486,7 +486,7 @@ function OrderCard({ order, onViewDetails, onUpdateStatus, isUpdating, showDate 
                 </Button>
                 <Button 
                   size="sm"
-                  onClick={() => handleStatusUpdate('accepted')}
+                  onClick={() => onUpdateStatus('accepted')}
                   disabled={isUpdating}
                   className="bg-green-500 hover:bg-green-600 text-white"
                 >
