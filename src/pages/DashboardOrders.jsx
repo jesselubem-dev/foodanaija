@@ -122,8 +122,8 @@ export default function DashboardOrders() {
     },
   });
 
-  const activeOrders = orders.filter(o => o.status === 'pending');
-  const completedOrders = orders.filter(o => ['accepted', 'declined'].includes(o.status));
+  const activeOrders = orders.filter(o => ['pending', 'accepted'].includes(o.status));
+  const completedOrders = orders.filter(o => ['delivered', 'declined', 'cancelled'].includes(o.status));
   const historyOrders = orders; // all orders
 
   const getDateRange = (filter) => {
