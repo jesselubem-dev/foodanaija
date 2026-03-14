@@ -192,66 +192,90 @@ export default function DashboardOrders() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-        <StatCard 
-          label="Pending" 
-          count={orders.filter(o => o.status === 'pending').length}
-          color="amber"
-        />
-        <StatCard 
-          label="Accepted" 
-          count={orders.filter(o => o.status === 'accepted').length}
-          color="green"
-        />
-        <StatCard 
-          label="Declined" 
-          count={orders.filter(o => o.status === 'declined').length}
-          color="red"
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Pending" count={orders.filter(o => o.status === 'pending').length} color="amber" />
+        <StatCard label="Accepted" count={orders.filter(o => o.status === 'accepted').length} color="green" />
+        <StatCard label="Delivered" count={orders.filter(o => o.status === 'delivered').length} color="blue" />
+        <StatCard label="Declined" count={orders.filter(o => o.status === 'declined').length} color="red" />
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="bg-gray-100 rounded-xl p-1">
-          <TabsTrigger 
-            value="active" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-          >
-            Active Orders ({activeOrders.length})
+          <TabsTrigger value="active" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            Active ({activeOrders.length})
           </TabsTrigger>
-          <TabsTrigger 
-            value="completed"
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
-          >
+          <TabsTrigger value="completed" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
             Completed ({completedOrders.length})
+          </TabsTrigger>
+          <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm gap-1">
+            <History className="w-3 h-3" /> History ({orders.length})
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
+      {/* History Filters */}
+      {activeTab === 'history' && (
+        <div className="flex flex-wrap gap-3 mb-5 p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-600">Filters:</span>
+          </div>
+          <Select value={historyDateFilter} onValueChange={setHistoryDateFilter}>
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue placeholder="Date range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="7days">Last 7 Days</SelectItem>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="30days">Last 30 Days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={historyStatusFilter} onValueChange={setHistoryStatusFilter}>
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="declined">Declined</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-gray-500 self-center ml-auto">
+            {filteredHistoryOrders.length} order{filteredHistoryOrders.length !== 1 ? 's' : ''} found
+          </span>
+        </div>
+      )}
+
       {/* Orders List */}
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
-          ))}
+          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-32 rounded-2xl" />)}
         </div>
-      ) : filteredOrders.length === 0 ? (
+      ) : (activeTab === 'history' ? filteredHistoryOrders : filteredOrders).length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-emerald-50">
           <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders</h3>
           <p className="text-gray-500 text-sm">
-            {activeTab === 'active' ? 'No active orders at the moment' : 'No completed orders yet'}
+            {activeTab === 'active' ? 'No active orders at the moment' : activeTab === 'history' ? 'No orders match your filters' : 'No completed orders yet'}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredOrders.map((order) => (
+          {(activeTab === 'history' ? filteredHistoryOrders : filteredOrders).map((order) => (
             <OrderCard 
               key={order.id} 
               order={order}
               onViewDetails={() => setSelectedOrder(order)}
-              onUpdateStatus={(status) => updateStatusMutation.mutate({ id: order.id, status })}
+              onUpdateStatus={(status) => updateStatusMutation.mutate({ id: order.id, status, customerEmail: order.customer_email })}
               isUpdating={updateStatusMutation.isPending}
+              showDate={activeTab === 'history'}
             />
           ))}
         </div>
