@@ -36,6 +36,8 @@ export default function DashboardOrders() {
   const [activeTab, setActiveTab] = useState('active');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [historyDateFilter, setHistoryDateFilter] = useState('all');
+  const [historyStatusFilter, setHistoryStatusFilter] = useState('all');
 
   const queryClient = useQueryClient();
 
