@@ -193,10 +193,10 @@ export default function DashboardOrders() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Pending" count={orders.filter(o => o.status === 'pending').length} color="amber" />
-        <StatCard label="Accepted" count={orders.filter(o => o.status === 'accepted').length} color="green" />
+        <StatCard label="Active" count={activeOrders.length} color="amber" />
         <StatCard label="Delivered" count={orders.filter(o => o.status === 'delivered').length} color="blue" />
         <StatCard label="Declined" count={orders.filter(o => o.status === 'declined').length} color="red" />
+        <StatCard label="Total" count={orders.length} color="green" />
       </div>
 
       {/* Tabs */}
