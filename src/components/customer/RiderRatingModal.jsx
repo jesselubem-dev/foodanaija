@@ -41,17 +41,17 @@ export default function RiderRatingModal({ order, onClose }) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/50 z-50 flex items-end"
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
         <motion.div
-          className="bg-white rounded-t-3xl w-full p-6 shadow-2xl"
-          initial={{ y: 500 }}
-          animate={{ y: 0 }}
-          exit={{ y: 500 }}
+          className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl"
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.85, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
         >
