@@ -87,6 +87,14 @@ function RestaurantDetailContent() {
     refetchOnWindowFocus: false,
   });
 
+  // Auto-open item from deep link (e.g. from Facebook marketing link)
+  useEffect(() => {
+    if (deepLinkItemId && menuItems.length > 0) {
+      const item = menuItems.find(i => i.id === deepLinkItemId);
+      if (item) setSelectedItem(item);
+    }
+  }, [deepLinkItemId, menuItems]);
+
   const shuffledItems = useMemo(() => {
     const arr = [...menuItems];
     for (let i = arr.length - 1; i > 0; i--) {

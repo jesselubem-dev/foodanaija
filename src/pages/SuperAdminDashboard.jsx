@@ -181,6 +181,7 @@ export default function SuperAdminDashboard() {
           <SidebarNavLink to="AdminLiveChat" icon={Headset} label="Live Chat" count={activeChatCount} />
           <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" />
           <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" />
+          <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" />
         </nav>
       </aside>
 
