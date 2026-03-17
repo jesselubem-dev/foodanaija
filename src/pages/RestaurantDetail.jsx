@@ -18,6 +18,7 @@ import { LanguageProvider } from '../components/LanguageContext';
 function RestaurantDetailContent() {
   const urlParams = new URLSearchParams(window.location.search);
   const restaurantId = urlParams.get('id');
+  const deepLinkItemId = urlParams.get('item');
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [user, setUser] = useState(null);
