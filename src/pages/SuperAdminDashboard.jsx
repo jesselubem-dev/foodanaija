@@ -213,6 +213,7 @@ export default function SuperAdminDashboard() {
             <SidebarNavLink to="AdminLiveChat" icon={Headset} label="Live Chat" count={activeChatCount} onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" onClick={() => setMobileMenuOpen(false)} />
           </div>
         </div>
       )}
