@@ -36,8 +36,8 @@ export default function SuperAdminMenuMarketing() {
   });
 
   const copyLink = (item) => {
-    const baseUrl = window.location.origin;
-    const link = `${baseUrl}/RestaurantDetail?id=${item.restaurant_id}&item=${item.id}`;
+    const baseUrl = window.location.origin + (window.location.pathname.includes('/') ? window.location.pathname.split('/').slice(0, -1).join('/') : '');
+    const link = `${window.location.origin}/RestaurantDetail?id=${item.restaurant_id}&item=${item.id}`;
     navigator.clipboard.writeText(link);
     setCopiedId(item.id);
     toast.success('Link copied! Ready to post on Facebook 🎉');
