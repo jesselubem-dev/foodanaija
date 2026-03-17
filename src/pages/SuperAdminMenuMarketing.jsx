@@ -15,13 +15,15 @@ export default function SuperAdminMenuMarketing() {
   const [copiedId, setCopiedId] = useState(null);
 
   const { data: restaurants = [] } = useQuery({
-    queryKey: ['all-restaurants-marketing'],
+    queryKey: ['all-restaurants'],
     queryFn: () => base44.entities.Restaurant.filter({ is_approved: true }),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: menuItems = [], isLoading } = useQuery({
-    queryKey: ['all-menu-items-marketing'],
-    queryFn: () => base44.entities.MenuItem.filter({ is_available: true }),
+    queryKey: ['all-menu-items'],
+    queryFn: () => base44.entities.MenuItem.list(),
+    staleTime: 5 * 60 * 1000,
   });
 
   const filteredItems = menuItems.filter(item => {
