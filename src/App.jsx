@@ -49,6 +49,9 @@ import SuperAdminRiderComplaints from './pages/SuperAdminRiderComplaints';
 import SuperAdminSupport from './pages/SuperAdminSupport';
 import AdminLiveChat from './pages/AdminLiveChat';
 import SuperAdminMenuMarketing from './pages/SuperAdminMenuMarketing';
+import Chefs from './pages/Chefs';
+import ChefDetail from './pages/ChefDetail';
+import ChefSetup from './pages/ChefSetup';
 
 const LayoutWrapper = ({ children, currentPageName }) => (
   <Layout currentPageName={currentPageName}>{children}</Layout>

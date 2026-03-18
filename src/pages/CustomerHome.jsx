@@ -453,6 +453,20 @@ function CustomerHomeContent() {
         {/* Banner Carousel */}
         <BannerCarousel />
 
+        {/* Book a Chef Banner */}
+        <Link to={createPageUrl('Chefs')} className="block mb-4">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-orange-500/20 active:scale-95 transition-transform">
+            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <span className="text-3xl">👨‍🍳</span>
+            </div>
+            <div className="flex-1 text-white">
+              <p className="font-bold text-base">Book a Personal Chef</p>
+              <p className="text-xs text-white/80 mt-0.5">Describe your meal, a chef cooks it for you!</p>
+            </div>
+            <div className="text-white/80 text-xl">›</div>
+          </div>
+        </Link>
+
         {/* City Filter Pills */}
         <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
           <button
