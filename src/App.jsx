@@ -133,6 +133,9 @@ const AuthenticatedApp = () => {
       <Route path="/SuperAdminSupport" element={<LayoutWrapper currentPageName="SuperAdminSupport"><SuperAdminSupport /></LayoutWrapper>} />
       <Route path="/AdminLiveChat" element={<LayoutWrapper currentPageName="AdminLiveChat"><AdminLiveChat /></LayoutWrapper>} />
       <Route path="/SuperAdminMenuMarketing" element={<LayoutWrapper currentPageName="SuperAdminMenuMarketing"><SuperAdminMenuMarketing /></LayoutWrapper>} />
+      <Route path="/Chefs" element={<LayoutWrapper currentPageName="Chefs"><Chefs /></LayoutWrapper>} />
+      <Route path="/ChefDetail" element={<LayoutWrapper currentPageName="ChefDetail"><ChefDetail /></LayoutWrapper>} />
+      <Route path="/ChefSetup" element={<LayoutWrapper currentPageName="ChefSetup"><ChefSetup /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
