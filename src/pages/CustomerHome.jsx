@@ -531,33 +531,33 @@ function CustomerHomeContent() {
                     </p>
 
                     {restaurant.cuisine_types?.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
-                          <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg font-medium">
-                            {cuisine}
-                          </span>
-                        ))}
-                      </div>
+                     <div className="flex flex-wrap gap-1.5 mb-3">
+                       {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
+                         <span key={idx} className={`px-2 py-1 text-xs rounded-lg font-medium ${idx === 0 ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                           {cuisine}
+                         </span>
+                       ))}
+                     </div>
                     )}
 
                     <div className="flex items-center justify-between text-sm">
-                     <div className="flex items-center gap-1 text-gray-600">
-                       <Bike className="w-4 h-4" />
-                       <span>5-15 {t('mins')}</span>
-                     </div>
-                     <div className="flex items-center gap-1 text-gray-600">
-                       <span>₦500</span>
-                     </div>
-                     {restaurant.rating > 0 && (
-                       <div className="flex items-center gap-1 text-amber-600">
-                         <Star className="w-4 h-4 fill-amber-600" />
-                         <span className="font-semibold">{restaurant.rating}</span>
-                       </div>
-                     )}
+                    <div className="flex items-center gap-1 text-blue-500 font-medium">
+                      <Bike className="w-4 h-4" />
+                      <span>5-15 {t('mins')}</span>
                     </div>
-                  </div>
-                  </div>
-                </Link>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <span>₦500</span>
+                    </div>
+                    {restaurant.rating > 0 && (
+                      <div className="flex items-center gap-1 text-amber-500">
+                        <Star className="w-4 h-4 fill-amber-500" />
+                        <span className="font-bold">{restaurant.rating}</span>
+                      </div>
+                    )}
+                    </div>
+                    </div>
+                    </div>
+                    </Link>
               ) : (
                 <div key={restaurant.id} className="block cursor-not-allowed">
                   <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
