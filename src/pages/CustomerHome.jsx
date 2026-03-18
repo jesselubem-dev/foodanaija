@@ -453,7 +453,8 @@ function CustomerHomeContent() {
         {/* Book a Chef Banner */}
         <Link to={createPageUrl('Chefs')} className="block mb-4">
           <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-orange-500/20 active:scale-95 transition-transform">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" style={{animation: 'shimmer 2s infinite'}} />
+            <style>{`@keyframes shimmer-sweep { 0% { transform: translateX(-100%) } 100% { transform: translateX(400%) } }`}</style>
+            <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{animation: 'shimmer-sweep 2s ease-in-out infinite'}} />
             <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
               <span className="text-3xl">👨‍🍳</span>
             </div>
