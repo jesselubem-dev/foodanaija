@@ -210,6 +210,7 @@ export default function SuperAdminUsers() {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Search */}
