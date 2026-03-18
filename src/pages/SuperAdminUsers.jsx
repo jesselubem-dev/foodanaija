@@ -103,6 +103,27 @@ export default function SuperAdminUsers() {
     },
   });
 
+  const exportEmails = () => {
+    const rows = [['Name', 'Email', 'Role', 'Joined']];
+    users.forEach(u => {
+      rows.push([
+        u.full_name || '',
+        u.email,
+        u.role || 'user',
+        new Date(u.created_date).toLocaleDateString()
+      ]);
+    });
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fooda-users-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${users.length} user emails`);
+  };
+
   const handleInviteUser = () => {
     if (!inviteEmail) {
       toast.error('Please enter an email address');
