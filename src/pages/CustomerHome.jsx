@@ -427,7 +427,7 @@ function CustomerHomeContent() {
         <NoInternet />
       
       {/* Top Header - Welcome Message */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-4 pb-2 sticky top-0 bg-white z-30">
         <h2 className="text-xl font-bold text-gray-900">
           {t('hi')}{user ? `, ${(user.full_name || '').split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
         </h2>
