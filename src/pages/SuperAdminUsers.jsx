@@ -156,60 +156,59 @@ export default function SuperAdminUsers() {
               <p className="text-gray-500 mt-1">View all registered users</p>
             </div>
           </div>
-          
           <div className="flex gap-2">
-          <Button variant="outline" onClick={exportEmails} className="border-green-300 text-green-700 hover:bg-green-50">
-            <Download className="w-4 h-4 mr-2" />
-            Export Emails CSV
-          </Button>
-          <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Invite User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Invite New User</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Email Address</label>
-                  <Input
-                    type="email"
-                    placeholder="user@example.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Role</label>
-                  <Select value={inviteRole} onValueChange={setInviteRole}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {inviteRole === 'admin' && (
-                    <p className="text-xs text-amber-600 mt-2">
-                      ⚠️ Admin users will have full access to the Super Admin Dashboard
-                    </p>
-                  )}
-                </div>
-                <Button 
-                  onClick={handleInviteUser}
-                  disabled={inviteUserMutation.isPending}
-                  className="w-full bg-orange-500 hover:bg-orange-600"
-                >
-                  {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+            <Button variant="outline" onClick={exportEmails} className="border-green-300 text-green-700 hover:bg-green-50">
+              <Download className="w-4 h-4 mr-2" />
+              Export Emails CSV
+            </Button>
+            <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Invite User
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Invite New User</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Email Address</label>
+                    <Input
+                      type="email"
+                      placeholder="user@example.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Role</label>
+                    <Select value={inviteRole} onValueChange={setInviteRole}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {inviteRole === 'admin' && (
+                      <p className="text-xs text-amber-600 mt-2">
+                        ⚠️ Admin users will have full access to the Super Admin Dashboard
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleInviteUser}
+                    disabled={inviteUserMutation.isPending}
+                    className="w-full bg-orange-500 hover:bg-orange-600"
+                  >
+                    {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
