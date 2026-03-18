@@ -157,6 +157,11 @@ export default function SuperAdminUsers() {
             </div>
           </div>
           
+          <div className="flex gap-2">
+          <Button variant="outline" onClick={exportEmails} className="border-green-300 text-green-700 hover:bg-green-50">
+            <Download className="w-4 h-4 mr-2" />
+            Export Emails CSV
+          </Button>
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-orange-500 hover:bg-orange-600">
