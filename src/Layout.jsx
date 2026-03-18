@@ -37,7 +37,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Pages that don't need layout
-  const noLayoutPages = ['SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'SuperAdminDrinkOrders', 'SuperAdminCancelledOrders', 'SuperAdminReports', 'SuperAdminRiderComplaints', 'AdminLiveChat', 'SuperAdminMenuMarketing', 'SuperAdminSupport', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification', 'CustomerSettings'];
+  const noLayoutPages = ['Chefs', 'ChefDetail', 'ChefSetup', 'SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'SuperAdminDrinkOrders', 'SuperAdminCancelledOrders', 'SuperAdminReports', 'SuperAdminRiderComplaints', 'AdminLiveChat', 'SuperAdminMenuMarketing', 'SuperAdminSupport', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification', 'CustomerSettings'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
