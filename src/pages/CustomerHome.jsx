@@ -450,9 +450,6 @@ function CustomerHomeContent() {
           </div>
         </div>
 
-        {/* Banner Carousel */}
-        <BannerCarousel />
-
         {/* Book a Chef Banner */}
         <Link to={createPageUrl('Chefs')} className="block mb-4">
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-orange-500/20 active:scale-95 transition-transform">
