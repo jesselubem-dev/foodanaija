@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2, ChefHat
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
