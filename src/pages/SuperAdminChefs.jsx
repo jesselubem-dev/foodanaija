@@ -23,10 +23,6 @@ export default function SuperAdminChefs() {
   const checkAdmin = async () => {
     try {
       const userData = await base44.auth.me();
-      if (userData.role !== 'admin' && userData._app_role !== 'admin') {
-        window.location.href = createPageUrl('Home');
-        return;
-      }
       setUser(userData);
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
