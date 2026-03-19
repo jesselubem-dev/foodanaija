@@ -1,0 +1,219 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, ChefHat, MapPin, Star, CheckCircle, XCircle, Eye, EyeOff, Trash2, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+
+export default function SuperAdminChefs() {
+  const [user, setUser] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all'); // all | pending | approved
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    checkAdmin();
+  }, []);
+
+  const checkAdmin = async () => {
+    try {
+      const userData = await base44.auth.me();
+      if (userData.role !== 'admin' && userData._app_role !== 'admin') {
+        window.location.href = createPageUrl('Home');
+        return;
+      }
+      setUser(userData);
+    } catch (e) {
+      base44.auth.redirectToLogin(window.location.href);
+    }
+  };
+
+  const { data: chefs = [], isLoading } = useQuery({
+    queryKey: ['all-chefs'],
+    queryFn: () => base44.entities.Chef.list('-created_date'),
+    enabled: !!user,
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: ({ id, is_approved }) => base44.entities.Chef.update(id, { is_approved }),
+    onSuccess: (_, { is_approved }) => {
+      queryClient.invalidateQueries({ queryKey: ['all-chefs'] });
+      toast.success(is_approved ? 'Chef approved!' : 'Chef unapproved');
+    },
+  });
+
+  const toggleAvailableMutation = useMutation({
+    mutationFn: ({ id, is_available }) => base44.entities.Chef.update(id, { is_available }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['all-chefs'] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Chef.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-chefs'] });
+      toast.success('Chef deleted');
+    },
+  });
+
+  const filtered = chefs.filter(c => {
+    const matchSearch = c.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      c.city?.toLowerCase().includes(search.toLowerCase()) ||
+      c.owner_email?.toLowerCase().includes(search.toLowerCase());
+    if (filter === 'pending') return matchSearch && !c.is_approved;
+    if (filter === 'approved') return matchSearch && c.is_approved;
+    return matchSearch;
+  });
+
+  const pendingCount = chefs.filter(c => !c.is_approved).length;
+
+  if (!user) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Link to={createPageUrl('SuperAdminDashboard')}>
+            <Button variant="ghost" size="icon"><ArrowLeft className="w-5 h-5" /></Button>
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-gray-900">Manage Chefs</h1>
+            <p className="text-gray-500 text-sm">Approve, manage availability and chef profiles</p>
+          </div>
+          <div className="flex gap-2 text-sm">
+            <span className="bg-white border rounded-xl px-3 py-1.5 font-medium">{chefs.length} total</span>
+            {pendingCount > 0 && (
+              <span className="bg-amber-100 text-amber-700 border border-amber-200 rounded-xl px-3 py-1.5 font-medium">{pendingCount} pending</span>
+            )}
+          </div>
+        </div>
+
+        {/* Search + Filter */}
+        <div className="flex gap-3 mb-6 flex-wrap">
+          <div className="relative flex-1 min-w-48">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input placeholder="Search chefs..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 bg-white" />
+          </div>
+          <div className="flex gap-2">
+            {['all', 'pending', 'approved'].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${filter === f ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 border hover:bg-gray-50'}`}>
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chefs List */}
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <Card><CardContent className="p-12 text-center">
+            <ChefHat className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No chefs found</p>
+          </CardContent></Card>
+        ) : (
+          <div className="space-y-4">
+            {filtered.map(chef => (
+              <Card key={chef.id} className="border-orange-50 hover:shadow-md transition-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-orange-100 flex-shrink-0">
+                      {chef.profile_image_url
+                        ? <img src={chef.profile_image_url} alt={chef.full_name} className="w-full h-full object-cover" />
+                        : <div className="w-full h-full flex items-center justify-center"><ChefHat className="w-7 h-7 text-orange-400" /></div>
+                      }
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div>
+                          <h3 className="font-bold text-gray-900 text-base">{chef.full_name}</h3>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <span className="text-xs text-gray-500 flex items-center gap-0.5"><MapPin className="w-3 h-3" />{chef.city}</span>
+                            <span className="text-xs text-gray-400">{chef.owner_email}</span>
+                            {chef.phone && <span className="text-xs text-gray-400">{chef.phone}</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge className={chef.is_approved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}>
+                            {chef.is_approved ? '✓ Approved' : '⏳ Pending'}
+                          </Badge>
+                          <Badge className={chef.is_available ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}>
+                            {chef.is_available ? 'Available' : 'Unavailable'}
+                          </Badge>
+                          {chef.rating > 0 && (
+                            <Badge className="bg-amber-50 text-amber-700">
+                              <Star className="w-3 h-3 fill-amber-500 mr-0.5" />{chef.rating} ({chef.total_reviews})
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {chef.bio && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{chef.bio}</p>}
+
+                      {chef.cuisine_types?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {chef.cuisine_types.map(c => (
+                            <span key={c} className="px-2 py-0.5 bg-orange-50 text-orange-600 text-xs rounded-lg">{c}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      {chef.price_range && (
+                        <p className="text-sm font-semibold text-green-700 mt-2">{chef.price_range}</p>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex gap-2 mt-3 flex-wrap">
+                        {!chef.is_approved ? (
+                          <Button size="sm" onClick={() => approveMutation.mutate({ id: chef.id, is_approved: true })}
+                            disabled={approveMutation.isPending}
+                            className="bg-green-500 hover:bg-green-600 text-xs h-8">
+                            <CheckCircle className="w-3.5 h-3.5 mr-1" /> Approve
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => approveMutation.mutate({ id: chef.id, is_approved: false })}
+                            disabled={approveMutation.isPending}
+                            className="text-xs h-8 border-amber-300 text-amber-700 hover:bg-amber-50">
+                            <XCircle className="w-3.5 h-3.5 mr-1" /> Unapprove
+                          </Button>
+                        )}
+
+                        <Button size="sm" variant="outline" onClick={() => toggleAvailableMutation.mutate({ id: chef.id, is_available: !chef.is_available })}
+                          disabled={toggleAvailableMutation.isPending}
+                          className="text-xs h-8">
+                          {chef.is_available ? <><EyeOff className="w-3.5 h-3.5 mr-1" />Set Unavailable</> : <><Eye className="w-3.5 h-3.5 mr-1" />Set Available</>}
+                        </Button>
+
+                        <Button size="sm" variant="outline" onClick={() => {
+                          if (confirm(`Delete ${chef.full_name}? This cannot be undone.`)) deleteMutation.mutate(chef.id);
+                        }}
+                          className="text-xs h-8 border-red-200 text-red-500 hover:bg-red-50">
+                          <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
