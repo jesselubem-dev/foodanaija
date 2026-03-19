@@ -137,6 +137,7 @@ const AuthenticatedApp = () => {
       <Route path="/Chefs" element={<LayoutWrapper currentPageName="Chefs"><Chefs /></LayoutWrapper>} />
       <Route path="/ChefDetail" element={<LayoutWrapper currentPageName="ChefDetail"><ChefDetail /></LayoutWrapper>} />
       <Route path="/ChefSetup" element={<LayoutWrapper currentPageName="ChefSetup"><ChefSetup /></LayoutWrapper>} />
+      <Route path="/SuperAdminChefs" element={<LayoutWrapper currentPageName="SuperAdminChefs"><SuperAdminChefs /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

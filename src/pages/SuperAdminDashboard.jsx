@@ -215,6 +215,7 @@ export default function SuperAdminDashboard() {
             <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" onClick={() => setMobileMenuOpen(false)} />
+          <SidebarNavLink to="SuperAdminChefs" icon={ChefHat} label="Chefs" onClick={() => setMobileMenuOpen(false)} />
           </div>
         </div>
       )}
