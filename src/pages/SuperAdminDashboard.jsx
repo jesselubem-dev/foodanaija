@@ -182,6 +182,7 @@ export default function SuperAdminDashboard() {
           <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" />
           <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" />
           <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" />
+          <SidebarNavLink to="SuperAdminChefs" icon={ChefHat} label="Chefs" />
         </nav>
       </aside>
 

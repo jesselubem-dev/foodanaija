@@ -50,6 +50,7 @@ import SuperAdminSupport from './pages/SuperAdminSupport';
 import AdminLiveChat from './pages/AdminLiveChat';
 import SuperAdminMenuMarketing from './pages/SuperAdminMenuMarketing';
 import Chefs from './pages/Chefs';
+import SuperAdminChefs from './pages/SuperAdminChefs';
 import ChefDetail from './pages/ChefDetail';
 import ChefSetup from './pages/ChefSetup';
 
