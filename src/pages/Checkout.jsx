@@ -215,7 +215,7 @@ export default function Checkout() {
     // Prepare order data (without drinks)
     const ordersData = restaurants.map(restaurant => {
       const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const deliveryFee = 500;
+      const deliveryFee = 800;
       const orderTotal = restaurantFoodTotal + deliveryFee + finalVAS;
 
       return {
@@ -279,7 +279,7 @@ export default function Checkout() {
   const foodSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
   const subtotal = foodSubtotal + drinksSubtotal;
-  const deliveryFee = restaurantCount * 500;
+  const deliveryFee = restaurantCount * 800;
   
   // Calculate VAS based on tiered pricing
   let baseVAS = 0;
