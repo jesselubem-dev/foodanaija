@@ -47,12 +47,20 @@ export default function Onboarding() {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      window.location.href = createPageUrl('PublicHome');
+      localStorage.setItem('onboarding_completed', 'true');
+      window.location.href = createPageUrl('CustomerHome');
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
     }
   };
 
   const handleSkip = () => {
-    window.location.href = createPageUrl('PublicHome');
+    localStorage.setItem('onboarding_completed', 'true');
+    window.location.href = createPageUrl('CustomerHome');
   };
 
   const handleTouchStart = (e) => {

@@ -50,7 +50,6 @@ import SuperAdminSupport from './pages/SuperAdminSupport';
 import AdminLiveChat from './pages/AdminLiveChat';
 import SuperAdminMenuMarketing from './pages/SuperAdminMenuMarketing';
 import Chefs from './pages/Chefs';
-import PublicHome from './pages/PublicHome';
 import SuperAdminChefs from './pages/SuperAdminChefs';
 import ChefDetail from './pages/ChefDetail';
 import ChefSetup from './pages/ChefSetup';
@@ -74,14 +73,31 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      return <PublicHome />;
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png"
+              alt="Fooda Naija"
+              className="h-16 w-auto object-contain mx-auto mb-6"
+            />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to Fooda Naija</h2>
+            <p className="text-gray-500 text-sm mb-6">Sign in or create an account to continue.</p>
+            <button
+              onClick={() => navigateToLogin()}
+              className="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity"
+            >
+              Sign In / Create Account
+            </button>
+          </div>
+        </div>
+      );
     }
   }
 
   return (
     <Routes>
-      <Route path="/" element={<LayoutWrapper currentPageName="PublicHome"><PublicHome /></LayoutWrapper>} />
-      <Route path="/PublicHome" element={<LayoutWrapper currentPageName="PublicHome"><PublicHome /></LayoutWrapper>} />
+      <Route path="/" element={<Navigate to="/CustomerHome" replace />} />
       <Route path="/CustomerHome" element={<LayoutWrapper currentPageName="CustomerHome"><CustomerHome /></LayoutWrapper>} />
       <Route path="/Onboarding" element={<LayoutWrapper currentPageName="Onboarding"><Onboarding /></LayoutWrapper>} />
       <Route path="/Home" element={<LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>} />
