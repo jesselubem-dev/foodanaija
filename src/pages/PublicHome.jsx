@@ -1,35 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Star, Bike } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 export default function PublicHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
 
-  const { data: restaurants = [], isLoading, error } = useQuery({
-    queryKey: ['approved-restaurants-public'],
+  const { data: restaurants = [], isLoading } = useQuery({
+    queryKey: ['all-restaurants-public'],
     queryFn: () => base44.entities.Restaurant.list(),
-    staleTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   const cities = ['Sokoto'];
-
-  const filteredRestaurants = restaurants
-    .filter(r => {
-      const matchesSearch =
-        r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesCity = selectedCity === 'all' || r.city === selectedCity;
-      return matchesSearch && matchesCity;
-    })
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   const isRestaurantOpen = (restaurant) => {
     if (!restaurant.is_open) return false;
@@ -43,6 +30,17 @@ export default function PublicHome() {
     if (closingTime < openingTime) return currentTime >= openingTime || currentTime <= closingTime;
     return currentTime >= openingTime && currentTime <= closingTime;
   };
+
+  const filteredRestaurants = restaurants
+    .filter(r => {
+      const matchesSearch =
+        r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCity = selectedCity === 'all' || r.city === selectedCity;
+      return matchesSearch && matchesCity;
+    })
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   return (
     <div className="min-h-screen bg-white pb-16">
@@ -125,10 +123,6 @@ export default function PublicHome() {
           <div className="flex justify-center py-16">
             <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
           </div>
-        ) : error ? (
-          <div className="text-center py-16 text-red-500">
-            <p>Failed to load restaurants. Please refresh.</p>
-          </div>
         ) : filteredRestaurants.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <p className="text-gray-500 font-medium">No restaurants available right now</p>
@@ -138,24 +132,24 @@ export default function PublicHome() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRestaurants.map((restaurant) => {
               const isOpen = isRestaurantOpen(restaurant);
-              return (
+              return isOpen ? (
                 <button
                   key={restaurant.id}
                   onClick={() => base44.auth.redirectToLogin(createPageUrl('CustomerHome'))}
                   className="text-left w-full"
                 >
-                  <div className={`bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 ${!isOpen ? 'opacity-60' : ''}`}>
+                  <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95">
                     <div className="relative">
                       {restaurant.cover_image_url ? (
-                        <img src={restaurant.cover_image_url} alt="" className={`w-full h-44 object-cover ${!isOpen ? 'grayscale' : ''}`} />
+                        <img src={restaurant.cover_image_url} alt="" className="w-full h-44 object-cover" />
                       ) : (
-                        <div className={`w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 ${!isOpen ? 'grayscale' : ''}`} />
+                        <div className="w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100" />
                       )}
-                      <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${isOpen ? 'bg-green-500/90 text-white' : 'bg-gray-800/90 text-white'}`}>
-                        ● {isOpen ? 'Open' : 'Closed'}
+                      <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-green-500/90 text-white">
+                        ● Open
                       </div>
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 pt-8">
                       <h3 className="font-bold text-lg text-gray-900 mb-1">{restaurant.name}</h3>
                       <p className="text-sm text-gray-500 line-clamp-1 mb-3">{restaurant.description}</p>
                       {restaurant.cuisine_types?.length > 0 && (
@@ -177,6 +171,51 @@ export default function PublicHome() {
                           <div className="flex items-center gap-1 text-amber-500">
                             <Star className="w-4 h-4 fill-amber-500" />
                             <span className="font-bold">{restaurant.rating}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  key={restaurant.id}
+                  onClick={() => base44.auth.redirectToLogin(createPageUrl('CustomerHome'))}
+                  className="text-left w-full cursor-not-allowed"
+                >
+                  <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 opacity-60">
+                    <div className="relative">
+                      {restaurant.cover_image_url ? (
+                        <img src={restaurant.cover_image_url} alt="" className="w-full h-44 object-cover grayscale" />
+                      ) : (
+                        <div className="w-full h-44 bg-gradient-to-br from-orange-100 to-yellow-100 grayscale" />
+                      )}
+                      <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-gray-800/90 text-white">
+                        ● Closed
+                      </div>
+                    </div>
+                    <div className="p-4 pt-8">
+                      <h3 className="font-bold text-lg text-gray-900 mb-1">{restaurant.name}</h3>
+                      <p className="text-sm text-gray-500 line-clamp-1 mb-3">{restaurant.description}</p>
+                      {restaurant.cuisine_types?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {restaurant.cuisine_types.slice(0, 2).map((cuisine, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg font-medium">
+                              {cuisine}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Bike className="w-4 h-4" />
+                          <span>5-15 mins</span>
+                        </div>
+                        <span className="text-gray-500">₦500</span>
+                        {restaurant.rating > 0 && (
+                          <div className="flex items-center gap-1 text-amber-600">
+                            <Star className="w-4 h-4 fill-amber-600" />
+                            <span className="font-semibold">{restaurant.rating}</span>
                           </div>
                         )}
                       </div>
