@@ -50,6 +50,7 @@ import SuperAdminSupport from './pages/SuperAdminSupport';
 import AdminLiveChat from './pages/AdminLiveChat';
 import SuperAdminMenuMarketing from './pages/SuperAdminMenuMarketing';
 import Chefs from './pages/Chefs';
+import PublicHome from './pages/PublicHome';
 import SuperAdminChefs from './pages/SuperAdminChefs';
 import ChefDetail from './pages/ChefDetail';
 import ChefSetup from './pages/ChefSetup';
@@ -97,7 +98,8 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/CustomerHome" replace />} />
+      <Route path="/" element={<LayoutWrapper currentPageName="PublicHome"><PublicHome /></LayoutWrapper>} />
+      <Route path="/PublicHome" element={<LayoutWrapper currentPageName="PublicHome"><PublicHome /></LayoutWrapper>} />
       <Route path="/CustomerHome" element={<LayoutWrapper currentPageName="CustomerHome"><CustomerHome /></LayoutWrapper>} />
       <Route path="/Onboarding" element={<LayoutWrapper currentPageName="Onboarding"><Onboarding /></LayoutWrapper>} />
       <Route path="/Home" element={<LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>} />

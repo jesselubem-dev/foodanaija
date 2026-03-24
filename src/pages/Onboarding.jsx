@@ -48,7 +48,7 @@ export default function Onboarding() {
       setCurrentSlide(currentSlide + 1);
     } else {
       localStorage.setItem('onboarding_completed', 'true');
-      window.location.href = createPageUrl('CustomerHome');
+      window.location.href = createPageUrl('PublicHome');
     }
   };
 
@@ -60,7 +60,7 @@ export default function Onboarding() {
 
   const handleSkip = () => {
     localStorage.setItem('onboarding_completed', 'true');
-    window.location.href = createPageUrl('CustomerHome');
+    window.location.href = createPageUrl('PublicHome');
   };
 
   const handleTouchStart = (e) => {
