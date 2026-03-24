@@ -11,7 +11,7 @@ export default function PublicHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
 
-  const { data: restaurants = [], isLoading } = useQuery({
+  const { data: restaurants = [], isLoading, error } = useQuery({
     queryKey: ['approved-restaurants-public'],
     queryFn: () => base44.entities.Restaurant.filter({ is_approved: true }),
     staleTime: 10 * 60 * 1000,
@@ -124,6 +124,15 @@ export default function PublicHome() {
         {isLoading ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-16 text-red-500">
+            <p>Failed to load restaurants. Please refresh.</p>
+          </div>
+        ) : filteredRestaurants.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <p className="text-gray-500 font-medium">No restaurants available right now</p>
+            <p className="text-sm text-gray-400 mt-1">Check back soon!</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
