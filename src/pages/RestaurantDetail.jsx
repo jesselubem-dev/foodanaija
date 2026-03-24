@@ -40,7 +40,9 @@ function RestaurantDetailContent() {
         setCart(JSON.parse(savedCart));
       }
     } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
+      // Allow browsing without login
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) setCart(JSON.parse(savedCart));
     }
   };
 
@@ -109,6 +111,10 @@ function RestaurantDetailContent() {
     : shuffledItems.filter(item => item.category_id === selectedCategory);
 
   const addToCart = (item) => {
+    if (!user) {
+      base44.auth.redirectToLogin(window.location.href);
+      return;
+    }
     if (!restaurant.is_open) {
       toast.error('This restaurant is currently closed');
       return;
