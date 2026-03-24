@@ -40,7 +40,13 @@ export default function ChefDetail() {
 
   const bookMutation = useMutation({
     mutationFn: async (data) => {
-      const user = await base44.auth.me();
+      let user;
+      try {
+        user = await base44.auth.me();
+      } catch (e) {
+        base44.auth.redirectToLogin(window.location.href);
+        throw new Error('Login required');
+      }
       return base44.entities.ChefBooking.create({
         ...data,
         chef_id: chefId,
@@ -54,7 +60,7 @@ export default function ChefDetail() {
       setBookingSuccess(true);
       setShowForm(false);
     },
-    onError: () => toast.error('Failed to send booking. Please try again.'),
+    onError: (err) => { if (err.message !== 'Login required') toast.error('Failed to send booking. Please try again.'); },
   });
 
   const handleSubmit = (e) => {
