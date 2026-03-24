@@ -11,7 +11,7 @@ export default function PublicHome() {
 
   const { data: restaurants = [], isLoading } = useQuery({
     queryKey: ['all-restaurants-public'],
-    queryFn: () => base44.entities.Restaurant.list(),
+    queryFn: () => base44.entities.Restaurant.filter({ is_approved: true }),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
