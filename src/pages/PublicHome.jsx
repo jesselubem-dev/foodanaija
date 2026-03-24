@@ -125,10 +125,6 @@ export default function PublicHome() {
           <div className="flex justify-center py-16">
             <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
           </div>
-        ) : filteredRestaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <p className="text-gray-500">No restaurants found</p>
-          </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRestaurants.map((restaurant) => {
