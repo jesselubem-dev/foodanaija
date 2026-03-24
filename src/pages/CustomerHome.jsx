@@ -185,13 +185,6 @@ function CustomerHomeContent() {
       const userData = await base44.auth.me();
       setUser(userData);
 
-      // Redirect to onboarding if not completed
-      const onboardingDone = localStorage.getItem('onboarding_completed');
-      if (!onboardingDone) {
-        window.location.href = createPageUrl('Onboarding');
-        return;
-      }
-
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
         setCart(JSON.parse(savedCart));

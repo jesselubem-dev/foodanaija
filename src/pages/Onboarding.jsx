@@ -47,19 +47,11 @@ export default function Onboarding() {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      localStorage.setItem('onboarding_completed', 'true');
       window.location.href = createPageUrl('PublicHome');
     }
   };
 
-  const handlePrevious = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
   const handleSkip = () => {
-    localStorage.setItem('onboarding_completed', 'true');
     window.location.href = createPageUrl('PublicHome');
   };
 
