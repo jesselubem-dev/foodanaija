@@ -54,12 +54,20 @@ export default function PublicHome() {
           />
           <span className="text-white text-sm font-medium hidden sm:block">Order food from the best restaurants</span>
         </div>
-        <button
-          onClick={() => base44.auth.redirectToLogin(createPageUrl('CustomerHome'))}
-          className="bg-white text-orange-600 font-bold text-sm px-4 py-2 rounded-xl shadow hover:bg-orange-50 transition-colors"
-        >
-          Log In / Sign Up
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => base44.auth.redirectToLogin(createPageUrl('CustomerHome'))}
+            className="bg-white text-orange-600 font-bold text-sm px-4 py-2 rounded-xl shadow hover:bg-orange-50 transition-colors"
+          >
+            Log In / Sign Up
+          </button>
+          <button
+            onClick={() => base44.auth.redirectToLogin(createPageUrl('Home'))}
+            className="bg-white/20 text-white border border-white/40 text-xs px-3 py-2 rounded-xl hover:bg-white/30 transition-colors hidden sm:block"
+          >
+            🍽️ Register Restaurant
+          </button>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-10">
