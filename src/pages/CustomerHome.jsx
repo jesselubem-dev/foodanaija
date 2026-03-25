@@ -207,8 +207,14 @@ function CustomerHomeContent() {
   const { data: restaurants = [], isLoading: restaurantsLoading, error, refetch: refetchRestaurants } = useQuery({
     queryKey: ['approved-restaurants'],
     queryFn: async () => {
-      const results = await base44.entities.Restaurant.filter({ is_approved: true });
-      return results;
+      try {
+        const results = await base44.entities.Restaurant.filter({ is_approved: true });
+        return results;
+      } catch (e) {
+        // fallback for unauthenticated users
+        const res = await base44.functions.invoke('getPublicRestaurants', {});
+        return res.data;
+      }
     },
     staleTime: 10 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
