@@ -413,7 +413,7 @@ function CustomerHomeContent() {
       
       {/* Logged-out Login Button */}
       {!user && (
-        <div className="flex justify-end px-4 py-2">
+        <div className="flex justify-end px-4 py-1">
           <button
             onClick={() => base44.auth.redirectToLogin(window.location.href)}
             className="bg-orange-500 text-white font-bold text-sm px-5 py-2 rounded-full shadow hover:bg-orange-600 transition-colors"
@@ -424,17 +424,17 @@ function CustomerHomeContent() {
       )}
 
       {/* Top Header - Welcome Message */}
-      <div className="px-4 pt-4 pb-2 sticky top-0 bg-white z-30">
+      <div className="px-4 pt-2 pb-1 sticky top-0 bg-white z-30">
         <h2 className="text-xl font-bold text-gray-900">
           {t('hi')}{user ? `, ${(user.full_name || '').split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
         </h2>
         <p className="text-sm text-gray-500">{t('whatToEat')}</p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-4 pb-28">
+      <div className="max-w-7xl mx-auto px-4 pt-2 pb-28">
 
         {/* Search Bar */}
-        <div className="pt-2 pb-4">
+        <div className="pt-1 pb-2">
           <div className="flex items-center gap-3">
               <div className="relative flex-1">
               <Input
@@ -448,7 +448,7 @@ function CustomerHomeContent() {
         </div>
 
         {/* Book a Chef Banner */}
-        <Link to={createPageUrl('Chefs')} className="block mb-4">
+        <Link to={createPageUrl('Chefs')} className="block mb-3">
           <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-orange-500/20 active:scale-95 transition-transform">
             <style>{`@keyframes shimmer-sweep { 0% { transform: translateX(-100%) } 100% { transform: translateX(400%) } }`}</style>
             <div className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{animation: 'shimmer-sweep 2s ease-in-out infinite'}} />
@@ -464,7 +464,7 @@ function CustomerHomeContent() {
         </Link>
 
         {/* City Filter Pills */}
-        <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
           <button
             onClick={() => setSelectedCity('all')}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
