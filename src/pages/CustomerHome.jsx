@@ -185,7 +185,7 @@ function CustomerHomeContent() {
       const userData = await base44.auth.me();
       setUser(userData);
 
-      // Redirect to onboarding if not completed
+      // Only redirect to onboarding for logged-in users who haven't completed it
       const onboardingDone = localStorage.getItem('onboarding_completed');
       if (!onboardingDone) {
         window.location.href = createPageUrl('Onboarding');
@@ -197,7 +197,7 @@ function CustomerHomeContent() {
         setCart(JSON.parse(savedCart));
       }
     } catch (e) {
-      // Allow browsing without login
+      // Not logged in — show unauthenticated browse page, no redirect
       setUser(null);
     }
   };
