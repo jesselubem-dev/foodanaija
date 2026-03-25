@@ -71,9 +71,10 @@ function CustomerHomeContent() {
   }, []);
 
   useEffect(() => {
-    // Show loader only on first visit
+    // Show loader only on first visit for logged-in users
     const hasSeenLoader = sessionStorage.getItem('home_loader_seen');
-    if (!hasSeenLoader) {
+    const isAuth = base44.auth.isAuthenticated ? base44.auth.isAuthenticated() : false;
+    if (!hasSeenLoader && isAuth) {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
