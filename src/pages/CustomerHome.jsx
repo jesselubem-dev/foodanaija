@@ -411,20 +411,12 @@ function CustomerHomeContent() {
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
-      {/* Logged-out Login Banner */}
+      {/* Logged-out Login Button */}
       {!user && (
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png"
-              alt="Fooda"
-              className="w-8 h-8 object-contain flex-shrink-0"
-            />
-            <p className="text-white text-sm font-medium truncate">Sign in to order, track & more!</p>
-          </div>
+        <div className="flex justify-end px-4 py-2">
           <button
             onClick={() => base44.auth.redirectToLogin(window.location.href)}
-            className="flex-shrink-0 bg-white text-orange-600 font-bold text-sm px-4 py-1.5 rounded-full shadow hover:bg-orange-50 transition-colors"
+            className="bg-orange-500 text-white font-bold text-sm px-5 py-2 rounded-full shadow hover:bg-orange-600 transition-colors"
           >
             Log In
           </button>
