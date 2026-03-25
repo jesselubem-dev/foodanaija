@@ -411,24 +411,24 @@ function CustomerHomeContent() {
       <div className="min-h-screen bg-white transition-colors">
         <NoInternet />
       
-      {/* Logged-out Login Button */}
-      {!user && (
-        <div className="flex justify-end px-4 py-1">
-          <button
-            onClick={() => base44.auth.redirectToLogin(window.location.href)}
-            className="bg-orange-500 text-white font-bold text-sm px-5 py-2 rounded-full shadow hover:bg-orange-600 transition-colors"
-          >
-            Log In
-          </button>
+      {/* Top Header - Welcome Message + Login Button */}
+      <div className="px-4 pt-2 pb-1 sticky top-0 bg-white z-30 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {t('hi')}{user ? `, ${(user.full_name || '').split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
+            </h2>
+            <p className="text-sm text-gray-500">{t('whatToEat')}</p>
+          </div>
+          {!user && (
+            <button
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
+              className="bg-orange-500 text-white font-bold text-sm px-5 py-2 rounded-full shadow hover:bg-orange-600 transition-colors"
+            >
+              Log In
+            </button>
+          )}
         </div>
-      )}
-
-      {/* Top Header - Welcome Message */}
-      <div className="px-4 pt-2 pb-1 sticky top-0 bg-white z-30">
-        <h2 className="text-xl font-bold text-gray-900">
-          {t('hi')}{user ? `, ${(user.full_name || '').split(' ')[0]}` : ''}! <span className="inline-block animate-wave">👋</span>
-        </h2>
-        <p className="text-sm text-gray-500">{t('whatToEat')}</p>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pt-2 pb-28">
