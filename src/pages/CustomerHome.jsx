@@ -688,7 +688,7 @@ function CustomerHomeContent() {
         />
 
         {/* Bottom Navigation */}
-        <BottomNav currentPage="CustomerHome" unreadChatCount={unreadChatCount} />
+        <BottomNav currentPage="CustomerHome" unreadChatCount={unreadChatCount} user={user} />
       </div>
     </ErrorBoundary>
   );

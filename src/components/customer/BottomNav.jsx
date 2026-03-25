@@ -10,7 +10,7 @@ const navItems = [
   { label: 'Settings', icon: Settings, page: 'CustomerSettings' },
 ];
 
-export default function BottomNav({ unreadChatCount = 0 }) {
+export default function BottomNav({ unreadChatCount = 0, user }) {
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
 
@@ -36,6 +36,8 @@ export default function BottomNav({ unreadChatCount = 0 }) {
   const handleClick = () => {
     if (navigator.vibrate) navigator.vibrate(30);
   };
+
+  if (!user) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom">
