@@ -234,11 +234,6 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
     fullTranscriptRef.current = '';
   };
 
-  const processConversation = async (userMessage) => {
-    setConversationHistory(prev => [...prev, { role: 'user', message: userMessage }]);
-    await generateRecommendation();
-  };
-
   const generateRecommendation = async () => {
     setIsProcessing(true);
 
