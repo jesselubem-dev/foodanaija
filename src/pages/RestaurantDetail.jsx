@@ -4,7 +4,7 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  ArrowLeft, Plus, Minus, X
+  ChevronLeft, Plus, Minus, X
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -212,8 +212,9 @@ function RestaurantDetailContent() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
+              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
+                <ChevronLeft className="w-6 h-6" />
+                Back
               </Button>
             </Link>
 
