@@ -168,7 +168,7 @@ export default function PromoModal({ promoItems, onClose }) {
                 )}
 
                 {/* CTA Button */}
-                <Link to={createPageUrl(`RestaurantDetail?id=${currentPromo.restaurant_id}`)}>
+                <Link to={createPageUrl(`RestaurantDetail?id=${currentPromo.restaurant_id}&item=${currentPromo.id}`)}>
                   <Button
                     onClick={handleClose}
                     className="w-full h-12 sm:h-14 bg-white hover:bg-gray-100 text-orange-600 font-bold text-base sm:text-lg rounded-xl shadow-xl flex items-center justify-center gap-2 group"
