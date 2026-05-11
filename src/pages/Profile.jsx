@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, History, ShoppingBag, LogOut, Bell } from 'lucide-react';
+import { ChevronLeft, History, ShoppingBag, LogOut, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -64,8 +64,9 @@ function ProfileContent() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
+              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
+                <ChevronLeft className="w-6 h-6" />
+                Back
               </Button>
             </Link>
             <h1 className="text-xl font-bold text-gray-900">Profile</h1>

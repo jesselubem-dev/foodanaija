@@ -164,7 +164,7 @@ export default function VoiceOrderModal({ isOpen, onClose, restaurants, onAddToC
             const messageToProcess = fullTranscriptRef.current.trim();
             fullTranscriptRef.current = '';
             setTranscript('');
-            processConversation(messageToProcess);
+            generateRecommendation();
           }
         }, 1500);
       };

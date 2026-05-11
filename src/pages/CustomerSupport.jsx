@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, MessageSquare, Send, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { ChevronLeft, MessageSquare, Send, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -94,8 +94,9 @@ export default function CustomerSupport() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
+              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
+                <ChevronLeft className="w-6 h-6" />
+                Back
               </Button>
             </Link>
             <div className="flex items-center gap-2">

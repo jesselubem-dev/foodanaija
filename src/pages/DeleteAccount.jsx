@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft, AlertTriangle, Trash2 } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -71,8 +71,9 @@ export default function DeleteAccount() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
+              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
+                <ChevronLeft className="w-6 h-6" />
+                Back
               </Button>
             </Link>
             <h1 className="text-xl font-bold text-gray-900">Delete Account</h1>
