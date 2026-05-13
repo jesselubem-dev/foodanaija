@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { LanguageProvider } from '../components/LanguageContext';
 import BottomNav from '../components/customer/BottomNav';
+import { calculateTotalVAS } from '../utils/vasCalculator';
 
 function CartContent() {
   const [cart, setCart] = useState([]);
@@ -66,7 +67,8 @@ function CartContent() {
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const delivery = cart.length > 0 ? 500 : 0;
-  const total = subtotal + delivery;
+  const servicefee = cart.length > 0 ? calculateTotalVAS(cart) : 0;
+  const total = subtotal + delivery + servicefee;
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -192,6 +194,10 @@ function CartContent() {
                     <div className="flex justify-between text-gray-600">
                       <span>Delivery Fee</span>
                       <span>₦{delivery.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Service Fee</span>
+                      <span>₦{servicefee.toLocaleString()}</span>
                     </div>
                     <div className="border-t pt-3">
                       <div className="flex justify-between text-xl font-bold text-gray-900">

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { calculateTotalVAS, getVASForSubtotal } from '../utils/vasCalculator';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
 
@@ -194,29 +195,16 @@ export default function Checkout() {
     const restaurants = Object.values(itemsByRestaurant);
     const batchOrderId = `BATCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Calculate total food + drinks before VAS
+    // Calculate total food + drinks
     const foodTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
-    const totalBeforeVAS = foodTotal + drinksTotal;
 
-    // Calculate VAS based on tiered pricing
-    let baseVAS = 0;
-    if (totalBeforeVAS > 10000) {
-      baseVAS = 1500;
-    } else if (totalBeforeVAS > 5000) {
-      baseVAS = 600;
-    } else {
-      baseVAS = 300;
-    }
-
-    // Double VAS if ordering from multiple restaurants
-    const finalVAS = restaurants.length > 1 ? baseVAS * 2 : baseVAS;
-    
     // Prepare order data (without drinks)
     const ordersData = restaurants.map(restaurant => {
       const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const deliveryFee = 800;
-      const orderTotal = restaurantFoodTotal + deliveryFee + finalVAS;
+      const restaurantVAS = getVASForSubtotal(restaurantFoodTotal);
+      const orderTotal = restaurantFoodTotal + deliveryFee + restaurantVAS;
 
       return {
         restaurant_id: restaurant.restaurant_id,
@@ -228,6 +216,7 @@ export default function Checkout() {
         items: restaurant.items,
         subtotal: restaurantFoodTotal,
         delivery_fee: deliveryFee,
+        service_fee: restaurantVAS,
         total: orderTotal,
         notes: formData.notes,
         status: 'pending',
@@ -280,17 +269,7 @@ export default function Checkout() {
   const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
   const subtotal = foodSubtotal + drinksSubtotal;
   const deliveryFee = restaurantCount * 800;
-  
-  // Calculate VAS based on tiered pricing
-  let baseVAS = 0;
-  if (subtotal > 10000) {
-    baseVAS = 1500;
-  } else if (subtotal > 5000) {
-    baseVAS = 600;
-  } else {
-    baseVAS = 300;
-  }
-  const valueAddedService = restaurantCount > 1 ? baseVAS * 2 : baseVAS;
+  const valueAddedService = calculateTotalVAS(cart);
   
   const total = subtotal + deliveryFee + valueAddedService;
 
