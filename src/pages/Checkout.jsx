@@ -15,7 +15,22 @@ import {
 } from "@/components/ui/dialog";
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { calculateTotalVAS, getVASForSubtotal } from '../utils/vasCalculator';
+// VAS tier per restaurant subtotal
+const getVASForSubtotal = (subtotal) => {
+  if (subtotal >= 25000) return 3000;
+  if (subtotal >= 10000) return 1500;
+  if (subtotal >= 5000) return 700;
+  return 300;
+};
+
+const calculateTotalVAS = (cartItems) => {
+  const byRestaurant = {};
+  cartItems.forEach(item => {
+    if (!byRestaurant[item.restaurant_id]) byRestaurant[item.restaurant_id] = 0;
+    byRestaurant[item.restaurant_id] += item.price * item.quantity;
+  });
+  return Object.values(byRestaurant).reduce((sum, sub) => sum + getVASForSubtotal(sub), 0);
+};
 
 const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
 

@@ -11,7 +11,22 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { LanguageProvider } from '../components/LanguageContext';
 import BottomNav from '../components/customer/BottomNav';
-import { calculateTotalVAS } from '../utils/vasCalculator';
+// VAS tier per restaurant subtotal
+const getVASForSubtotal = (subtotal) => {
+  if (subtotal >= 25000) return 3000;
+  if (subtotal >= 10000) return 1500;
+  if (subtotal >= 5000) return 700;
+  return 300;
+};
+
+const calculateTotalVAS = (cartItems) => {
+  const byRestaurant = {};
+  cartItems.forEach(item => {
+    if (!byRestaurant[item.restaurant_id]) byRestaurant[item.restaurant_id] = 0;
+    byRestaurant[item.restaurant_id] += item.price * item.quantity;
+  });
+  return Object.values(byRestaurant).reduce((sum, sub) => sum + getVASForSubtotal(sub), 0);
+};
 
 function CartContent() {
   const [cart, setCart] = useState([]);
