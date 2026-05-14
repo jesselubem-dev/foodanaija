@@ -463,7 +463,12 @@ function BannerPreview({ banner, mini = false, fullscreen = false }) {
                 <div>
                   <p className={`font-semibold text-white leading-tight ${mini ? 'text-[10px]' : 'text-xs'}`}>{banner.menu_item_name}</p>
                   {banner.menu_item_price && (
-                    <p className={`text-white/70 ${mini ? 'text-[9px]' : 'text-[11px]'}`}>₦{banner.menu_item_price?.toLocaleString()}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className={`font-bold text-white ${mini ? 'text-[10px]' : 'text-xs'}`}>₦{banner.menu_item_price?.toLocaleString()}</p>
+                      {banner.menu_item_slashed_price > 0 && (
+                        <p className={`text-white/60 line-through ${mini ? 'text-[9px]' : 'text-[10px]'}`}>₦{banner.menu_item_slashed_price?.toLocaleString()}</p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
