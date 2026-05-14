@@ -209,7 +209,7 @@ function RestaurantDetailContent() {
           </div>
           <div className="flex items-center gap-1">
             <Bike className="w-4 h-4" />
-            <span>₦{restaurant.delivery_fee?.toLocaleString() || '500'}</span>
+            <span>₦{restaurant.delivery_fee?.toLocaleString() || '800'}</span>
           </div>
         </div>
 
