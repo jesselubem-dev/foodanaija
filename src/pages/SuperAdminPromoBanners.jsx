@@ -23,36 +23,19 @@ export default function SuperAdminPromoBanners() {
   const [menuSearch, setMenuSearch] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
-  const [user, setUser] = useState(null);
-
-  React.useEffect(() => {
-    base44.auth.me().then(userData => {
-      if (userData.role !== 'admin' && userData._app_role !== 'admin') {
-        window.location.href = '/';
-        return;
-      }
-      setUser(userData);
-    }).catch(() => {
-      base44.auth.redirectToLogin(window.location.href);
-    });
-  }, []);
-
   const { data: banners = [] } = useQuery({
     queryKey: ['promo-banners'],
     queryFn: () => base44.entities.PromoBanner.list('-created_date'),
-    enabled: !!user,
   });
 
   const { data: menuItems = [] } = useQuery({
     queryKey: ['all-menu-items-banners'],
     queryFn: () => base44.entities.MenuItem.list(),
-    enabled: !!user,
   });
 
   const { data: restaurants = [] } = useQuery({
     queryKey: ['all-restaurants-banners'],
     queryFn: () => base44.entities.Restaurant.filter({ is_approved: true }),
-    enabled: !!user,
   });
 
   const resetForm = () => {
@@ -93,14 +76,6 @@ export default function SuperAdminPromoBanners() {
        restaurant?.name.toLowerCase().includes(menuSearch.toLowerCase()))
     );
   });
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
 
   const generateBanner = async () => {
     if (!description.trim()) { toast.error('Please describe your promotion'); return; }
