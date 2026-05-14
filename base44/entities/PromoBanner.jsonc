@@ -1,0 +1,80 @@
+{
+  "name": "PromoBanner",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Banner headline"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Banner subheading"
+    },
+    "description": {
+      "type": "string",
+      "description": "Admin's input description used to generate the banner"
+    },
+    "badge_text": {
+      "type": "string",
+      "description": "Badge label e.g. HOT DEAL, LIMITED OFFER"
+    },
+    "cta_text": {
+      "type": "string",
+      "description": "Call to action button text"
+    },
+    "bg_gradient_from": {
+      "type": "string",
+      "description": "Gradient start color hex e.g. #FF6B35"
+    },
+    "bg_gradient_to": {
+      "type": "string",
+      "description": "Gradient end color hex e.g. #F7C59F"
+    },
+    "accent_color": {
+      "type": "string",
+      "description": "Accent/highlight color hex"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Hero emoji for the banner"
+    },
+    "menu_item_id": {
+      "type": "string",
+      "description": "ID of the menu item to add to cart when clicked"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Cached menu item name"
+    },
+    "menu_item_price": {
+      "type": "number",
+      "description": "Cached menu item price"
+    },
+    "menu_item_image": {
+      "type": "string",
+      "description": "Cached menu item image URL"
+    },
+    "restaurant_id": {
+      "type": "string",
+      "description": "Restaurant ID the menu item belongs to"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this banner is published and shown to users"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional expiry datetime"
+    }
+  },
+  "required": [
+    "title",
+    "cta_text"
+  ]
+}
