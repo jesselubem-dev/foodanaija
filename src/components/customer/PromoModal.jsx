@@ -282,7 +282,10 @@ export default function PromoModal({ promoItems, onClose }) {
 
                 <Link to={createPageUrl(`RestaurantDetail?id=${currentPromo.restaurant_id}&item=${currentPromo.id}`)}>
                   <button
-                    onClick={handleClose}
+                    onClick={() => {
+                      toast.success(`${currentPromo.name} added to cart! 🎉`);
+                      handleClose();
+                    }}
                     className="w-full bg-white text-orange-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
                   >
                     Order Now <ArrowRight className="w-4 h-4" />
