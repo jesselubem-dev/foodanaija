@@ -335,7 +335,7 @@ function CustomerHomeContent() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Bike className="w-3.5 h-3.5" />
-                          <span>₦500 delivery</span>
+                          <span>₦800 delivery</span>
                         </div>
                         {restaurant.city && (
                           <div className="flex items-center gap-1">
