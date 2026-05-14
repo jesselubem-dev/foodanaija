@@ -1,0 +1,109 @@
+{
+  "name": "Restaurant",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Restaurant name"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Owner full name"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the restaurant owner"
+    },
+    "description": {
+      "type": "string",
+      "description": "Restaurant bio/description"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Restaurant logo image URL"
+    },
+    "cover_image_url": {
+      "type": "string",
+      "description": "Restaurant cover/banner image"
+    },
+    "address": {
+      "type": "string",
+      "description": "Physical address"
+    },
+    "city": {
+      "type": "string",
+      "enum": [
+        "Lagos",
+        "Abuja",
+        "Port Harcourt",
+        "Ibadan",
+        "Kano",
+        "Enugu"
+      ],
+      "description": "City location"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "opening_time": {
+      "type": "string",
+      "description": "Opening time (e.g., 08:00)"
+    },
+    "closing_time": {
+      "type": "string",
+      "description": "Closing time (e.g., 22:00)"
+    },
+    "is_open": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether restaurant is currently accepting orders"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin approval status"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating"
+    },
+    "total_reviews": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of reviews"
+    },
+    "delivery_fee": {
+      "type": "number",
+      "default": 800,
+      "description": "Delivery fee in Naira"
+    },
+    "min_order": {
+      "type": "number",
+      "default": 1000,
+      "description": "Minimum order amount"
+    },
+    "delivery_time": {
+      "type": "string",
+      "default": "30-45 mins",
+      "description": "Estimated delivery time"
+    },
+    "cuisine_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Types of cuisine offered"
+    }
+  },
+  "required": [
+    "name",
+    "owner_name",
+    "address",
+    "city"
+  ]
+}
