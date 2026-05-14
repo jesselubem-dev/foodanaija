@@ -91,6 +91,8 @@ export default function SuperAdminDashboard() {
   const deliveredOrders = orders.filter(o => o.delivery_status === 'delivered');
   const cancelledOrders = orders.filter(o => o.status === 'cancelled');
   const totalRiderEarnings = deliveredOrders.reduce((sum, o) => sum + (o.delivery_fee || 500), 0);
+  const vasRevenue = orders.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + (o.delivery_fee || 0), 0);
+  const foodRevenue = totalRevenue - vasRevenue;
   const todayOrders = orders.filter(o => {
     const orderDate = new Date(o.created_date);
     const today = new Date();
@@ -263,6 +265,13 @@ export default function SuperAdminDashboard() {
             color="purple"
           />
           <StatCard
+            title="VAS Revenue"
+            value={`₦${vasRevenue.toLocaleString()}`}
+            icon={TrendingUp}
+            color="blue"
+            subtitle={`From delivery fees`}
+          />
+          <StatCard
             title="Active Riders"
             value={riders.length}
             icon={Users}
@@ -363,9 +372,70 @@ export default function SuperAdminDashboard() {
               )}
             </div>
           </CardContent>
-        </Card>
+          </Card>
 
-        {/* Cancelled Orders Breakdown */}
+          {/* Revenue Breakdown */}
+          <Card className="border-green-100 mb-8">
+          <CardHeader>
+            <CardTitle>Platform Revenue Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-12 h-12 rounded-lg bg-orange-200 flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Food Orders Revenue</p>
+                    <p className="text-2xl font-bold text-orange-600">₦{foodRevenue.toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">
+                    {totalRevenue > 0 ? ((foodRevenue / totalRevenue) * 100).toFixed(1) : 0}% of total
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-12 h-12 rounded-lg bg-blue-200 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Value Added Services (Delivery)</p>
+                    <p className="text-2xl font-bold text-blue-600">₦{vasRevenue.toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">
+                    {totalRevenue > 0 ? ((vasRevenue / totalRevenue) * 100).toFixed(1) : 0}% of total
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-12 h-12 rounded-lg bg-purple-200 flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Platform Revenue</p>
+                    <p className="text-2xl font-bold text-purple-600">₦{totalRevenue.toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">
+                    {deliveredOrders.length} deliveries
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          </Card>
+
+          {/* Cancelled Orders Breakdown */}
         <Card className="border-red-100 mb-8">
           <CardHeader>
             <CardTitle>Cancelled Orders</CardTitle>
