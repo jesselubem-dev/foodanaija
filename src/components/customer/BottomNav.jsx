@@ -37,7 +37,7 @@ export default function BottomNav({ unreadChatCount = 0, user }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white">
       <div className="border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center justify-around px-2 py-1.5 max-w-full safe-area-inset-bottom">
+        <div className="flex items-center justify-around px-2 py-3 pb-5 max-w-full safe-area-inset-bottom">
           {navItems.map(({ label, icon: Icon, page }) => {
             const pageUrl = createPageUrl(page);
             const isActive = location.pathname === pageUrl || location.pathname.startsWith(pageUrl);
