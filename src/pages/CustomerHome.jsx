@@ -373,16 +373,6 @@ function CustomerHomeContent() {
 
         {riderRatingOrder && <RiderRatingModal order={riderRatingOrder} onClose={() => setRiderRatingOrder(null)} />}
 
-        {/* Floating Cart */}
-        {cartItemCount > 0 && (
-          <button
-            onClick={() => setCartOpen(true)}
-            className="fixed bottom-16 lg:bottom-4 right-4 z-40 bg-orange-500 text-white rounded-full px-4 py-3 shadow-lg shadow-orange-300 flex items-center gap-2 text-sm font-semibold"
-          >
-            {cartItemCount} item{cartItemCount > 1 ? 's' : ''}
-          </button>
-        )}
-
         <FloatingCart isOpen={cartOpen} onClose={() => setCartOpen(false)} cart={cart} onUpdateQuantity={updateCartQuantity} onRemoveItem={removeFromCart} />
         <RamadanBanner />
         <BottomNav currentPage="CustomerHome" unreadChatCount={unreadChatCount} user={user} />
