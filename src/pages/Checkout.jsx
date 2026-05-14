@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Ticket, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,10 @@ export default function Checkout() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [selectedDrinks, setSelectedDrinks] = useState([]);
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_email: '',
@@ -109,6 +113,89 @@ export default function Checkout() {
       }
       return prev;
     });
+  };
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) {
+      setPromoError('Enter a promo code');
+      return;
+    }
+
+    setPromoLoading(true);
+    setPromoError('');
+
+    try {
+      const codes = await base44.entities.PromoCode.filter({ 
+        code: promoCode.toUpperCase() 
+      });
+
+      if (codes.length === 0) {
+        setPromoError('Invalid promo code');
+        setPromoLoading(false);
+        return;
+      }
+
+      const code = codes[0];
+
+      // Check if active
+      if (!code.is_active) {
+        setPromoError('This code is no longer active');
+        setPromoLoading(false);
+        return;
+      }
+
+      // Check if expired
+      if (code.valid_until && new Date(code.valid_until) < new Date()) {
+        setPromoError('This code has expired');
+        setPromoLoading(false);
+        return;
+      }
+
+      // Check if not valid yet
+      if (code.valid_from && new Date(code.valid_from) > new Date()) {
+        setPromoError('This code is not yet valid');
+        setPromoLoading(false);
+        return;
+      }
+
+      // Check usage limit
+      if (code.max_usage > 0 && code.current_usage >= code.max_usage) {
+        setPromoError('This code has reached its usage limit');
+        setPromoLoading(false);
+        return;
+      }
+
+      // Check minimum order
+      const itemsByRestaurant = {};
+      cart.forEach(item => {
+        if (!itemsByRestaurant[item.restaurant_id]) {
+          itemsByRestaurant[item.restaurant_id] = [];
+        }
+        itemsByRestaurant[item.restaurant_id].push(item);
+      });
+      
+      const foodSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const currentSubtotal = foodSubtotal + selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
+
+      if (code.min_order_amount && currentSubtotal < code.min_order_amount) {
+        setPromoError(`Minimum order: ₦${code.min_order_amount.toLocaleString()}`);
+        setPromoLoading(false);
+        return;
+      }
+
+      setAppliedPromo(code);
+      setPromoCode('');
+    } catch (error) {
+      setPromoError('Failed to apply code. Please try again.');
+    }
+
+    setPromoLoading(false);
+  };
+
+  const removePromoCode = () => {
+    setAppliedPromo(null);
+    setPromoCode('');
+    setPromoError('');
   };
 
 
@@ -215,32 +302,34 @@ export default function Checkout() {
     const drinksTotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
 
     // Prepare order data (without drinks)
-    const ordersData = restaurants.map(restaurant => {
-      const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const deliveryFee = 800;
-      const restaurantVAS = getVASForSubtotal(restaurantFoodTotal);
-      const orderTotal = restaurantFoodTotal + deliveryFee + restaurantVAS;
+     const ordersData = restaurants.map(restaurant => {
+       const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+       const deliveryFee = 800;
+       const restaurantVAS = getVASForSubtotal(restaurantFoodTotal);
+       const orderTotal = restaurantFoodTotal + deliveryFee + restaurantVAS;
 
-      return {
-        restaurant_id: restaurant.restaurant_id,
-        restaurant_name: restaurant.restaurant_name,
-        customer_email: formData.customer_email,
-        customer_name: formData.customer_name,
-        customer_phone: formData.customer_phone,
-        delivery_address: formData.delivery_address,
-        items: restaurant.items,
-        subtotal: restaurantFoodTotal,
-        delivery_fee: deliveryFee,
-        service_fee: restaurantVAS,
-        total: orderTotal,
-        notes: formData.notes,
-        status: 'pending',
-        payment_status: 'pending',
-        payment_method: 'card',
-        batch_order_id: restaurants.length > 1 ? batchOrderId : null,
-        total_restaurants_in_batch: restaurants.length
-      };
-    });
+       return {
+         restaurant_id: restaurant.restaurant_id,
+         restaurant_name: restaurant.restaurant_name,
+         customer_email: formData.customer_email,
+         customer_name: formData.customer_name,
+         customer_phone: formData.customer_phone,
+         delivery_address: formData.delivery_address,
+         items: restaurant.items,
+         subtotal: restaurantFoodTotal,
+         delivery_fee: deliveryFee,
+         service_fee: restaurantVAS,
+         total: orderTotal,
+         notes: formData.notes,
+         status: 'pending',
+         payment_status: 'pending',
+         payment_method: 'card',
+         promo_code_id: appliedPromo?.id || null,
+         promo_code: appliedPromo?.code || null,
+         batch_order_id: restaurants.length > 1 ? batchOrderId : null,
+         total_restaurants_in_batch: restaurants.length
+       };
+     });
 
     // Add drink order data if drinks selected
     if (selectedDrinks.length > 0) {
@@ -286,7 +375,19 @@ export default function Checkout() {
   const deliveryFee = restaurantCount * 800;
   const valueAddedService = calculateTotalVAS(cart);
   
-  const total = subtotal + deliveryFee + valueAddedService;
+  // Calculate promo discount
+  let promoDiscount = 0;
+  if (appliedPromo) {
+    if (appliedPromo.discount_type === 'percentage') {
+      promoDiscount = Math.floor(subtotal * (appliedPromo.discount_value / 100));
+    } else if (appliedPromo.discount_type === 'fixed') {
+      promoDiscount = appliedPromo.discount_value;
+    } else if (appliedPromo.is_free_delivery) {
+      promoDiscount = deliveryFee;
+    }
+  }
+  
+  const total = subtotal + deliveryFee + valueAddedService - promoDiscount;
 
   if (cart.length === 0) {
     return (
@@ -386,16 +487,81 @@ export default function Checkout() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2">Special Instructions (Optional)</label>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                    placeholder="Any special requests..."
-                    className="min-h-[80px]"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                   <label className="text-sm font-medium mb-2">Special Instructions (Optional)</label>
+                   <Textarea
+                     value={formData.notes}
+                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                     placeholder="Any special requests..."
+                     className="min-h-[80px]"
+                   />
+                 </div>
+                </CardContent>
+                </Card>
+
+                {/* Promo Code */}
+                <Card className="border-gray-100">
+                <CardHeader>
+                 <CardTitle className="flex items-center gap-2">
+                   <Ticket className="w-5 h-5 text-orange-500" />
+                   Promo Code
+                 </CardTitle>
+                </CardHeader>
+                <CardContent>
+                 {appliedPromo ? (
+                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                     <div className="flex items-start justify-between">
+                       <div className="flex items-start gap-3">
+                         <Check className="w-5 h-5 text-green-600 mt-0.5" />
+                         <div>
+                           <p className="font-semibold text-gray-900">{appliedPromo.code}</p>
+                           <p className="text-sm text-green-700 mt-1">
+                             {appliedPromo.is_free_delivery ? 'Free Delivery' :
+                              appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}% off` :
+                              `₦${appliedPromo.discount_value} off`}
+                           </p>
+                           {appliedPromo.description && (
+                             <p className="text-xs text-gray-500 mt-1">{appliedPromo.description}</p>
+                           )}
+                         </div>
+                       </div>
+                       <button
+                         type="button"
+                         onClick={removePromoCode}
+                         className="text-gray-400 hover:text-red-500"
+                       >
+                         <X className="w-5 h-5" />
+                       </button>
+                     </div>
+                   </div>
+                 ) : (
+                   <div className="space-y-3">
+                     <div className="flex gap-2">
+                       <Input
+                         type="text"
+                         value={promoCode}
+                         onChange={(e) => {
+                           setPromoCode(e.target.value.toUpperCase());
+                           setPromoError('');
+                         }}
+                         placeholder="Enter promo code"
+                         onKeyPress={(e) => e.key === 'Enter' && applyPromoCode()}
+                       />
+                       <Button
+                         type="button"
+                         onClick={applyPromoCode}
+                         disabled={promoLoading || !promoCode.trim()}
+                         className="bg-orange-500 hover:bg-orange-600"
+                       >
+                         {promoLoading ? 'Applying...' : 'Apply'}
+                       </Button>
+                     </div>
+                     {promoError && (
+                       <p className="text-sm text-red-600">{promoError}</p>
+                     )}
+                   </div>
+                 )}
+                </CardContent>
+                </Card>
           </div>
 
           {/* Order Summary */}
@@ -444,11 +610,17 @@ export default function Checkout() {
                     <span className="text-gray-500">Service Fee</span>
                     <span className="font-medium text-gray-800">₦{valueAddedService.toLocaleString()}</span>
                   </div>
+                  {promoDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-600 font-medium">Promo Discount</span>
+                      <span className="font-medium text-green-600">-₦{promoDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-3 mt-1">
                     <div className="flex justify-between">
                       <span className="font-bold text-gray-900">Total</span>
                       <span className="font-bold text-orange-600 text-lg">₦{total.toLocaleString()}</span>
-                    </div>
+                   </div>
                   </div>
                 </div>
 
