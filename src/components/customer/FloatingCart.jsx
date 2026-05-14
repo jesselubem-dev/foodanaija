@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 
 export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem }) {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = cart.length > 0 ? (cart[0].delivery_fee || 500) : 0;
+  const deliveryFee = cart.length > 0 ? (cart[0].delivery_fee || 800) : 0;
   const total = subtotal + deliveryFee;
 
   return (
