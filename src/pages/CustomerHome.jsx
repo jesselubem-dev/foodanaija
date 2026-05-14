@@ -225,7 +225,7 @@ function CustomerHomeContent() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 pt-5 pb-32 lg:pb-8">
+        <div className="max-w-2xl mx-auto px-4 pt-5 pb-24 lg:pb-6">
 
           {/* Book a Chef Banner */}
           <Link to={createPageUrl('Chefs')} className="block mb-5">
@@ -377,10 +377,9 @@ function CustomerHomeContent() {
         {cartItemCount > 0 && (
           <button
             onClick={() => setCartOpen(true)}
-            className="fixed bottom-20 lg:bottom-6 right-4 z-40 bg-orange-500 text-white rounded-2xl px-4 py-3 shadow-xl shadow-orange-200 flex items-center gap-2"
+            className="fixed bottom-16 lg:bottom-4 right-4 z-40 bg-orange-500 text-white rounded-full px-4 py-3 shadow-lg shadow-orange-300 flex items-center gap-2 text-sm font-semibold"
           >
-            <span className="font-semibold text-sm">{cartItemCount} item{cartItemCount > 1 ? 's' : ''}</span>
-            <span className="bg-white/20 rounded-lg px-2 py-0.5 text-xs font-bold">View</span>
+            {cartItemCount} item{cartItemCount > 1 ? 's' : ''}
           </button>
         )}
 
