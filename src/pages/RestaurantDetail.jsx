@@ -286,7 +286,7 @@ function RestaurantDetailContent() {
                     <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-sm font-bold text-orange-600">₦{item.price?.toLocaleString()}</p>
-                        {item.slashed_price && (
+                        {item.slashed_price > 0 && (
                           <p className="text-xs text-gray-400 line-through">₦{item.slashed_price?.toLocaleString()}</p>
                         )}
                       </div>
@@ -353,7 +353,7 @@ function RestaurantDetailContent() {
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div>
                     <p className="text-xl font-bold text-orange-600">₦{selectedItem.price?.toLocaleString()}</p>
-                    {selectedItem.slashed_price && (
+                    {selectedItem.slashed_price > 0 && (
                       <p className="text-sm text-gray-400 line-through">₦{selectedItem.slashed_price?.toLocaleString()}</p>
                     )}
                   </div>
