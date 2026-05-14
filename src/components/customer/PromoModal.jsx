@@ -72,6 +72,7 @@ export default function PromoModal({ promoItems, onClose }) {
       localStorage.setItem('cart', JSON.stringify(newCart));
       toast.success(`${banner.menu_item_name} added to cart! 🛒`);
       handleClose();
+      setTimeout(() => window.location.href = createPageUrl('Cart'), 500);
     } catch {
       toast.error('Could not add to cart');
     }
