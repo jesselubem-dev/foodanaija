@@ -23,6 +23,18 @@ export default function SuperAdminPromoBanners() {
   const [menuSearch, setMenuSearch] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [previewBanner, setPreviewBanner] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  React.useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user?.role === 'admin') {
+        setIsAdmin(true);
+      }
+      setAuthChecked(true);
+    }).catch(() => setAuthChecked(true));
+  }, []);
+
   const { data: banners = [] } = useQuery({
     queryKey: ['promo-banners'],
     queryFn: () => base44.entities.PromoBanner.list('-created_date'),
@@ -76,6 +88,25 @@ export default function SuperAdminPromoBanners() {
        restaurant?.name.toLowerCase().includes(menuSearch.toLowerCase()))
     );
   });
+
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-800 mb-2">Access Denied</p>
+          <p className="text-gray-500">You need admin access to view this page.</p>
+        </div>
+      </div>
+    );
+  }
 
   const generateBanner = async () => {
     if (!description.trim()) { toast.error('Please describe your promotion'); return; }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -19,6 +19,15 @@ export default function SuperAdminAllMenus() {
   const [editingItem, setEditingItem] = useState(null);
   const [editForm, setEditForm] = useState({});
   const queryClient = useQueryClient();
+  const [authChecked, setAuthChecked] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user?.role === 'admin') setIsAdmin(true);
+      setAuthChecked(true);
+    }).catch(() => setAuthChecked(true));
+  }, []);
 
   const { data: restaurants = [] } = useQuery({
     queryKey: ['all-restaurants-admin'],
@@ -71,6 +80,25 @@ export default function SuperAdminAllMenus() {
       },
     });
   };
+
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-800 mb-2">Access Denied</p>
+          <p className="text-gray-500">You need admin access to view this page.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
