@@ -143,10 +143,10 @@ function CustomerHomeContent() {
   const unreadChatCount = chatMessages.filter(msg => (msg.sender_type === 'admin' || msg.sender_type === 'ai') && !msg.is_read).length;
 
   useEffect(() => {
-    if (user && promoItems.length > 0 && !sessionStorage.getItem('promo_shown')) {
+    if (user && !sessionStorage.getItem('promo_shown')) {
       setTimeout(() => { setShowPromo(true); sessionStorage.setItem('promo_shown', 'true'); }, 1200);
     }
-  }, [user, promoItems]);
+  }, [user]);
 
   const cities = ['Sokoto'];
   const filteredRestaurants = restaurants
@@ -365,7 +365,7 @@ function CustomerHomeContent() {
         </div>
 
         {/* Promo Modal */}
-        {showPromo && promoItems.length > 0 && (
+        {showPromo && (
           <PromoModal promoItems={promoItems} onClose={() => setShowPromo(false)} />
         )}
 
