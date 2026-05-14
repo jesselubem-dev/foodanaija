@@ -57,6 +57,7 @@ export default function DashboardMenu() {
     name: '',
     description: '',
     price: '',
+    slashed_price: '',
     images: [],
     category_id: '',
     is_available: true,
@@ -182,6 +183,7 @@ export default function DashboardMenu() {
       name: '',
       description: '',
       price: '',
+      slashed_price: '',
       images: [],
       category_id: categories[0]?.id || '',
       is_available: true,
@@ -275,7 +277,8 @@ export default function DashboardMenu() {
   const handleSaveItem = () => {
     const data = {
       ...itemForm,
-      price: parseFloat(itemForm.price) || 0
+      price: parseFloat(itemForm.price) || 0,
+      slashed_price: itemForm.slashed_price ? parseFloat(itemForm.slashed_price) : null,
     };
     
     if (editingItem) {
@@ -463,6 +466,7 @@ export default function DashboardMenu() {
                         name: item.name,
                         description: item.description || '',
                         price: item.price.toString(),
+                        slashed_price: item.slashed_price?.toString() || '',
                         images: item.images || (item.image_url ? [item.image_url] : []),
                         category_id: item.category_id,
                         is_available: item.is_available,
@@ -503,9 +507,16 @@ export default function DashboardMenu() {
                     <h4 className="font-semibold text-gray-900">{item.name}</h4>
                     <p className="text-sm text-gray-500 line-clamp-1">{item.description}</p>
                   </div>
-                  <span className="font-bold text-orange-600 whitespace-nowrap">
-                    ₦{item.price?.toLocaleString()}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-orange-600 whitespace-nowrap">
+                      ₦{item.price?.toLocaleString()}
+                    </span>
+                    {item.slashed_price && (
+                      <span className="text-gray-400 text-sm line-through whitespace-nowrap">
+                        ₦{item.slashed_price?.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -658,13 +669,35 @@ export default function DashboardMenu() {
             </div>
 
             <div className="space-y-2">
-              <Label>Price (₦) *</Label>
+              <Label>Price (₦) — Actual price customer pays *</Label>
               <Input
                 type="number"
-                placeholder="2500"
+                placeholder="e.g. 800"
                 value={itemForm.price}
                 onChange={(e) => setItemForm(prev => ({ ...prev, price: e.target.value }))}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-red-600">
+                Original Price to Cross Out (₦) — optional
+              </Label>
+              <Input
+                type="number"
+                placeholder="e.g. 1000 (shown as ₦1,000 with strikethrough)"
+                value={itemForm.slashed_price}
+                onChange={(e) => setItemForm(prev => ({ ...prev, slashed_price: e.target.value }))}
+              />
+              {itemForm.slashed_price && itemForm.price && (
+                <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-lg">
+                  <span className="text-gray-400 line-through text-sm">₦{parseFloat(itemForm.slashed_price).toLocaleString()}</span>
+                  <span className="text-orange-600 font-bold">₦{parseFloat(itemForm.price).toLocaleString()}</span>
+                  <span className="text-xs text-green-600 font-semibold bg-green-100 px-2 py-0.5 rounded-full">
+                    {Math.round((1 - parseFloat(itemForm.price)/parseFloat(itemForm.slashed_price))*100)}% OFF
+                  </span>
+                </div>
+              )}
+              <p className="text-xs text-gray-400">Leave empty to show no crossed-out price</p>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">

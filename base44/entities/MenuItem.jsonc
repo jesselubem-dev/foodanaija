@@ -1,0 +1,72 @@
+{
+  "name": "MenuItem",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "Reference to the restaurant"
+    },
+    "category_id": {
+      "type": "string",
+      "description": "Reference to the menu category"
+    },
+    "name": {
+      "type": "string",
+      "description": "Item name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Item description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Actual/discounted price in Naira"
+    },
+    "slashed_price": {
+      "type": "number",
+      "description": "Original price that will be shown crossed out (optional). If set, this is the old price and 'price' is the discounted price."
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Product image URLs (at least 2 recommended)"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether item is currently available"
+    },
+    "is_popular": {
+      "type": "boolean",
+      "default": false,
+      "description": "Mark as popular item"
+    },
+    "is_promo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Mark as promotional item for Best Orders"
+    },
+    "promo_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Promo start date and time"
+    },
+    "promo_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Promo end date and time"
+    },
+    "preparation_time": {
+      "type": "string",
+      "description": "Estimated prep time"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "category_id",
+    "name",
+    "price"
+  ]
+}
