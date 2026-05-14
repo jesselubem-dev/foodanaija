@@ -1,0 +1,64 @@
+{
+  "name": "PromoCode",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Promo code string (e.g., SAVE50)"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "percentage",
+        "fixed",
+        "free_delivery"
+      ],
+      "description": "Type of discount"
+    },
+    "discount_value": {
+      "type": "number",
+      "description": "Discount amount (percentage or fixed naira amount)"
+    },
+    "is_free_delivery": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this code grants free delivery"
+    },
+    "max_usage": {
+      "type": "number",
+      "description": "Maximum number of times the code can be used (0 = unlimited)"
+    },
+    "current_usage": {
+      "type": "number",
+      "default": 0,
+      "description": "Current number of times code has been used"
+    },
+    "min_order_amount": {
+      "type": "number",
+      "description": "Minimum order amount to use the code"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the promo code becomes active"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the promo code expires"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the promo code is currently active"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the promo code"
+    }
+  },
+  "required": [
+    "code",
+    "discount_type"
+  ]
+}

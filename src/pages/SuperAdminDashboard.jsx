@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2, ChefHat, Sparkles, Tag
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2, ChefHat, Sparkles, Tag, Ticket
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -186,6 +186,7 @@ export default function SuperAdminDashboard() {
           <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" />
           <SidebarNavLink to="SuperAdminChefs" icon={ChefHat} label="Chefs" />
           <SidebarNavLink to="SuperAdminPromoBanners" icon={Sparkles} label="Promo Banners" />
+          <SidebarNavLink to="SuperAdminPromoCode" icon={Ticket} label="Promo Codes" />
           <SidebarNavLink to="SuperAdminAllMenus" icon={Tag} label="All Menus & Prices" />
         </nav>
       </aside>
@@ -219,9 +220,10 @@ export default function SuperAdminDashboard() {
             <SidebarNavLink to="SuperAdminMessages" icon={MessageCircle} label="Messages" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminReports" icon={BarChart3} label="Reports" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminMenuMarketing" icon={Share2} label="Marketing Links" onClick={() => setMobileMenuOpen(false)} />
-          <SidebarNavLink to="SuperAdminChefs" icon={ChefHat} label="Chefs" onClick={() => setMobileMenuOpen(false)} />
-          <SidebarNavLink to="SuperAdminPromoBanners" icon={Sparkles} label="Promo Banners" onClick={() => setMobileMenuOpen(false)} />
-          <SidebarNavLink to="SuperAdminAllMenus" icon={Tag} label="All Menus & Prices" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminChefs" icon={ChefHat} label="Chefs" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminPromoBanners" icon={Sparkles} label="Promo Banners" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminPromoCode" icon={Ticket} label="Promo Codes" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminAllMenus" icon={Tag} label="All Menus & Prices" onClick={() => setMobileMenuOpen(false)} />
           </div>
         </div>
       )}

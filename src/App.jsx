@@ -53,6 +53,7 @@ import Chefs from './pages/Chefs';
 import SuperAdminChefs from './pages/SuperAdminChefs';
 import SuperAdminPromoBanners from './pages/SuperAdminPromoBanners';
 import SuperAdminAllMenus from './pages/SuperAdminAllMenus';
+import SuperAdminPromoCode from './pages/SuperAdminPromoCode';
 import ChefDetail from './pages/ChefDetail';
 import ChefSetup from './pages/ChefSetup';
 
@@ -128,6 +129,7 @@ const AuthenticatedApp = () => {
       <Route path="/SuperAdminChefs" element={<LayoutWrapper currentPageName="SuperAdminChefs"><SuperAdminChefs /></LayoutWrapper>} />
       <Route path="/SuperAdminPromoBanners" element={<LayoutWrapper currentPageName="SuperAdminPromoBanners"><SuperAdminPromoBanners /></LayoutWrapper>} />
       <Route path="/SuperAdminAllMenus" element={<LayoutWrapper currentPageName="SuperAdminAllMenus"><SuperAdminAllMenus /></LayoutWrapper>} />
+      <Route path="/SuperAdminPromoCode" element={<LayoutWrapper currentPageName="SuperAdminPromoCode"><SuperAdminPromoCode /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
