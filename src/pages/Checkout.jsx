@@ -431,23 +431,23 @@ export default function Checkout() {
                   </div>
                 )}
 
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
-                    <span>₦{subtotal.toLocaleString()}</span>
+                <div className="border-t pt-4 space-y-2.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Subtotal</span>
+                    <span className="font-medium text-gray-800">₦{subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Delivery Fee {restaurantCount > 1 ? `(${restaurantCount} restaurants)` : ''}</span>
-                    <span>₦{deliveryFee.toLocaleString()}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Delivery Fee {restaurantCount > 1 ? `(${restaurantCount}x)` : ''}</span>
+                    <span className="font-medium text-gray-800">₦{deliveryFee.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Value Added Service {restaurantCount > 1 ? `(${restaurantCount}x)` : ''}</span>
-                    <span>₦{valueAddedService.toLocaleString()}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Service Fee</span>
+                    <span className="font-medium text-gray-800">₦{valueAddedService.toLocaleString()}</span>
                   </div>
-                  <div className="border-t pt-2">
-                    <div className="flex justify-between text-xl font-bold text-gray-900">
-                      <span>Total</span>
-                      <span>₦{total.toLocaleString()}</span>
+                  <div className="border-t pt-3 mt-1">
+                    <div className="flex justify-between">
+                      <span className="font-bold text-gray-900">Total</span>
+                      <span className="font-bold text-orange-600 text-lg">₦{total.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
