@@ -48,7 +48,11 @@
     },
     "menu_item_price": {
       "type": "number",
-      "description": "Cached menu item price"
+      "description": "Cached menu item price (discounted/actual price)"
+    },
+    "menu_item_slashed_price": {
+      "type": "number",
+      "description": "Cached original price to show crossed out"
     },
     "menu_item_image": {
       "type": "string",

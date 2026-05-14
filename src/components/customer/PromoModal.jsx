@@ -154,11 +154,18 @@ export default function PromoModal({ promoItems, onClose }) {
                         <p className="font-bold text-white text-base leading-tight">{current.menu_item_name}</p>
                         <p className="text-white/70 text-xs mt-0.5">{current.restaurant_name}</p>
                         {current.menu_item_price && (
-                          <div
-                            className="inline-block mt-2 px-2.5 py-1 rounded-lg text-xs font-black shadow"
-                            style={{ background: accent, color: '#1a1a1a' }}
-                          >
-                            ₦{current.menu_item_price?.toLocaleString()}
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <div
+                              className="inline-block px-2.5 py-1 rounded-lg text-xs font-black shadow"
+                              style={{ background: accent, color: '#1a1a1a' }}
+                            >
+                              ₦{current.menu_item_price?.toLocaleString()}
+                            </div>
+                            {current.menu_item_slashed_price && (
+                              <span className="text-xs text-white/60 line-through">
+                                ₦{current.menu_item_slashed_price?.toLocaleString()}
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>

@@ -159,6 +159,7 @@ Make it feel premium, exciting, and culturally relevant to Nigerian food culture
       menu_item_id: selectedItem.id,
       menu_item_name: selectedItem.name,
       menu_item_price: selectedItem.price,
+      menu_item_slashed_price: selectedItem.slashed_price || null,
       menu_item_image: selectedItem.images?.[0] || '',
       restaurant_id: selectedItem.restaurant_id,
       restaurant_name: restaurant?.name || '',
