@@ -353,9 +353,22 @@ export default function Checkout() {
       });
     }
 
-    const totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
+    let totalAmount = ordersData.reduce((sum, order) => sum + order.total, 0);
+
+    // Apply promo discount to payment amount
+    if (appliedPromo) {
+      if (appliedPromo.discount_type === 'percentage') {
+        const discountAmount = Math.floor(subtotal * (appliedPromo.discount_value / 100));
+        totalAmount -= discountAmount;
+      } else if (appliedPromo.discount_type === 'fixed') {
+        totalAmount -= appliedPromo.discount_value;
+      } else if (appliedPromo.is_free_delivery) {
+        totalAmount -= deliveryFee;
+      }
+    }
+
     const reference = `PAY_${Date.now()}`;
-    
+
     initiatePayment(formData.customer_email, totalAmount, reference, ordersData);
   };
 
