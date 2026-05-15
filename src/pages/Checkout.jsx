@@ -357,13 +357,16 @@ export default function Checkout() {
 
     // Apply promo discount to payment amount
     if (appliedPromo) {
+      const totalFoodSubtotal = foodTotal + drinksTotal;
+      const totalDeliveryFee = restaurants.length * 800;
+      const totalVAS = calculateTotalVAS(cart);
       if (appliedPromo.discount_type === 'percentage') {
-        const discountAmount = Math.floor(subtotal * (appliedPromo.discount_value / 100));
+        const discountAmount = Math.floor(totalFoodSubtotal * (appliedPromo.discount_value / 100));
         totalAmount -= discountAmount;
       } else if (appliedPromo.discount_type === 'fixed') {
         totalAmount -= appliedPromo.discount_value;
-      } else if (appliedPromo.is_free_delivery) {
-        totalAmount -= deliveryFee;
+      } else if (appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) {
+        totalAmount -= (totalDeliveryFee + totalVAS);
       }
     }
 
@@ -395,8 +398,8 @@ export default function Checkout() {
       promoDiscount = Math.floor(subtotal * (appliedPromo.discount_value / 100));
     } else if (appliedPromo.discount_type === 'fixed') {
       promoDiscount = appliedPromo.discount_value;
-    } else if (appliedPromo.is_free_delivery) {
-      promoDiscount = deliveryFee;
+    } else if (appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) {
+      promoDiscount = deliveryFee + valueAddedService;
     }
   }
   
@@ -528,7 +531,7 @@ export default function Checkout() {
                          <div>
                            <p className="font-semibold text-gray-900">{appliedPromo.code}</p>
                            <p className="text-sm text-green-700 mt-1">
-                             {appliedPromo.is_free_delivery ? 'Free Delivery' :
+                             {(appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) ? 'Free Delivery & Service Fee' :
                               appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}% off` :
                               `₦${appliedPromo.discount_value} off`}
                            </p>
