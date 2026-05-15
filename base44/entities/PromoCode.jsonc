@@ -55,6 +55,15 @@
     "description": {
       "type": "string",
       "description": "Description of the promo code"
+    },
+    "assigned_user_email": {
+      "type": "string",
+      "description": "If set, this code can only be used by this specific user email"
+    },
+    "is_personalised": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this code is personalised for a single user"
     }
   },
   "required": [

@@ -25,7 +25,9 @@ export default function SuperAdminPromoCode() {
     valid_from: new Date().toISOString().split('T')[0],
     valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     is_active: true,
-    description: ''
+    description: '',
+    is_personalised: false,
+    assigned_user_email: ''
   });
   const queryClient = useQueryClient();
 
@@ -88,11 +90,17 @@ export default function SuperAdminPromoCode() {
       return;
     }
 
+    if (formData.is_personalised && !formData.assigned_user_email.trim()) {
+      toast.error('Please enter the user email for a personalised code');
+      return;
+    }
+
     const submitData = {
       ...formData,
       discount_value: parseInt(formData.discount_value) || 0,
       max_usage: parseInt(formData.max_usage) || 0,
       min_order_amount: parseInt(formData.min_order_amount) || 0,
+      assigned_user_email: formData.is_personalised ? formData.assigned_user_email.toLowerCase().trim() : '',
     };
 
     if (editingCode) {
@@ -113,7 +121,9 @@ export default function SuperAdminPromoCode() {
       valid_from: new Date().toISOString().split('T')[0],
       valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       is_active: true,
-      description: ''
+      description: '',
+      is_personalised: false,
+      assigned_user_email: ''
     });
     setEditingCode(null);
     setDialogOpen(false);
@@ -131,7 +141,9 @@ export default function SuperAdminPromoCode() {
       valid_from: code.valid_from?.split('T')[0] || new Date().toISOString().split('T')[0],
       valid_until: code.valid_until?.split('T')[0] || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       is_active: code.is_active,
-      description: code.description || ''
+      description: code.description || '',
+      is_personalised: code.is_personalised || false,
+      assigned_user_email: code.assigned_user_email || ''
     });
     setDialogOpen(true);
   };
@@ -237,13 +249,16 @@ export default function SuperAdminPromoCode() {
                         <Badge className={code.is_active && !isCodeExpired(code) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
                           {code.is_active && !isCodeExpired(code) ? 'Active' : 'Inactive'}
                         </Badge>
+                        {code.is_personalised && (
+                          <Badge className="bg-purple-100 text-purple-700">Personalised</Badge>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <p className="text-gray-500 text-xs">Discount</p>
                           <p className="font-semibold text-gray-900">
-                            {code.is_free_delivery ? 'Free Delivery' : 
+                            {code.discount_type === 'free_delivery' || code.is_free_delivery ? 'Free Delivery' : 
                              code.discount_type === 'percentage' ? `${code.discount_value}%` : 
                              `₦${code.discount_value}`}
                           </p>
@@ -262,8 +277,11 @@ export default function SuperAdminPromoCode() {
                         </div>
                       </div>
 
+                      {code.is_personalised && code.assigned_user_email && (
+                        <p className="text-xs text-purple-600 mt-2 font-medium">👤 Assigned to: {code.assigned_user_email}</p>
+                      )}
                       {code.description && (
-                        <p className="text-xs text-gray-500 mt-2">{code.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">{code.description}</p>
                       )}
                     </div>
 
@@ -378,6 +396,33 @@ export default function SuperAdminPromoCode() {
                 placeholder="e.g., Summer sale discount"
                 className="mt-1"
               />
+            </div>
+
+            {/* Personalised toggle */}
+            <div className="border border-orange-100 rounded-xl p-4 bg-orange-50 space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_personalised"
+                  checked={formData.is_personalised}
+                  onChange={(e) => setFormData({ ...formData, is_personalised: e.target.checked, assigned_user_email: '' })}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <label htmlFor="is_personalised" className="text-sm font-semibold text-orange-700">Personalised Code (Single User Only)</label>
+              </div>
+              {formData.is_personalised && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Assign to User Email</label>
+                  <Input
+                    type="email"
+                    value={formData.assigned_user_email}
+                    onChange={(e) => setFormData({ ...formData, assigned_user_email: e.target.value.toLowerCase() })}
+                    placeholder="e.g., customer@gmail.com"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Only this user will be able to use this code</p>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2 pt-2">

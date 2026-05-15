@@ -165,6 +165,15 @@ export default function Checkout() {
         return;
       }
 
+      // Check personalised code restriction
+      if (code.is_personalised && code.assigned_user_email) {
+        if (!user || user.email.toLowerCase() !== code.assigned_user_email.toLowerCase()) {
+          setPromoError('This code is not valid for your account');
+          setPromoLoading(false);
+          return;
+        }
+      }
+
       // Check minimum order
       const itemsByRestaurant = {};
       cart.forEach(item => {
