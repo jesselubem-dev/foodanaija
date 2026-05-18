@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -38,20 +38,24 @@ Deno.serve(async (req) => {
       return Response.json({ success: false, message: 'Payment not verified' });
     }
 
-    // Check for duplicate: if orders with this payment_reference already exist, return them
-    const existingOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference });
-    if (existingOrders && existingOrders.length > 0) {
-      console.log(`Orders already exist for reference ${reference}, returning existing orders`);
-      return Response.json({ success: true, orders: existingOrders });
+    // Check if orders already fully created for this reference (payment_status = 'paid')
+    const existingPaidOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference, payment_status: 'paid' });
+    if (existingPaidOrders && existingPaidOrders.length > 0) {
+      console.log(`Orders already paid for reference ${reference}, returning existing orders`);
+      return Response.json({ success: true, orders: existingPaidOrders });
     }
 
-    // Create orders in database using service role for reliability
+    // Find pre-saved "initiated" orders for this reference (created before Paystack opened)
+    const initiatedOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference, payment_status: 'initiated' });
+    console.log(`Found ${initiatedOrders.length} initiated order(s) for reference ${reference}`);
+
     const createdOrders = [];
     const errors = [];
 
     for (const orderData of ordersData) {
       try {
         if (orderData.isDrinkOrder) {
+          // Drink orders — always create fresh
           const drinkOrder = await base44.asServiceRole.entities.DrinkOrder.create({
             customer_email: orderData.customer_email,
             customer_name: orderData.customer_name,
@@ -66,36 +70,56 @@ Deno.serve(async (req) => {
           });
           createdOrders.push(drinkOrder);
         } else {
-          const order = await base44.asServiceRole.entities.Order.create({
-            restaurant_id: orderData.restaurant_id,
-            restaurant_name: orderData.restaurant_name,
-            customer_email: orderData.customer_email,
-            customer_name: orderData.customer_name,
-            customer_phone: orderData.customer_phone,
-            delivery_address: orderData.delivery_address,
-            items: orderData.items,
-            subtotal: orderData.subtotal,
-            delivery_fee: orderData.delivery_fee,
-            total: orderData.total,
-            notes: orderData.notes,
-            status: 'pending',
-            payment_status: 'paid',
-            payment_method: 'card',
-            payment_reference: reference,
-            amount_paid: orderData.total,
-            batch_order_id: orderData.batch_order_id || null,
-            total_restaurants_in_batch: orderData.total_restaurants_in_batch || 1
-          });
-          createdOrders.push(order);
+          // Try to find the matching initiated order to UPDATE it
+          const initiated = initiatedOrders.find(o => o.restaurant_id === orderData.restaurant_id);
+
+          if (initiated) {
+            // Update existing initiated order to paid
+            const updated = await base44.asServiceRole.entities.Order.update(initiated.id, {
+              customer_phone: orderData.customer_phone,
+              status: 'pending',
+              payment_status: 'paid',
+              amount_paid: orderData.total,
+              promo_code: orderData.promo_code || null,
+              promo_code_id: orderData.promo_code_id || null,
+            });
+            createdOrders.push(updated);
+          } else {
+            // No initiated record found — create fresh
+            const order = await base44.asServiceRole.entities.Order.create({
+              restaurant_id: orderData.restaurant_id,
+              restaurant_name: orderData.restaurant_name,
+              customer_email: orderData.customer_email,
+              customer_name: orderData.customer_name,
+              customer_phone: orderData.customer_phone,
+              delivery_address: orderData.delivery_address,
+              items: orderData.items,
+              subtotal: orderData.subtotal,
+              delivery_fee: orderData.delivery_fee,
+              total: orderData.total,
+              notes: orderData.notes,
+              status: 'pending',
+              payment_status: 'paid',
+              payment_method: 'card',
+              payment_reference: reference,
+              amount_paid: orderData.total,
+              promo_code: orderData.promo_code || null,
+              promo_code_id: orderData.promo_code_id || null,
+              batch_order_id: orderData.batch_order_id || null,
+              total_restaurants_in_batch: orderData.total_restaurants_in_batch || 1
+            });
+            createdOrders.push(order);
+          }
 
           // Create notification for customer
+          const finalOrder = createdOrders[createdOrders.length - 1];
           try {
             await base44.asServiceRole.entities.Notification.create({
               user_email: orderData.customer_email,
               title: 'Order Placed Successfully! 🎉',
               message: `Your order from ${orderData.restaurant_name} has been placed. Total: ₦${orderData.total.toLocaleString()}`,
               type: 'order_accepted',
-              order_id: order.id,
+              order_id: finalOrder.id,
               metadata: {
                 image_url: orderData.items[0]?.image_url || ''
               }
@@ -105,28 +129,26 @@ Deno.serve(async (req) => {
           }
         }
       } catch (orderError) {
-        console.error('Failed to create individual order:', orderError);
+        console.error('Failed to process order:', orderError);
         errors.push({ orderData, error: orderError.message });
       }
     }
 
-    // As long as at least one order was created (or there were no errors), return success
     if (createdOrders.length > 0 || errors.length === 0) {
       return Response.json({ success: true, orders: createdOrders, errors });
     }
 
-    // All orders failed
-    return Response.json({ 
-      success: false, 
+    return Response.json({
+      success: false,
       error: 'Failed to create any orders',
       errors
     }, { status: 500 });
 
   } catch (error) {
     console.error('Payment verification error:', error);
-    return Response.json({ 
+    return Response.json({
       success: false,
-      error: error.message || 'Payment verification failed' 
+      error: error.message || 'Payment verification failed'
     }, { status: 500 });
   }
 });

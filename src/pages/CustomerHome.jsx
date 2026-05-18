@@ -17,6 +17,7 @@ import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
+import BannerCarousel from '../components/customer/BannerCarousel';
 
 function CustomerHomeContent() {
   const { t } = useLanguage();
@@ -245,6 +246,9 @@ function CustomerHomeContent() {
               </div>
             </div>
           </Link>
+
+          {/* Promo Banners */}
+          <BannerCarousel />
 
           {/* City Filter */}
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-5">

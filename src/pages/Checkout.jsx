@@ -381,6 +381,37 @@ export default function Checkout() {
 
     const reference = `PAY_${Date.now()}`;
 
+    // Save an "initiated" order snapshot BEFORE Paystack opens
+    // so admins can see incomplete/abandoned checkouts
+    try {
+      for (const orderData of ordersData) {
+        if (!orderData.isDrinkOrder) {
+          await base44.entities.Order.create({
+            restaurant_id: orderData.restaurant_id,
+            restaurant_name: orderData.restaurant_name,
+            customer_email: formData.customer_email,
+            customer_name: formData.customer_name,
+            customer_phone: formData.customer_phone,
+            delivery_address: formData.delivery_address,
+            items: orderData.items,
+            subtotal: orderData.subtotal,
+            delivery_fee: orderData.delivery_fee,
+            total: orderData.total,
+            notes: formData.notes,
+            status: 'pending',
+            payment_status: 'initiated',
+            payment_method: 'card',
+            payment_reference: reference,
+            amount_paid: 0,
+            batch_order_id: orderData.batch_order_id || null,
+            total_restaurants_in_batch: orderData.total_restaurants_in_batch || 1,
+          });
+        }
+      }
+    } catch (snapshotErr) {
+      console.warn('Could not save initiated order snapshot:', snapshotErr);
+    }
+
     initiatePayment(formData.customer_email, totalAmount, reference, ordersData);
   };
 

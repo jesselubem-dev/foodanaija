@@ -108,11 +108,15 @@ export default function SuperAdminOrders() {
     }
   });
 
-  const filteredOrders = orders.filter(o => {
+  // Separate abandoned (initiated but not paid) from normal orders
+  const normalOrders = orders.filter(o => o.payment_status !== 'initiated');
+  const abandonedOrders = orders.filter(o => o.payment_status === 'initiated');
+
+  const filteredOrders = (statusFilter === 'abandoned' ? abandonedOrders : normalOrders).filter(o => {
     const matchesSearch = o.restaurant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          o.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          o.customer_email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || statusFilter === 'abandoned' || o.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -157,6 +161,9 @@ export default function SuperAdminOrders() {
               <TabsTrigger value="pending">Pending</TabsTrigger>
               <TabsTrigger value="delivered">Delivered</TabsTrigger>
               <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+              <TabsTrigger value="abandoned" className="text-red-600">
+                Abandoned {abandonedOrders.length > 0 && <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5">{abandonedOrders.length}</span>}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -165,14 +172,14 @@ export default function SuperAdminOrders() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{normalOrders.length}</p>
               <p className="text-sm text-gray-500">Total Orders</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold text-amber-600">
-                {orders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status)).length}
+                {normalOrders.filter(o => ['pending', 'accepted', 'preparing', 'ready'].includes(o.status)).length}
               </p>
               <p className="text-sm text-gray-500">Active</p>
             </CardContent>
@@ -180,17 +187,15 @@ export default function SuperAdminOrders() {
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold text-green-600">
-                {orders.filter(o => o.status === 'delivered').length}
+                {normalOrders.filter(o => o.status === 'delivered').length}
               </p>
               <p className="text-sm text-gray-500">Delivered</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold text-purple-600">
-                ₦{orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-500">Total Revenue</p>
+              <p className="text-2xl font-bold text-red-500">{abandonedOrders.length}</p>
+              <p className="text-sm text-gray-500">Abandoned Checkouts</p>
             </CardContent>
           </Card>
         </div>
@@ -210,7 +215,7 @@ export default function SuperAdminOrders() {
         ) : (
           <div className="space-y-4">
             {filteredOrders.map((order) => (
-              <Card key={order.id} className="border-orange-100 hover:shadow-lg transition-shadow">
+              <Card key={order.id} className={`hover:shadow-lg transition-shadow ${order.payment_status === 'initiated' ? 'border-red-200 bg-red-50/30' : 'border-orange-100'}`}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -219,6 +224,9 @@ export default function SuperAdminOrders() {
                         <Badge className={statusColors[order.status]}>
                           {order.status}
                         </Badge>
+                        {order.payment_status === 'initiated' && (
+                          <Badge className="bg-red-100 text-red-700">⚠️ Abandoned Checkout</Badge>
+                        )}
                       </div>
                       <p className="text-sm text-gray-500">
                         Order #{order.id.slice(0, 8)}
@@ -252,6 +260,10 @@ export default function SuperAdminOrders() {
                     <p className="text-sm text-gray-600">
                       Payment: {order.payment_method || 'N/A'}
                     </p>
+                    <span className="text-gray-300">•</span>
+                    <Badge className={order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : order.payment_status === 'initiated' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}>
+                      {order.payment_status === 'initiated' ? 'Not Paid' : order.payment_status || 'pending'}
+                    </Badge>
                     <div className="ml-auto flex items-center gap-2 flex-wrap">
                       {order.status === 'pending' && (
                         <>
