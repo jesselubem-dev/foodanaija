@@ -1,0 +1,52 @@
+{
+  "name": "RiderComplaint",
+  "type": "object",
+  "properties": {
+    "rider_id": {
+      "type": "string",
+      "description": "Rider ID"
+    },
+    "rider_name": {
+      "type": "string",
+      "description": "Rider name"
+    },
+    "rider_email": {
+      "type": "string",
+      "description": "Rider email"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Complaint subject/title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Complaint message"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "pending",
+      "description": "Complaint status"
+    },
+    "admin_response": {
+      "type": "string",
+      "description": "Admin response to the complaint"
+    },
+    "responded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When admin responded"
+    }
+  },
+  "required": [
+    "rider_id",
+    "rider_name",
+    "rider_email",
+    "subject",
+    "message"
+  ]
+}

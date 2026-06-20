@@ -1,0 +1,48 @@
+{
+  "name": "Drink",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Drink name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Drink description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price in Naira"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Drink image URL"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Soft Drink",
+        "Water",
+        "Juice",
+        "Energy Drink"
+      ],
+      "description": "Drink category"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether drink is available"
+    },
+    "display_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "name",
+    "price",
+    "image_url",
+    "category"
+  ]
+}

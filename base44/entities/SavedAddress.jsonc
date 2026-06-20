@@ -1,0 +1,29 @@
+{
+  "name": "SavedAddress",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "label": {
+      "type": "string",
+      "description": "Address label (Home, Work, etc.)"
+    },
+    "address": {
+      "type": "string",
+      "description": "Full address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_email",
+    "address"
+  ]
+}

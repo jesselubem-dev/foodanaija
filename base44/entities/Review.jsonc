@@ -1,0 +1,41 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "Reference to the restaurant"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name for display"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Rating from 1 to 5 stars"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Review comment"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Reference to the order (optional)"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "customer_email",
+    "rating"
+  ]
+}

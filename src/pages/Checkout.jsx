@@ -15,26 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
-// VAS tier per restaurant subtotal
-const getVASForSubtotal = (subtotal) => {
-  if (subtotal >= 25000) return 3000;
-  if (subtotal >= 10000) return 1500;
-  if (subtotal >= 5000) return 700;
-  return 300;
-};
-
-const calculateTotalVAS = (cartItems) => {
-  const byRestaurant = {};
-  cartItems.forEach(item => {
-    if (!byRestaurant[item.restaurant_id]) byRestaurant[item.restaurant_id] = 0;
-    byRestaurant[item.restaurant_id] += item.price * item.quantity;
-  });
-  return Object.values(byRestaurant).reduce((sum, sub) => sum + getVASForSubtotal(sub), 0);
-};
+import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
 
 export default function Checkout() {
+  const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -313,7 +299,7 @@ export default function Checkout() {
     // Prepare order data (without drinks)
      const ordersData = restaurants.map(restaurant => {
        const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-       const deliveryFee = 800;
+       const deliveryFee = settings.delivery_fee;
        const restaurantVAS = getVASForSubtotal(restaurantFoodTotal);
        const orderTotal = restaurantFoodTotal + deliveryFee + restaurantVAS;
 
@@ -367,7 +353,7 @@ export default function Checkout() {
     // Apply promo discount to payment amount
     if (appliedPromo) {
       const totalFoodSubtotal = foodTotal + drinksTotal;
-      const totalDeliveryFee = restaurants.length * 800;
+      const totalDeliveryFee = restaurants.length * settings.delivery_fee;
       const totalVAS = calculateTotalVAS(cart);
       if (appliedPromo.discount_type === 'percentage') {
         const discountAmount = Math.floor(totalFoodSubtotal * (appliedPromo.discount_value / 100));
@@ -428,7 +414,7 @@ export default function Checkout() {
   const foodSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
   const subtotal = foodSubtotal + drinksSubtotal;
-  const deliveryFee = restaurantCount * 800;
+  const deliveryFee = restaurantCount * settings.delivery_fee;
   const valueAddedService = calculateTotalVAS(cart);
   
   // Calculate promo discount

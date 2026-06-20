@@ -1,0 +1,82 @@
+{
+  "name": "Chef",
+  "type": "object",
+  "properties": {
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the registered chef (linked to user account)"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Chef's full name"
+    },
+    "profile_image_url": {
+      "type": "string",
+      "description": "Chef profile photo URL"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Chef's bio and specialties"
+    },
+    "cuisine_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Types of cuisine the chef specializes in"
+    },
+    "capacity_examples": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Examples of what the chef can cook e.g. '2 liters of soup', 'Jollof rice for 10 people'"
+    },
+    "price_range": {
+      "type": "string",
+      "description": "Price range e.g. \u20a65,000 - \u20a650,000"
+    },
+    "city": {
+      "type": "string",
+      "enum": [
+        "Lagos",
+        "Abuja",
+        "Port Harcourt",
+        "Ibadan",
+        "Kano",
+        "Enugu",
+        "Sokoto"
+      ],
+      "description": "City where chef is based"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin approval status"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether chef is currently accepting bookings"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating"
+    },
+    "total_reviews": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of reviews"
+    }
+  },
+  "required": [
+    "owner_email",
+    "full_name",
+    "city",
+    "phone"
+  ]
+}

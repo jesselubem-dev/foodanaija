@@ -1,0 +1,47 @@
+{
+  "name": "CustomerSupport",
+  "type": "object",
+  "properties": {
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject/title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Customer message/complaint"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "pending",
+      "description": "Support ticket status"
+    },
+    "admin_response": {
+      "type": "string",
+      "description": "Admin response to the message"
+    },
+    "responded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When admin responded"
+    }
+  },
+  "required": [
+    "customer_email",
+    "customer_name",
+    "subject",
+    "message"
+  ]
+}

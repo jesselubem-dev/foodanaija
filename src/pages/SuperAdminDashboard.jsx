@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Store, Users, ShoppingBag, DollarSign, TrendingUp, 
-  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2, ChefHat, Sparkles, Tag, Ticket
+  CheckCircle, XCircle, Clock, ChevronRight, UtensilsCrossed, Headset, BarChart3, MessageCircle, Menu, X, LayoutDashboard, Share2, ChefHat, Sparkles, Tag, Ticket, Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -188,6 +188,7 @@ export default function SuperAdminDashboard() {
           <SidebarNavLink to="SuperAdminPromoBanners" icon={Sparkles} label="Promo Banners" />
           <SidebarNavLink to="SuperAdminPromoCode" icon={Ticket} label="Promo Codes" />
           <SidebarNavLink to="SuperAdminAllMenus" icon={Tag} label="All Menus & Prices" />
+          <SidebarNavLink to="SuperAdminFeeSettings" icon={Settings} label="Fee Settings" />
         </nav>
       </aside>
 
@@ -224,6 +225,7 @@ export default function SuperAdminDashboard() {
             <SidebarNavLink to="SuperAdminPromoBanners" icon={Sparkles} label="Promo Banners" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminPromoCode" icon={Ticket} label="Promo Codes" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminAllMenus" icon={Tag} label="All Menus & Prices" onClick={() => setMobileMenuOpen(false)} />
+            <SidebarNavLink to="SuperAdminFeeSettings" icon={Settings} label="Fee Settings" onClick={() => setMobileMenuOpen(false)} />
           </div>
         </div>
       )}

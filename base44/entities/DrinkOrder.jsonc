@@ -1,0 +1,83 @@
+{
+  "name": "DrinkOrder",
+  "type": "object",
+  "properties": {
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "customer_phone": {
+      "type": "string",
+      "description": "Customer phone"
+    },
+    "delivery_address": {
+      "type": "string",
+      "description": "Delivery address"
+    },
+    "drinks": {
+      "type": "array",
+      "description": "Ordered drinks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "drink_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "total": {
+      "type": "number",
+      "description": "Total amount for drinks"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "delivered"
+      ],
+      "default": "pending",
+      "description": "Order status"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Paystack payment reference"
+    },
+    "batch_order_id": {
+      "type": "string",
+      "description": "Links to main order batch"
+    }
+  },
+  "required": [
+    "customer_email",
+    "drinks",
+    "total"
+  ]
+}

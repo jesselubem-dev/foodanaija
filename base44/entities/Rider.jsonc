@@ -1,0 +1,56 @@
+{
+  "name": "Rider",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Rider's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Rider's email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Rider's phone number"
+    },
+    "vehicle_type": {
+      "type": "string",
+      "enum": [
+        "motorcycle",
+        "bicycle",
+        "car"
+      ],
+      "description": "Type of vehicle"
+    },
+    "vehicle_number": {
+      "type": "string",
+      "description": "Vehicle registration number"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether rider is currently active"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether rider is available for new deliveries"
+    },
+    "total_deliveries": {
+      "type": "number",
+      "default": 0,
+      "description": "Total completed deliveries"
+    },
+    "rating": {
+      "type": "number",
+      "default": 5,
+      "description": "Rider rating"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "phone"
+  ]
+}

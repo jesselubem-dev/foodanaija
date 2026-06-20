@@ -1,0 +1,36 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "Target restaurant ID"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name for reference"
+    },
+    "title": {
+      "type": "string",
+      "description": "Message title/subject"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether message has been read"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "Admin who sent the message"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "title",
+    "content"
+  ]
+}

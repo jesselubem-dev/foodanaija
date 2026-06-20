@@ -1,0 +1,91 @@
+{
+  "name": "ChefBooking",
+  "type": "object",
+  "properties": {
+    "chef_id": {
+      "type": "string",
+      "description": "Reference to the chef"
+    },
+    "chef_name": {
+      "type": "string",
+      "description": "Chef name for display"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "customer_phone": {
+      "type": "string",
+      "description": "Customer phone number"
+    },
+    "delivery_address": {
+      "type": "string",
+      "description": "Address where chef will cook or deliver"
+    },
+    "booking_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date for the cooking session"
+    },
+    "booking_time": {
+      "type": "string",
+      "description": "Preferred time e.g. 12:00"
+    },
+    "meal_description": {
+      "type": "string",
+      "description": "Detailed description of what the customer wants cooked"
+    },
+    "number_of_people": {
+      "type": "number",
+      "description": "How many people the meal is for"
+    },
+    "budget": {
+      "type": "number",
+      "description": "Customer's budget in Naira"
+    },
+    "agreed_price": {
+      "type": "number",
+      "description": "Final agreed price after chef accepts"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Booking status"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Paystack payment reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or dietary requirements"
+    }
+  },
+  "required": [
+    "chef_id",
+    "customer_email",
+    "delivery_address",
+    "booking_date",
+    "meal_description"
+  ]
+}

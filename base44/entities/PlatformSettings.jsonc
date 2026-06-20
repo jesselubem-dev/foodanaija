@@ -1,0 +1,47 @@
+{
+  "name": "PlatformSettings",
+  "type": "object",
+  "properties": {
+    "delivery_fee": {
+      "type": "number",
+      "default": 800,
+      "description": "Flat delivery fee per restaurant in Naira"
+    },
+    "vas_tier_1_fee": {
+      "type": "number",
+      "default": 300,
+      "description": "Service fee for orders below vas_tier_2_min"
+    },
+    "vas_tier_2_min": {
+      "type": "number",
+      "default": 5000,
+      "description": "Minimum order amount for tier 2 service fee"
+    },
+    "vas_tier_2_fee": {
+      "type": "number",
+      "default": 700,
+      "description": "Service fee for orders >= vas_tier_2_min"
+    },
+    "vas_tier_3_min": {
+      "type": "number",
+      "default": 10000,
+      "description": "Minimum order amount for tier 3 service fee"
+    },
+    "vas_tier_3_fee": {
+      "type": "number",
+      "default": 1500,
+      "description": "Service fee for orders >= vas_tier_3_min"
+    },
+    "vas_tier_4_min": {
+      "type": "number",
+      "default": 25000,
+      "description": "Minimum order amount for tier 4 service fee"
+    },
+    "vas_tier_4_fee": {
+      "type": "number",
+      "default": 3000,
+      "description": "Service fee for orders >= vas_tier_4_min"
+    }
+  },
+  "required": []
+}

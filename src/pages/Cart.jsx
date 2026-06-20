@@ -6,27 +6,12 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { LanguageProvider } from '../components/LanguageContext';
 import BottomNav from '../components/customer/BottomNav';
-
-// VAS tier per restaurant subtotal
-const getVASForSubtotal = (subtotal) => {
-  if (subtotal >= 25000) return 3000;
-  if (subtotal >= 10000) return 1500;
-  if (subtotal >= 5000) return 700;
-  return 300;
-};
-
-const calculateTotalVAS = (cartItems) => {
-  const byRestaurant = {};
-  cartItems.forEach(item => {
-    if (!byRestaurant[item.restaurant_id]) byRestaurant[item.restaurant_id] = 0;
-    byRestaurant[item.restaurant_id] += item.price * item.quantity;
-  });
-  return Object.values(byRestaurant).reduce((sum, sub) => sum + getVASForSubtotal(sub), 0);
-};
+import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
 function CartContent() {
   const [cart, setCart] = useState([]);
   const [isLoadingCart, setIsLoadingCart] = useState(true);
+  const { settings, calculateTotalVAS } = usePlatformSettings();
 
   useEffect(() => {
     try {
@@ -67,7 +52,7 @@ function CartContent() {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const delivery = cart.length > 0 ? 500 : 0;
+  const delivery = cart.length > 0 ? settings.delivery_fee : 0;
   const servicefee = cart.length > 0 ? calculateTotalVAS(cart) : 0;
   const total = subtotal + delivery + servicefee;
 

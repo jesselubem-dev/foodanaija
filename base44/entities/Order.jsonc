@@ -1,0 +1,148 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "Reference to the restaurant"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name for display"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "customer_phone": {
+      "type": "string",
+      "description": "Customer phone"
+    },
+    "delivery_address": {
+      "type": "string",
+      "description": "Delivery address"
+    },
+    "items": {
+      "type": "array",
+      "description": "Ordered items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Subtotal before fees"
+    },
+    "delivery_fee": {
+      "type": "number",
+      "description": "Delivery fee"
+    },
+    "total": {
+      "type": "number",
+      "description": "Total amount"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Order status"
+    },
+    "rider_id": {
+      "type": "string",
+      "description": "Assigned rider ID"
+    },
+    "rider_name": {
+      "type": "string",
+      "description": "Rider name for display"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "unassigned",
+        "assigned",
+        "picked_up",
+        "on_the_way",
+        "delivered"
+      ],
+      "default": "unassigned",
+      "description": "Delivery tracking status"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when rider accepted the delivery"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "card",
+        "transfer",
+        "ussd",
+        "cash"
+      ],
+      "description": "Payment method"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Paystack payment reference"
+    },
+    "amount_paid": {
+      "type": "number",
+      "description": "Amount paid by customer"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Special instructions"
+    },
+    "batch_order_id": {
+      "type": "string",
+      "description": "Batch ID linking multiple orders from same customer"
+    },
+    "total_restaurants_in_batch": {
+      "type": "number",
+      "description": "Total restaurants in this batch order"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "customer_email",
+    "items",
+    "total"
+  ]
+}
