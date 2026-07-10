@@ -335,11 +335,11 @@ function CustomerHomeContent() {
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>5–15 min</span>
+                          <span>30-45 min</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Bike className="w-3.5 h-3.5" />
-                          <span>₦800 delivery</span>
+                          <span>₦1000 delivery</span>
                         </div>
                         {restaurant.city && (
                           <div className="flex items-center gap-1">
