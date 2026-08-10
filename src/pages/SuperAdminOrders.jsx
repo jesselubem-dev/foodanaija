@@ -108,6 +108,23 @@ export default function SuperAdminOrders() {
     }
   });
 
+  const reverifyMutation = useMutation({
+    mutationFn: async (reference) => {
+      return base44.functions.invoke('reverifyAbandonedPayment', { reference });
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(['all-orders']);
+      if (res.data?.success) {
+        toast.success(res.data.message || 'Payment confirmed — order marked as paid');
+      } else {
+        toast.error(res.data?.message || 'Payment could not be verified');
+      }
+    },
+    onError: (error) => {
+      toast.error('Verification failed: ' + error.message);
+    }
+  });
+
   // Separate abandoned (initiated but not paid) from normal orders
   const normalOrders = orders.filter(o => o.payment_status !== 'initiated');
   const abandonedOrders = orders.filter(o => o.payment_status === 'initiated');
@@ -265,6 +282,18 @@ export default function SuperAdminOrders() {
                       {order.payment_status === 'initiated' ? 'Not Paid' : order.payment_status || 'pending'}
                     </Badge>
                     <div className="ml-auto flex items-center gap-2 flex-wrap">
+                      {order.payment_status === 'initiated' && order.payment_reference && (
+                        <Button
+                          size="sm"
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                          onClick={() => reverifyMutation.mutate(order.payment_reference)}
+                          disabled={reverifyMutation.isPending}
+                        >
+                          {reverifyMutation.isPending && reverifyMutation.variables === order.payment_reference
+                            ? 'Verifying...'
+                            : 'Verify Payment'}
+                        </Button>
+                      )}
                       {order.status === 'pending' && (
                         <>
                           <Button
