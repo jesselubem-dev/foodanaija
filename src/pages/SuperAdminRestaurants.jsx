@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Store, MapPin, Phone, Mail, CheckCircle, XCircle, 
-  Eye, Search, Filter, ArrowLeft, ExternalLink, Trash2, MessageSquare
+  Eye, Search, Filter, ArrowLeft, ExternalLink, Trash2, MessageSquare, Bike
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,9 @@ export default function SuperAdminRestaurants() {
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageRestaurant, setMessageRestaurant] = useState(null);
   const [messageForm, setMessageForm] = useState({ title: '', content: '' });
+  const [editDeliveryOpen, setEditDeliveryOpen] = useState(false);
+  const [editDeliveryRestaurant, setEditDeliveryRestaurant] = useState(null);
+  const [deliveryForm, setDeliveryForm] = useState({ delivery_time: '', delivery_fee: '', min_order: '' });
 
   const queryClient = useQueryClient();
 
@@ -150,6 +153,19 @@ export default function SuperAdminRestaurants() {
       queryClient.invalidateQueries(['all-menu-categories']);
       setSelectedRestaurant(null);
       toast.success('Restaurant deleted successfully');
+    },
+  });
+
+  const updateDeliveryMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Restaurant.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['all-restaurants']);
+      toast.success('Delivery settings updated');
+      setEditDeliveryOpen(false);
+      setEditDeliveryRestaurant(null);
+    },
+    onError: (error) => {
+      toast.error('Failed to update delivery settings');
     },
   });
 
@@ -351,6 +367,23 @@ export default function SuperAdminRestaurants() {
                         >
                           <MessageSquare className="w-4 h-4 mr-2" />
                           Send Message
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditDeliveryRestaurant(restaurant);
+                            setDeliveryForm({
+                              delivery_time: restaurant.delivery_time || '',
+                              delivery_fee: restaurant.delivery_fee ?? '',
+                              min_order: restaurant.min_order ?? '',
+                            });
+                            setEditDeliveryOpen(true);
+                          }}
+                        >
+                          <Bike className="w-4 h-4 mr-2" />
+                          Edit Delivery
                         </Button>
                         
                         {!restaurant.is_approved ? (
@@ -573,6 +606,68 @@ export default function SuperAdminRestaurants() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Edit Delivery Settings Dialog */}
+        <Dialog open={editDeliveryOpen} onOpenChange={setEditDeliveryOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Delivery Settings — {editDeliveryRestaurant?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Delivery Time</label>
+                <Input
+                  placeholder="e.g. 30-45 min"
+                  value={deliveryForm.delivery_time}
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, delivery_time: e.target.value })}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-400 mt-1">Shown on the home page for everyone to see.</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Delivery Fee (₦)</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1000"
+                  value={deliveryForm.delivery_fee}
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, delivery_fee: e.target.value === '' ? '' : Number(e.target.value) })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Minimum Order (₦)</label>
+                <Input
+                  type="number"
+                  placeholder="e.g. 1000"
+                  value={deliveryForm.min_order}
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, min_order: e.target.value === '' ? '' : Number(e.target.value) })}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setEditDeliveryOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-orange-600 hover:bg-orange-700"
+                  disabled={updateDeliveryMutation.isPending}
+                  onClick={() => {
+                    updateDeliveryMutation.mutate({
+                      id: editDeliveryRestaurant.id,
+                      data: {
+                        delivery_time: deliveryForm.delivery_time || '30-45 min',
+                        delivery_fee: Number(deliveryForm.delivery_fee) || 0,
+                        min_order: Number(deliveryForm.min_order) || 0,
+                      },
+                    });
+                  }}
+                >
+                  {updateDeliveryMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Send Message Dialog */}
         <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
