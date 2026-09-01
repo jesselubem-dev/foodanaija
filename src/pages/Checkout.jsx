@@ -17,7 +17,7 @@ import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_live_28be62d297dc4c38fcefe733d62af20942364d4a';
+const PAYSTACK_PUBLIC_KEY = 'pk_live_59db0d6d48b813579b808a85521985124bc8c014';
 
 export default function Checkout() {
   const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
