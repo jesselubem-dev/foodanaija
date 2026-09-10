@@ -7,7 +7,8 @@ import {
   BarChart3, Settings, Menu, X, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { PageTransition } from '@/components/ui/motion';
 import NoInternet from './components/NoInternet';
 
 export default function Layout({ children, currentPageName }) {
@@ -42,15 +43,9 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
+          <PageTransition k={location.pathname}>
             {children}
-          </motion.div>
+          </PageTransition>
         </AnimatePresence>
       </div>
     );
@@ -229,15 +224,9 @@ export default function Layout({ children, currentPageName }) {
 
       <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
+          <PageTransition k={location.pathname}>
             {children}
-          </motion.div>
+          </PageTransition>
         </AnimatePresence>
       </main>
     </div>

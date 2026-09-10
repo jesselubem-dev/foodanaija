@@ -17,6 +17,7 @@ import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
+import { StaggerItem } from '@/components/ui/motion';
 
 
 function CustomerHomeContent() {
@@ -295,9 +296,9 @@ function CustomerHomeContent() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredRestaurants.map((restaurant) => {
-                const isOpen = isRestaurantOpen(restaurant);
-                const content = (
+              {filteredRestaurants.map((restaurant, idx) => {
+                 const isOpen = isRestaurantOpen(restaurant);
+                 const content = (
                   <div className={`bg-white rounded-2xl overflow-hidden border border-gray-100 ${isOpen ? 'active:scale-[0.98] transition-transform' : 'opacity-70'}`}>
                     <div className="relative">
                       {restaurant.cover_image_url ? (
@@ -349,16 +350,19 @@ function CustomerHomeContent() {
                   </div>
                 );
 
-                return isOpen ? (
-                  <Link
-                    key={restaurant.id}
-                    to={user ? createPageUrl(`RestaurantDetail?id=${restaurant.id}`) : '#'}
-                    onClick={!user ? (e) => { e.preventDefault(); base44.auth.redirectToLogin(window.location.href); } : undefined}
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  <div key={restaurant.id}>{content}</div>
+                return (
+                  <StaggerItem key={restaurant.id} index={idx}>
+                    {isOpen ? (
+                      <Link
+                        to={user ? createPageUrl(`RestaurantDetail?id=${restaurant.id}`) : '#'}
+                        onClick={!user ? (e) => { e.preventDefault(); base44.auth.redirectToLogin(window.location.href); } : undefined}
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      <div>{content}</div>
+                    )}
+                  </StaggerItem>
                 );
               })}
             </div>

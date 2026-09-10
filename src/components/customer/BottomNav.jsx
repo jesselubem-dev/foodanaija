@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { createPageUrl } from '../../utils';
 import { Home, ClipboardList, ShoppingBag, Settings } from 'lucide-react';
 
@@ -9,6 +10,9 @@ const navItems = [
   { label: 'Cart', icon: ShoppingBag, page: 'Cart' },
   { label: 'Settings', icon: Settings, page: 'CustomerSettings' },
 ];
+
+const MotionLink = motion(Link);
+const SPRING = { type: 'spring', stiffness: 500, damping: 32, mass: 0.6 };
 
 export default function BottomNav({ unreadChatCount = 0, user }) {
   const location = useLocation();
@@ -35,35 +39,43 @@ export default function BottomNav({ unreadChatCount = 0, user }) {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white">
-      <div className="border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center justify-around px-2 py-3 pb-5 max-w-full safe-area-inset-bottom">
-          {navItems.map(({ label, icon: Icon, page }) => {
-            const pageUrl = createPageUrl(page);
-            const isActive = location.pathname === pageUrl || location.pathname.startsWith(pageUrl);
-            return (
-              <Link
-                key={page}
-                to={createPageUrl(page)}
-                onClick={() => { if (navigator.vibrate) navigator.vibrate(20); }}
-                className="flex flex-col items-center gap-1 px-4 py-1.5 relative"
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl border-t border-gray-100/80">
+      <div className="flex items-stretch justify-around px-1 pt-1.5 pb-5 safe-area-inset-bottom max-w-md mx-auto">
+        {navItems.map(({ label, icon: Icon, page }) => {
+          const pageUrl = createPageUrl(page);
+          const isActive = location.pathname === pageUrl || location.pathname.startsWith(pageUrl);
+          return (
+            <MotionLink
+              key={page}
+              to={createPageUrl(page)}
+              whileTap={{ scale: 0.86 }}
+              transition={SPRING}
+              onClick={() => { if (navigator.vibrate) navigator.vibrate(8); }}
+              className="flex flex-col items-center justify-center gap-1 px-3 py-1 relative flex-1"
+            >
+              <div className="relative">
+                <Icon
+                  className={`w-[22px] h-[22px] transition-colors duration-200 ${
+                    isActive ? 'text-orange-500' : 'text-gray-400'
+                  }`}
+                  strokeWidth={isActive ? 2.4 : 2}
+                />
+                {page === 'Cart' && cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 bg-orange-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </div>
+              <span
+                className={`text-[10px] font-medium transition-colors duration-200 ${
+                  isActive ? 'text-orange-500' : 'text-gray-400'
+                }`}
               >
-                <div className={`relative p-2 rounded-2xl transition-all ${isActive ? 'bg-orange-50' : ''}`}>
-                  <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-orange-500' : 'text-gray-400'}`} />
-                  {page === 'Cart' && cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-[10px] font-semibold transition-colors ${isActive ? 'text-orange-500' : 'text-gray-400'}`}>
-                  {label}
-                </span>
-                {isActive && <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-orange-500 rounded-full" />}
-              </Link>
-            );
-          })}
-        </div>
+                {label}
+              </span>
+            </MotionLink>
+          );
+        })}
       </div>
     </div>
   );
