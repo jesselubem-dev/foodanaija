@@ -254,3 +254,28 @@ button:focus-visible {
 .dark .bg-white\/80 { background-color: hsl(20 8% 13% / 0.85) !important; }
 .dark .bg-white\/90 { background-color: hsl(20 8% 13% / 0.92) !important; }
 .dark .bg-white\/95 { background-color: hsl(20 8% 13% / 0.96) !important; }
+
+/* ------------------------------------------------------------------
+   Telegram-style circular reveal for theme toggling (View Transitions API).
+   The new theme sweeps in as an expanding circle from the toggle button.
+   ------------------------------------------------------------------ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+  animation: vt-circle-reveal 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes vt-circle-reveal {
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0)); }
+  to { clip-path: circle(var(--vt-r, 150%) at var(--vt-x, 50%) var(--vt-y, 0)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; }
+}
