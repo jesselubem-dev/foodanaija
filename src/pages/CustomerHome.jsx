@@ -13,6 +13,7 @@ import PromoModal from '../components/customer/PromoModal';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
+import FloatingWhatsApp from '../components/customer/FloatingWhatsApp';
 import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -380,6 +381,7 @@ function CustomerHomeContent() {
 
         <FloatingCart isOpen={cartOpen} onClose={() => setCartOpen(false)} cart={cart} onUpdateQuantity={updateCartQuantity} onRemoveItem={removeFromCart} />
         <RamadanBanner />
+        <FloatingWhatsApp />
         <BottomNav currentPage="CustomerHome" unreadChatCount={unreadChatCount} user={user} />
       </div>
     </ErrorBoundary>
