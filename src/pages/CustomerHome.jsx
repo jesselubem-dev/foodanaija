@@ -14,6 +14,7 @@ import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
 import FloatingWhatsApp from '../components/customer/FloatingWhatsApp';
+import ThemeToggle from '../components/customer/ThemeToggle';
 import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -190,7 +191,7 @@ function CustomerHomeContent() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F7F5]">
+      <div className="min-h-screen bg-background">
         <NoInternet />
 
         {/* Header */}
@@ -205,6 +206,7 @@ function CustomerHomeContent() {
             </div>
             <div className="flex items-center gap-2">
               {user && <NotificationBell user={user} />}
+              <ThemeToggle />
               {!user && (
                 <button
                   onClick={() => base44.auth.redirectToLogin(window.location.href)}

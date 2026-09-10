@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { LanguageProvider, useLanguage } from '../components/LanguageContext';
 import NoInternet from '../components/NoInternet';
 import BottomNav from '../components/customer/BottomNav';
+import ThemeToggle from '../components/customer/ThemeToggle';
 
 function CustomerSettingsContent() {
   const { t } = useLanguage();
@@ -152,7 +153,7 @@ function CustomerSettingsContent() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F8F8]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin w-7 h-7 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
@@ -161,7 +162,7 @@ function CustomerSettingsContent() {
   const initial = (user.full_name || user.email || 'U').charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] pb-28">
+    <div className="min-h-screen bg-background pb-28">
       <NoInternet />
 
       {/* Soft top header */}
@@ -178,6 +179,7 @@ function CustomerSettingsContent() {
               </div>
             </div>
             <div className="flex items-center gap-2.5">
+              <ThemeToggle />
               <Link to={createPageUrl('CustomerHome')} className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center press-sm relative">
                 <Bell className="w-[18px] h-[18px] text-gray-600" />
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />

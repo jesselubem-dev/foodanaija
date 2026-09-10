@@ -41,7 +41,7 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['Chefs', 'ChefDetail', 'ChefSetup', 'SuperAdminChefs', 'SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'SuperAdminDrinkOrders', 'SuperAdminCancelledOrders', 'SuperAdminReports', 'SuperAdminRiderComplaints', 'AdminLiveChat', 'SuperAdminMenuMarketing', 'SuperAdminSupport', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification', 'CustomerSettings'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:bg-none dark:bg-background">
         <AnimatePresence mode="wait">
           <PageTransition k={location.pathname}>
             {children}
@@ -56,7 +56,7 @@ export default function Layout({ children, currentPageName }) {
     // If user is loaded but has no restaurant, show sign in / get started page
     if (user !== null) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:bg-none dark:bg-background flex items-center justify-center p-6">
           <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png"
@@ -84,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
     // Not logged in
     if (user === false) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:bg-none dark:bg-background flex items-center justify-center p-6">
           <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center">
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png"
@@ -105,7 +105,7 @@ export default function Layout({ children, currentPageName }) {
     }
     // Still loading user
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 dark:bg-none dark:bg-background flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
@@ -114,14 +114,14 @@ export default function Layout({ children, currentPageName }) {
   // If no restaurant and on RestaurantSetup, show minimal layout
   if (!restaurant && currentPageName === 'RestaurantSetup') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:bg-none dark:bg-background">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:bg-none dark:bg-background">
       <NoInternet />
       {/* Dashboard Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-xl border-r border-orange-100 z-50 hidden lg:block">

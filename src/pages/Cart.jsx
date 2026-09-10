@@ -66,7 +66,7 @@ function CartContent() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8F7F5] pb-36">
+    <div className="min-h-screen bg-background pb-36">
       {/* Header */}
       <div className="bg-white px-4 pt-12 pb-4 sticky top-0 z-30 border-b border-gray-100">
         <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ function CartContent() {
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.32, ease: EASE_NATIVE }}
-          className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent z-30"
+          className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-2 bg-gradient-to-t from-background via-background to-transparent z-30"
         >
           <Link to={createPageUrl('Checkout')}>
             <Button className="w-full bg-orange-500 hover:bg-orange-600 rounded-2xl h-14 text-base font-bold shadow-xl shadow-orange-200">
