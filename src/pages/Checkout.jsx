@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Ticket, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
 const PAYSTACK_PUBLIC_KEY = 'pk_live_59db0d6d48b813579b808a85521985124bc8c014';
@@ -435,6 +437,11 @@ export default function Checkout() {
     return (
       <ErrorBoundary>
       <div className="min-h-screen bg-white flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE_NATIVE }}
+        >
         <Card>
           <CardContent className="p-12 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
@@ -445,6 +452,7 @@ export default function Checkout() {
             </Link>
           </CardContent>
         </Card>
+        </motion.div>
       </div>
       </ErrorBoundary>
     );
@@ -549,8 +557,16 @@ export default function Checkout() {
                  </CardTitle>
                 </CardHeader>
                 <CardContent>
+                 <AnimatePresence mode="wait">
                  {appliedPromo ? (
-                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                   <motion.div
+                     key="applied"
+                     initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                     animate={{ opacity: 1, scale: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                     transition={{ duration: 0.24, ease: EASE_NATIVE }}
+                     className="bg-green-50 border border-green-200 rounded-lg p-4"
+                   >
                      <div className="flex items-start justify-between">
                        <div className="flex items-start gap-3">
                          <Check className="w-5 h-5 text-green-600 mt-0.5" />
@@ -574,9 +590,16 @@ export default function Checkout() {
                          <X className="w-5 h-5" />
                        </button>
                      </div>
-                   </div>
+                   </motion.div>
                  ) : (
-                   <div className="space-y-3">
+                   <motion.div
+                     key="input"
+                     initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                     animate={{ opacity: 1, scale: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                     transition={{ duration: 0.24, ease: EASE_NATIVE }}
+                     className="space-y-3"
+                   >
                      <div className="flex gap-2">
                        <Input
                          type="text"
@@ -600,8 +623,9 @@ export default function Checkout() {
                      {promoError && (
                        <p className="text-sm text-red-600">{promoError}</p>
                      )}
-                   </div>
+                   </motion.div>
                  )}
+                 </AnimatePresence>
                 </CardContent>
                 </Card>
           </div>
@@ -613,16 +637,26 @@ export default function Checkout() {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <AnimatePresence initial={false}>
                 {cart.map((item) => (
-                  <div key={item.item_id} className="flex justify-between text-sm">
+                  <motion.div
+                    key={item.item_id}
+                    layout
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 12 }}
+                    transition={{ duration: 0.24, ease: EASE_NATIVE }}
+                    className="flex justify-between text-sm"
+                  >
                     <span className="text-gray-600">
                       {item.name} x{item.quantity}
                     </span>
                     <span className="font-medium">
                       ₦{(item.price * item.quantity).toLocaleString()}
                     </span>
-                  </div>
+                  </motion.div>
                 ))}
+                </AnimatePresence>
 
                 {selectedDrinks.length > 0 && (
                   <div className="pt-2 border-t">
@@ -661,11 +695,20 @@ export default function Checkout() {
                   <div className="border-t pt-3 mt-1">
                     <div className="flex justify-between">
                       <span className="font-bold text-gray-900">Total</span>
-                      <span className="font-bold text-orange-600 text-lg">₦{total.toLocaleString()}</span>
+                      <motion.span
+                        key={total}
+                        initial={{ scale: 0.85, opacity: 0.5 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+                        className="font-bold text-orange-600 text-lg origin-right inline-block"
+                      >
+                        ₦{total.toLocaleString()}
+                      </motion.span>
                    </div>
                   </div>
                 </div>
 
+                <motion.div whileTap={{ scale: 0.98 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }}>
                 <Button 
                   type="submit"
                   className="w-full bg-orange-500 hover:bg-orange-600 h-12"
@@ -673,6 +716,7 @@ export default function Checkout() {
                 >
                   {processing ? 'Processing...' : 'Pay ₦' + total.toLocaleString()}
                 </Button>
+                </motion.div>
               </CardContent>
             </Card>
           </div>
@@ -684,11 +728,14 @@ export default function Checkout() {
         <DialogContent className="max-w-sm">
           <div className="text-center py-6">
             <div className="mb-4 flex justify-center">
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full animate-bounce">
-                </div>
-                <div className="absolute inset-0 w-20 h-20 bg-orange-500 rounded-full animate-ping opacity-75"></div>
-              </div>
+              <motion.div
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.05 }}
+                className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center"
+              >
+                <Check className="w-10 h-10 text-white" strokeWidth={3} />
+              </motion.div>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
             <p className="text-gray-600 mb-4">

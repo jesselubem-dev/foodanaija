@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { ChevronLeft, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { LanguageProvider } from '../components/LanguageContext';
 import BottomNav from '../components/customer/BottomNav';
+import { StaggerItem, Tap, EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
 function CartContent() {
@@ -84,7 +86,12 @@ function CartContent() {
             <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : cart.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: EASE_NATIVE }}
+            className="flex flex-col items-center justify-center py-24"
+          >
             <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mb-5">
               <ShoppingBag className="w-10 h-10 text-orange-300" />
             </div>
@@ -93,7 +100,7 @@ function CartContent() {
             <Link to={createPageUrl('CustomerHome')}>
               <Button className="bg-orange-500 hover:bg-orange-600 rounded-full px-6">Browse Restaurants</Button>
             </Link>
-          </div>
+          </motion.div>
         ) : (
           <>
             {/* Clear cart */}
@@ -106,51 +113,77 @@ function CartContent() {
 
             {/* Items grouped by restaurant */}
             <div className="space-y-4 mb-5">
-              {Object.entries(byRestaurant).map(([restaurantId, { name, items }]) => (
-                <div key={restaurantId} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+              {Object.entries(byRestaurant).map(([restaurantId, { name, items }], rIdx) => (
+                <StaggerItem key={restaurantId} index={rIdx} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
                   <div className="px-4 py-3 border-b border-gray-50">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">{name}</p>
                   </div>
                   <div className="divide-y divide-gray-50">
-                    {items.map(item => (
-                      <div key={item.item_id} className="flex items-center gap-3 p-4">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt="" className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
-                            <span className="text-2xl">🍽️</span>
-                          </div>
-                        )}
+                    <AnimatePresence initial={false}>
+                      {items.map((item, idx) => (
+                        <motion.div
+                          key={item.item_id}
+                          layout
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0, x: -24 }}
+                          transition={{ duration: 0.26, ease: EASE_NATIVE }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex items-center gap-3 p-4">
+                            {item.image_url ? (
+                              <img src={item.image_url} alt="" className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                            ) : (
+                              <div className="w-16 h-16 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                <span className="text-2xl">🍽️</span>
+                              </div>
+                            )}
 
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 text-sm leading-tight">{item.name}</h3>
-                          <p className="text-orange-600 font-bold text-sm mt-0.5">₦{item.price?.toLocaleString()}</p>
-                        </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-sm leading-tight">{item.name}</h3>
+                              <p className="text-orange-600 font-bold text-sm mt-0.5">₦{item.price?.toLocaleString()}</p>
+                            </div>
 
-                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                          <button onClick={() => removeItem(item.item_id)} className="text-gray-300 hover:text-red-400 transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                          <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1.5 py-1">
-                            <button onClick={() => updateQuantity(item.item_id, -1)} className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
-                              <Minus className="w-3 h-3 text-orange-500" />
-                            </button>
-                            <span className="text-xs font-bold text-gray-900 w-4 text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.item_id, 1)} className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-sm">
-                              <Plus className="w-3 h-3 text-white" />
-                            </button>
+                            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                              <Tap scale={0.85}>
+                                <button onClick={() => removeItem(item.item_id)} className="text-gray-300 hover:text-red-400 transition-colors">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </Tap>
+                              <div className="flex items-center gap-2 bg-gray-50 rounded-full px-1.5 py-1">
+                                <Tap scale={0.88}>
+                                  <button onClick={() => updateQuantity(item.item_id, -1)} className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                    <Minus className="w-3 h-3 text-orange-500" />
+                                  </button>
+                                </Tap>
+                                <motion.span
+                                  key={item.quantity}
+                                  initial={{ scale: 0.6, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                                  className="text-xs font-bold text-gray-900 w-4 text-center"
+                                >
+                                  {item.quantity}
+                                </motion.span>
+                                <Tap scale={0.88}>
+                                  <button onClick={() => updateQuantity(item.item_id, 1)} className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-sm">
+                                    <Plus className="w-3 h-3 text-white" />
+                                  </button>
+                                </Tap>
+                              </div>
+                              <p className="text-xs font-bold text-gray-700">₦{(item.price * item.quantity).toLocaleString()}</p>
+                            </div>
                           </div>
-                          <p className="text-xs font-bold text-gray-700">₦{(item.price * item.quantity).toLocaleString()}</p>
-                        </div>
-                      </div>
-                    ))}
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
-                </div>
+                </StaggerItem>
               ))}
             </div>
 
             {/* Order Summary */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
+            <StaggerItem index={Object.keys(byRestaurant).length} className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
               <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
@@ -171,20 +204,25 @@ function CartContent() {
                   <span className="font-bold text-orange-600 text-lg">₦{total.toLocaleString()}</span>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           </>
         )}
       </div>
 
       {/* Checkout Button */}
       {cart.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent z-30">
+        <motion.div
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.32, ease: EASE_NATIVE }}
+          className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent z-30"
+        >
           <Link to={createPageUrl('Checkout')}>
             <Button className="w-full bg-orange-500 hover:bg-orange-600 rounded-2xl h-14 text-base font-bold shadow-xl shadow-orange-200">
               Proceed to Checkout · ₦{total.toLocaleString()}
             </Button>
           </Link>
-        </div>
+        </motion.div>
       )}
 
       <BottomNav />
