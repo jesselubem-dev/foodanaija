@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Plus, MapPin, Trash2, Edit2, Check, LogOut, UserX, MessageSquare } from 'lucide-react';
+import { ChevronLeft, Plus, MapPin, Trash2, Edit2, Check, LogOut, UserX, MessageSquare, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -153,173 +152,169 @@ function CustomerSettingsContent() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F8F8]">
+        <div className="animate-spin w-7 h-7 border-2 border-orange-500 border-t-transparent rounded-full" />
       </div>
     );
   }
 
+  const initial = (user.full_name || user.email || 'U').charAt(0).toUpperCase();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30 pb-24">
+    <div className="min-h-screen bg-[#F8F8F8] pb-28">
       <NoInternet />
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
-                <ChevronLeft className="w-6 h-6" />
-                Back
-              </Button>
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+
+      {/* Soft top header */}
+      <header className="bg-white">
+        <div className="px-5 pt-5 pb-5 safe-area-inset-top">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 font-bold text-lg">
+                {initial}
+              </div>
+              <div>
+                <p className="text-[11px] text-gray-400 font-medium tracking-wide">WELCOME BACK</p>
+                <h1 className="text-[15px] font-bold text-gray-900 leading-tight">{user.full_name || 'Fooda User'}</h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Link to={createPageUrl('CustomerHome')} className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center press-sm relative">
+                <Bell className="w-[18px] h-[18px] text-gray-600" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+              </Link>
+              <Link to={createPageUrl('CustomerHome')} className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center press-sm">
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-        {/* User Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <p className="text-sm text-gray-500">Name</p>
-              <p className="font-medium text-gray-900">{user.full_name}</p>
+      <div className="px-4 pt-4 space-y-4 max-w-md mx-auto">
+        {/* Account info */}
+        <section className="bg-white rounded-2xl p-5">
+          <h2 className="text-[15px] font-bold text-gray-900 mb-4">Account</h2>
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-400">Name</span>
+              <span className="text-sm font-medium text-gray-900">{user.full_name || '—'}</span>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium text-gray-900">{user.email}</p>
+            <div className="h-px bg-gray-50" />
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-gray-400 flex-shrink-0">Email</span>
+              <span className="text-sm font-medium text-gray-900 truncate">{user.email}</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
         {/* Saved Addresses */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Saved Addresses</CardTitle>
-            <Button 
+        <section className="bg-white rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[15px] font-bold text-gray-900">Saved Addresses</h2>
+            <button
               onClick={() => {
                 setEditingAddress(null);
                 setFormData({ label: '', address: '', city: 'Sokoto' });
                 setShowAddDialog(true);
               }}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="flex items-center gap-1 text-xs font-semibold text-orange-500 press-sm"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Address
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {addresses.length === 0 ? (
-              <div className="text-center py-8">
-                <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-500">No saved addresses yet</p>
-                <p className="text-sm text-gray-400">Add your first address to make checkout faster</p>
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          </div>
+          {addresses.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <MapPin className="w-6 h-6 text-gray-300" />
               </div>
-            ) : (
-              <div className="space-y-3">
-                {addresses.map((address) => (
-                  <div 
-                    key={address.id}
-                    className={`p-4 rounded-xl border ${
-                      address.is_default 
-                        ? 'border-orange-500 bg-orange-50' 
-                        : 'border-gray-200 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-gray-900">{address.label}</h3>
-                          {address.is_default && (
-                            <span className="px-2 py-0.5 bg-orange-500 text-white text-xs rounded-full">
-                              Default
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600">{address.address}</p>
-                        <p className="text-sm text-gray-500 mt-1">{address.city}</p>
+              <p className="text-sm text-gray-500 font-medium">No saved addresses</p>
+              <p className="text-xs text-gray-400 mt-1">Add one for faster checkout</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className={`p-3.5 rounded-xl border ${
+                    address.is_default
+                      ? 'border-orange-200 bg-orange-50/40'
+                      : 'border-gray-100 bg-white'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="text-sm font-semibold text-gray-900">{address.label}</h3>
+                        {address.is_default && (
+                          <span className="px-1.5 py-0.5 bg-orange-500 text-white text-[10px] rounded-full font-medium">
+                            Default
+                          </span>
+                        )}
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleEdit(address)}
-                        >
-                          <Edit2 className="w-4 h-4 text-gray-600" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleDelete(address.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
+                      <p className="text-xs text-gray-500 truncate">{address.address}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">{address.city}</p>
                     </div>
-                    {!address.is_default && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDefaultMutation.mutate(address.id)}
-                        className="text-xs"
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleEdit(address)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center press-sm"
                       >
-                        <Check className="w-3 h-3 mr-1" />
-                        Set as Default
-                      </Button>
-                    )}
+                        <Edit2 className="w-3.5 h-3.5 text-gray-500" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(address.id)}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center press-sm"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                      </button>
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  {!address.is_default && (
+                    <button
+                      onClick={() => setDefaultMutation.mutate(address.id)}
+                      className="mt-2.5 flex items-center gap-1 text-[11px] font-semibold text-orange-500 press-sm"
+                    >
+                      <Check className="w-3 h-3" /> Set as default
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Support */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Support</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Link to={createPageUrl('LiveChat')} className="block">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-gray-700 hover:bg-orange-50 hover:border-orange-200"
-              >
-                <MessageSquare className="w-5 h-5 mr-3 text-orange-500" />
-                Chat with Support
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <section className="bg-white rounded-2xl overflow-hidden">
+          <Link to={createPageUrl('LiveChat')} className="flex items-center gap-3 p-4 press">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-orange-500" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Chat with Support</p>
+              <p className="text-[11px] text-gray-400">We're here to help</p>
+            </div>
+            <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
+          </Link>
+        </section>
 
         {/* Account Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="w-full justify-start text-gray-700 hover:bg-gray-100"
-            >
-              <LogOut className="w-5 h-5 mr-3" />
-              Logout
-            </Button>
-            <Link to={createPageUrl('DeleteAccount')} className="block">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-red-600 hover:bg-red-50 border-red-200"
-              >
-                <UserX className="w-5 h-5 mr-3" />
-                Delete Account
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <section className="bg-white rounded-2xl overflow-hidden">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 p-4 press">
+            <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center">
+              <LogOut className="w-4 h-4 text-gray-600" />
+            </div>
+            <span className="flex-1 text-left text-sm font-medium text-gray-900">Logout</span>
+            <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
+          </button>
+          <div className="h-px bg-gray-50 mx-4" />
+          <Link to={createPageUrl('DeleteAccount')} className="flex items-center gap-3 p-4 press">
+            <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+              <UserX className="w-4 h-4 text-red-500" />
+            </div>
+            <span className="flex-1 text-sm font-medium text-red-500">Delete Account</span>
+            <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
+          </Link>
+        </section>
       </div>
 
       {/* Delete Confirmation Dialog */}
@@ -393,9 +388,9 @@ function CustomerSettingsContent() {
               </Select>
             </div>
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   setShowAddDialog(false);
                   setEditingAddress(null);
@@ -404,8 +399,8 @@ function CustomerSettingsContent() {
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="bg-orange-500 hover:bg-orange-600"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
