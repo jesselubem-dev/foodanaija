@@ -161,6 +161,10 @@ button:focus-visible {
     text-size-adjust: 100%;
     scroll-behavior: smooth;
   }
+  html {
+    background-color: hsl(var(--background));
+    min-height: 100%;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -168,7 +172,9 @@ button:focus-visible {
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
     text-rendering: optimizeLegibility;
+    min-height: 100%;
   }
+  #root { min-height: 100%; }
   button, [role="button"], a {
     touch-action: manipulation;
   }
@@ -250,10 +256,19 @@ button:focus-visible {
 .dark .bg-amber-50 { background-color: hsl(38 40% 14%) !important; }
 
 /* Frosted / translucent surfaces */
+.dark .bg-white\/50 { background-color: hsl(20 8% 13% / 0.55) !important; }
+.dark .bg-white\/60 { background-color: hsl(20 8% 13% / 0.65) !important; }
 .dark .bg-white\/70 { background-color: hsl(20 8% 13% / 0.75) !important; }
+.dark .bg-white\/75 { background-color: hsl(20 8% 13% / 0.8) !important; }
 .dark .bg-white\/80 { background-color: hsl(20 8% 13% / 0.85) !important; }
+.dark .bg-white\/85 { background-color: hsl(20 8% 13% / 0.9) !important; }
 .dark .bg-white\/90 { background-color: hsl(20 8% 13% / 0.92) !important; }
 .dark .bg-white\/95 { background-color: hsl(20 8% 13% / 0.96) !important; }
+
+/* Frosted borders that would otherwise stay light */
+.dark .border-gray-100\/80 { border-color: hsl(20 8% 16% / 0.8) !important; }
+.dark .border-white\/10 { border-color: hsl(0 0% 100% / 0.08) !important; }
+.dark .border-white\/20 { border-color: hsl(0 0% 100% / 0.12) !important; }
 
 /* ------------------------------------------------------------------
    Telegram-style circular reveal for theme toggling (View Transitions API).
@@ -278,4 +293,10 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none !important; }
+}
+
+/* Use the dynamic viewport height on mobile so the app fills the whole
+   screen (no white gap behind the browser's URL / home indicator bar). */
+@supports (min-height: 100dvh) {
+  .min-h-screen { min-height: 100dvh; }
 }

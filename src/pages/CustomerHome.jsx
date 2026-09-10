@@ -195,7 +195,7 @@ function CustomerHomeContent() {
         <NoInternet />
 
         {/* Header */}
-        <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-30 border-b border-gray-100">
+        <div className="bg-white px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3 sticky top-0 z-30 border-b border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-medium text-orange-500 uppercase tracking-widest mb-0.5">Good day!</p>
