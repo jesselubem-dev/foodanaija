@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, Plus, MapPin, Trash2, Edit2, Check, LogOut, UserX, MessageSquare, Bell } from 'lucide-react';
+import { ChevronLeft, Plus, MapPin, Trash2, Edit2, Check, LogOut, UserX, MessageCircle, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -287,16 +287,21 @@ function CustomerSettingsContent() {
 
         {/* Support */}
         <section className="bg-white rounded-2xl overflow-hidden">
-          <Link to={createPageUrl('LiveChat')} className="flex items-center gap-3 p-4 press">
-            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-orange-500" />
+          <a
+            href="https://wa.me/2347078700001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 press"
+          >
+            <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
+              <MessageCircle className="w-4 h-4 text-green-500" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Chat with Support</p>
+              <p className="text-sm font-medium text-gray-900">Chat on WhatsApp</p>
               <p className="text-[11px] text-gray-400">We're here to help</p>
             </div>
             <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
-          </Link>
+          </a>
         </section>
 
         {/* Account Actions */}
