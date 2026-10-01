@@ -1,6 +1,6 @@
 {
   "name": "Reconcile Abandoned Checkouts",
-  "description": "Scans orders stuck as 'initiated', verifies each payment with Paystack, and marks confirmed payments as paid so real payments never show as abandoned.",
+  "description": "Scans orders stuck as 'initiated', verifies each payment with Flutterwave, and marks confirmed payments as paid so real payments never show as abandoned.",
   "trigger": {
     "condition": null,
     "config": {

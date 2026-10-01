@@ -298,7 +298,7 @@ export default function Checkout() {
 
     const reference = `PAY_${Date.now()}`;
 
-    // Save an "initiated" order snapshot BEFORE Paystack opens
+    // Save an "initiated" order snapshot BEFORE Flutterwave checkout opens
     // so admins can see incomplete/abandoned checkouts
     try {
       for (const orderData of ordersData) {
