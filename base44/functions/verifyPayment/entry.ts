@@ -1,28 +1,25 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { secrets } from 'base44:runtime';
 
-Deno.serve(async (req) => {
+// Verifies a Flutterwave transaction (by transaction id returned in the redirect URL)
+// and finalizes the pre-saved "initiated" orders, or creates them if missing.
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const { transaction_id, ordersData } = await req.json();
+    if (!transaction_id || !ordersData) {
+      return Response.json({ error: 'transaction_id and ordersData are required' }, { status: 400 });
     }
 
-    const { reference, ordersData } = await req.json();
+    const secretKey = secrets.get('FLUTTERWAVE_SECRET_KEY');
+    if (!secretKey) return Response.json({ error: 'Server configuration error' }, { status: 500 });
 
-    if (!reference || !ordersData) {
-      return Response.json({ error: 'Invalid request' }, { status: 400 });
-    }
-
-    const secretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
-    if (!secretKey) {
-      return Response.json({ error: 'Server configuration error' }, { status: 500 });
-    }
-
-    // Verify payment with Paystack
+    // Verify the transaction with Flutterwave
     const verifyResponse = await fetch(
-      `https://api.paystack.co/transaction/verify/${reference}`,
+      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
       {
         method: 'GET',
         headers: {
@@ -31,21 +28,23 @@ Deno.serve(async (req) => {
         }
       }
     );
+    const flwData = await verifyResponse.json();
 
-    const paystackData = await verifyResponse.json();
-
-    if (!paystackData.status || paystackData.data?.status !== 'success') {
+    if (!flwData.status || flwData.data?.status !== 'successful') {
       return Response.json({ success: false, message: 'Payment not verified' });
     }
 
-    // Check if orders already fully created for this reference (payment_status = 'paid')
+    // The tx_ref we generated is stored on the orders as payment_reference.
+    const reference = flwData.data.tx_ref;
+
+    // Already finalized for this reference?
     const existingPaidOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference, payment_status: 'paid' });
     if (existingPaidOrders && existingPaidOrders.length > 0) {
       console.log(`Orders already paid for reference ${reference}, returning existing orders`);
       return Response.json({ success: true, orders: existingPaidOrders });
     }
 
-    // Find pre-saved "initiated" orders for this reference (created before Paystack opened)
+    // Find pre-saved "initiated" orders for this reference (created before Flutterwave checkout opened)
     const initiatedOrders = await base44.asServiceRole.entities.Order.filter({ payment_reference: reference, payment_status: 'initiated' });
     console.log(`Found ${initiatedOrders.length} initiated order(s) for reference ${reference}`);
 
@@ -74,7 +73,6 @@ Deno.serve(async (req) => {
           const initiated = initiatedOrders.find(o => o.restaurant_id === orderData.restaurant_id);
 
           if (initiated) {
-            // Update existing initiated order to paid
             const updated = await base44.asServiceRole.entities.Order.update(initiated.id, {
               customer_phone: orderData.customer_phone,
               status: 'pending',
@@ -151,4 +149,4 @@ Deno.serve(async (req) => {
       error: error.message || 'Payment verification failed'
     }, { status: 500 });
   }
-});
+}

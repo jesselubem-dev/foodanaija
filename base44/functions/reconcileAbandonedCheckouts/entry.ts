@@ -1,14 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { secrets } from 'base44:runtime';
-import { markOrdersPaidByReference } from "../../shared/paystackReconcile.ts";
+import { markOrdersPaidByReference } from "../../shared/flutterwaveReconcile.ts";
 
 // Scheduled safety net: scans all orders stuck in 'initiated' (abandoned) state,
-// verifies each payment reference with Paystack, and marks confirmed payments as paid.
-// Guarantees a real Paystack payment can never remain showing as abandoned.
+// verifies each payment reference (tx_ref) with Flutterwave, and marks confirmed payments as paid.
+// Guarantees a real Flutterwave payment can never remain showing as abandoned.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const secretKey = secrets.get('PAYSTACK_SECRET_KEY');
+    const secretKey = secrets.get('FLUTTERWAVE_SECRET_KEY');
     if (!secretKey) {
       return Response.json({ error: 'Server configuration error' }, { status: 500 });
     }
@@ -26,7 +26,7 @@ export default async function(req) {
       });
     }
 
-    // Group by unique payment reference
+    // Group by unique payment reference (tx_ref)
     const references = [...new Set(
       initiatedOrders.map(o => o.payment_reference).filter(Boolean)
     )];
@@ -37,7 +37,7 @@ export default async function(req) {
     for (const reference of references) {
       try {
         const verifyResponse = await fetch(
-          `https://api.paystack.co/transaction/verify/${reference}`,
+          `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(reference)}`,
           {
             method: 'GET',
             headers: {
@@ -46,10 +46,10 @@ export default async function(req) {
             }
           }
         );
-        const paystackData = await verifyResponse.json();
+        const flwData = await verifyResponse.json();
 
-        if (paystackData.status && paystackData.data?.status === 'success') {
-          // Payment confirmed by Paystack — mark orders paid
+        if (flwData.status && flwData.data?.status === 'successful') {
+          // Payment confirmed by Flutterwave — mark orders paid
           const updated = await markOrdersPaidByReference(base44, reference);
           reconciledCount += updated.length;
           details.push({ reference, status: 'paid', orders: updated.length });

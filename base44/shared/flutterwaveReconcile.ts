@@ -1,5 +1,5 @@
-// Shared logic for reconciling Paystack payments against pre-saved "initiated" orders.
-// Used by the Paystack webhook and the admin re-verify function so logic is not duplicated.
+// Shared logic for reconciling Flutterwave payments against pre-saved "initiated" orders.
+// Used by the Flutterwave webhook and the admin re-verify function so logic is not duplicated.
 
 export async function markOrdersPaidByReference(base44, reference) {
   const initiatedOrders = await base44.asServiceRole.entities.Order.filter({

@@ -1,9 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { secrets } from 'base44:runtime';
-import { markOrdersPaidByReference } from "../../shared/paystackReconcile.ts";
+import { markOrdersPaidByReference } from "../../shared/flutterwaveReconcile.ts";
 
-// Admin-only: re-verifies a Paystack reference and marks any stuck "initiated"
-// orders as paid if Paystack confirms the transaction was successful.
+// Admin-only: re-verifies a Flutterwave tx_ref and marks any stuck "initiated"
+// orders as paid if Flutterwave confirms the transaction was successful.
 // Used to reconcile abandoned checkouts where the customer actually paid.
 export default async function(req) {
   try {
@@ -19,14 +19,14 @@ export default async function(req) {
       return Response.json({ error: 'Payment reference is required' }, { status: 400 });
     }
 
-    const secretKey = secrets.get('PAYSTACK_SECRET_KEY');
+    const secretKey = secrets.get('FLUTTERWAVE_SECRET_KEY');
     if (!secretKey) {
       return Response.json({ error: 'Server configuration error' }, { status: 500 });
     }
 
-    // Verify the transaction with Paystack
+    // Verify the transaction with Flutterwave by tx_ref
     const verifyResponse = await fetch(
-      `https://api.paystack.co/transaction/verify/${reference}`,
+      `https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${encodeURIComponent(reference)}`,
       {
         method: 'GET',
         headers: {
@@ -35,12 +35,12 @@ export default async function(req) {
         }
       }
     );
-    const paystackData = await verifyResponse.json();
+    const flwData = await verifyResponse.json();
 
-    if (!paystackData.status || paystackData.data?.status !== 'success') {
+    if (!flwData.status || flwData.data?.status !== 'successful') {
       return Response.json({
         success: false,
-        message: 'Paystack did not confirm this payment as successful — money did not go through.'
+        message: 'Flutterwave did not confirm this payment as successful — money did not go through.'
       });
     }
 
@@ -49,7 +49,7 @@ export default async function(req) {
     if (updated.length === 0) {
       return Response.json({
         success: false,
-        message: 'Payment confirmed by Paystack, but no initiated orders found for this reference (they may already be paid).'
+        message: 'Payment confirmed by Flutterwave, but no initiated orders found for this reference (they may already be paid).'
       });
     }
 

@@ -19,13 +19,10 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
-const PAYSTACK_PUBLIC_KEY = 'pk_live_59db0d6d48b813579b808a85521985124bc8c014';
-
 export default function Checkout() {
   const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [selectedDrinks, setSelectedDrinks] = useState([]);
   const [promoCode, setPromoCode] = useState('');
@@ -42,21 +39,7 @@ export default function Checkout() {
 
   useEffect(() => {
     checkAuth();
-    loadPaystackScript();
   }, []);
-
-  const loadPaystackScript = () => {
-    if (document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')) {
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
-    script.onerror = () => {
-      toast.error('Payment system failed to load');
-    };
-    document.head.appendChild(script);
-  };
 
   const checkAuth = async () => {
     try {
@@ -196,60 +179,6 @@ export default function Checkout() {
   };
 
 
-
-  const verifyPaymentAsync = async (reference, ordersData) => {
-    try {
-      const result = await base44.functions.invoke('verifyPayment', {
-        reference,
-        ordersData
-      });
-
-      if (result.data?.success) {
-        localStorage.removeItem('cart');
-        setShowSuccess(true);
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-        setTimeout(() => {
-          window.location.href = createPageUrl('OrderHistory');
-        }, 3000);
-      } else {
-        toast.error(result.data?.message || 'Payment verification failed');
-        setProcessing(false);
-      }
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      toast.error('Payment verification failed. Please contact support.');
-      setProcessing(false);
-    }
-  };
-
-  const initiatePayment = (email, amount, reference, ordersData) => {
-    if (!window.PaystackPop) {
-      toast.error('Payment system not loaded - try refreshing the page');
-      setProcessing(false);
-      return;
-    }
-
-    const handler = window.PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
-      email,
-      amount: amount * 100,
-      currency: 'NGN',
-      ref: reference,
-      onClose: () => {
-        setProcessing(false);
-        toast.info('Payment cancelled');
-      },
-      callback: (response) => {
-        verifyPaymentAsync(response.reference, ordersData);
-      }
-    });
-
-    handler.openIframe();
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -400,7 +329,32 @@ export default function Checkout() {
       console.warn('Could not save initiated order snapshot:', snapshotErr);
     }
 
-    initiatePayment(formData.customer_email, totalAmount, reference, ordersData);
+    // Save the order snapshot so the verification page can finalize the orders after redirect
+    try {
+      localStorage.setItem('pending_payment', JSON.stringify({ tx_ref: reference, ordersData }));
+    } catch (e) {
+      console.warn('Could not save pending payment snapshot:', e);
+    }
+
+    try {
+      const initRes = await base44.functions.invoke('initiateFlutterwavePayment', {
+        amount: totalAmount,
+        email: formData.customer_email,
+        name: formData.customer_name,
+        phone: formData.customer_phone,
+        tx_ref: reference
+      });
+      if (initRes.data?.success && initRes.data?.payment_link) {
+        window.location.href = initRes.data.payment_link;
+      } else {
+        toast.error(initRes.data?.error || 'Could not start payment. Please try again.');
+        setProcessing(false);
+      }
+    } catch (initError) {
+      console.error('Failed to initiate payment:', initError);
+      toast.error('Could not start payment. Please try again.');
+      setProcessing(false);
+    }
   };
 
   // Group by restaurant to calculate totals
@@ -723,35 +677,6 @@ export default function Checkout() {
         </form>
       </div>
 
-      {/* Success Dialog */}
-      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogContent className="max-w-sm">
-          <div className="text-center py-6">
-            <div className="mb-4 flex justify-center">
-              <motion.div
-                initial={{ scale: 0, rotate: -30 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.05 }}
-                className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center"
-              >
-                <Check className="w-10 h-10 text-white" strokeWidth={3} />
-              </motion.div>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
-            <p className="text-gray-600 mb-4">
-              Your order has been successfully sent to the restaurant
-            </p>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <p className="text-sm text-orange-800 font-medium">
-                ✓ Restaurant will review your order shortly
-              </p>
-              <p className="text-xs text-orange-700 mt-1">
-                You'll receive notifications about your order status
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
     </ErrorBoundary>
   );
