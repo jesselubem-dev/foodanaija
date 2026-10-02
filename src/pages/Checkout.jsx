@@ -19,6 +19,26 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 
+// Dynamically loads the Flutterwave Inline checkout SDK (v3.js) once.
+function loadFlutterwaveSDK() {
+  return new Promise((resolve, reject) => {
+    if (window.FlutterwaveCheckout) return resolve();
+    const existing = document.getElementById('flw-inline-sdk');
+    if (existing) {
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('Failed to load payment SDK')));
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'flw-inline-sdk';
+    script.src = 'https://checkout.flutterwave.com/v3.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load payment SDK'));
+    document.body.appendChild(script);
+  });
+}
+
 export default function Checkout() {
   const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
   const [cart, setCart] = useState([]);
@@ -338,18 +358,46 @@ export default function Checkout() {
 
     try {
       const initRes = await base44.functions.invoke('initiateFlutterwavePayment', {
-        amount: totalAmount,
-        email: formData.customer_email,
-        name: formData.customer_name,
-        phone: formData.customer_phone,
         tx_ref: reference
       });
-      if (initRes.data?.success && initRes.data?.payment_link) {
-        window.location.href = initRes.data.payment_link;
-      } else {
+      if (!initRes.data?.success || !initRes.data?.public_key) {
         toast.error(initRes.data?.error || 'Could not start payment. Please try again.');
         setProcessing(false);
+        return;
       }
+
+      // Load the Flutterwave Inline SDK and open the checkout modal in-app
+      await loadFlutterwaveSDK();
+
+      const modal = window.FlutterwaveCheckout({
+        public_key: initRes.data.public_key,
+        tx_ref: reference,
+        amount: totalAmount,
+        currency: 'NGN',
+        payment_options: 'card,ussd,banktransfer,account,mobilemoney',
+        customer: {
+          email: formData.customer_email,
+          phonenumber: formData.customer_phone,
+          name: formData.customer_name
+        },
+        customizations: {
+          title: 'Fooda Naija',
+          description: 'Order payment',
+          logo: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png'
+        },
+        callback: function (payment) {
+          if (modal) modal.close();
+          if (payment && payment.transaction_id) {
+            window.location.href = createPageUrl('OrderConfirmation') + `?transaction_id=${payment.transaction_id}`;
+          } else {
+            setProcessing(false);
+            toast.error('Payment not completed. Please try again.');
+          }
+        },
+        onclose: function () {
+          setProcessing(false);
+        }
+      });
     } catch (initError) {
       console.error('Failed to initiate payment:', initError);
       toast.error('Could not start payment. Please try again.');
