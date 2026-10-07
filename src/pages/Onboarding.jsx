@@ -1,296 +1,149 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPageUrl } from '../utils';
-import { ChefHat, ShoppingBag, Bike, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { UtensilsCrossed, ShoppingCart, Bike } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Onboarding() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const slides = [
+const SLIDES = [
   {
-    icon: ChefHat,
-    title: 'Discover Amazing Food',
-    description: 'Explore delicious meals from the best restaurants in Sokoto',
-    gradient: 'from-orange-400 via-orange-500 to-orange-600',
-    bgGradient: 'from-orange-50 to-orange-100'
+    icon: UtensilsCrossed,
+    title: 'Discover great food',
+    description: 'Explore delicious meals from the best restaurants in Sokoto.',
+    tint: 'f-tint-gold',
+    iconBg: 'bg-fooda-gold',
+    iconColor: 'f-on-gold',
   },
   {
-    icon: ShoppingBag,
-    title: 'Order in Minutes',
-    description: 'Quick and easy ordering with just a few taps',
-    gradient: 'from-emerald-400 via-emerald-500 to-emerald-600',
-    bgGradient: 'from-emerald-50 to-emerald-100'
+    icon: ShoppingCart,
+    title: 'Order in minutes',
+    description: 'Pick your dishes, pay securely and you are done — just a few taps.',
+    tint: 'f-tint-green',
+    iconBg: 'bg-fooda-green',
+    iconColor: 'text-white',
   },
   {
     icon: Bike,
-    title: 'Fast Delivery',
-    description: 'Get your food delivered hot and fresh to your doorstep',
-    gradient: 'from-blue-400 via-blue-500 to-blue-600',
-    bgGradient: 'from-blue-50 to-blue-100'
-  }
+    title: 'Fast delivery',
+    description: 'Track your order live and get it hot and fresh at your door.',
+    tint: 'f-tint-gold',
+    iconBg: 'bg-fooda-gold',
+    iconColor: 'f-on-gold',
+  },
 ];
 
+const AUTO_ADVANCE_MS = 4500;
 
-  // Auto-slide every 3 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      handleNext();
-    }, 3000);
+export default function Onboarding() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStart = useRef(0);
+  const touchEnd = useRef(0);
+  const isLast = currentSlide === SLIDES.length - 1;
 
-    return () => clearTimeout(timer);
-  }, [currentSlide]);
-
-  const handleNext = () => {
-    if (currentSlide < slides.length - 1) {
-      setCurrentSlide(currentSlide + 1);
-    } else {
-      localStorage.setItem('onboarding_completed', 'true');
-      window.location.href = createPageUrl('CustomerHome');
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
-  const handleSkip = () => {
+  const finish = () => {
     localStorage.setItem('onboarding_completed', 'true');
     window.location.href = createPageUrl('CustomerHome');
   };
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
+  // Auto-advance through the intro slides, but never past the last one:
+  // the customer taps "Get started" themselves.
+  useEffect(() => {
+    if (isLast || paused) return;
+    const timer = setTimeout(() => setCurrentSlide(s => Math.min(s + 1, SLIDES.length - 1)), AUTO_ADVANCE_MS);
+    return () => clearTimeout(timer);
+  }, [currentSlide, isLast, paused]);
+
+  const handleNext = () => {
+    if (isLast) finish();
+    else setCurrentSlide(currentSlide + 1);
   };
 
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+  const handlePrevious = () => {
+    if (currentSlide > 0) setCurrentSlide(currentSlide - 1);
   };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50;
-
-    if (distance > minSwipeDistance) {
-      handleNext();
+  const onTouchStart = (e) => { setPaused(true); touchStart.current = e.targetTouches[0].clientX; touchEnd.current = 0; };
+  const onTouchMove = (e) => { touchEnd.current = e.targetTouches[0].clientX; };
+  const onTouchEnd = () => {
+    if (touchStart.current && touchEnd.current) {
+      const distance = touchStart.current - touchEnd.current;
+      if (distance > 50 && !isLast) setCurrentSlide(currentSlide + 1);
+      if (distance < -50) handlePrevious();
     }
-
-    if (distance < -minSwipeDistance) {
-      handlePrevious();
-    }
-
-    setTouchStart(0);
-    setTouchEnd(0);
+    touchStart.current = 0;
+    touchEnd.current = 0;
   };
+
+  const slide = SLIDES[currentSlide];
+  const Icon = slide.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex flex-col relative overflow-hidden">
-      {/* Animated background shapes */}
-      <motion.div 
-        className="absolute top-20 left-10 w-32 h-32 bg-orange-200/30 rounded-full blur-3xl"
-        animate={{
-          y: [0, -30, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div 
-        className="absolute bottom-20 right-10 w-40 h-40 bg-amber-200/30 rounded-full blur-3xl"
-        animate={{
-          y: [0, 30, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
+    <div className="min-h-screen bg-white flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      {/* Top bar */}
+      <div className="flex items-center justify-between h-10">
+        <span className="text-[17px] font-bold text-gray-900 tracking-tight">
+          Fooda<span className="f-text-gold">.</span>
+        </span>
+        {!isLast && (
+          <button onClick={finish} className="text-[14px] font-medium text-gray-500 hover:text-gray-900 px-2 py-1">
+            Skip
+          </button>
+        )}
+      </div>
 
-      <div className="p-6 flex-1 flex items-center justify-center relative z-10">
-        <div className="max-w-md w-full">
-
-          {/* Logo */}
-          <motion.div 
-            className="flex items-center justify-center mb-8"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+      {/* Slide */}
+      <div
+        className="flex-1 flex flex-col items-center justify-center text-center touch-pan-y select-none max-w-sm w-full mx-auto"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            className="flex flex-col items-center"
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-              <ChefHat className="w-8 h-8 text-white" />
-            </div>
-          </motion.div>
-
-          <div
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            className="touch-pan-y select-none"
-          >
-          <AnimatePresence mode="wait">
-            {slides.map((slide, index) => {
-              const Icon = slide.icon;
-              return index === currentSlide ? (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="text-center"
-                >
-                  {/* Animated Icon Container */}
-                  <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 260, 
-                      damping: 20,
-                      delay: 0.1 
-                    }}
-                    className="relative mx-auto mb-12 w-48 h-48"
-                  >
-                    {/* Pulsing background */}
-                    <motion.div 
-                      className={`absolute inset-0 rounded-full bg-gradient-to-br ${slide.bgGradient} opacity-50`}
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                    
-                    {/* Main circle */}
-                    <motion.div 
-                      className={`absolute inset-4 rounded-full bg-gradient-to-br ${slide.gradient} flex items-center justify-center shadow-2xl`}
-                      animate={{ 
-                        boxShadow: [
-                          "0 20px 60px rgba(0,0,0,0.2)",
-                          "0 30px 80px rgba(0,0,0,0.3)",
-                          "0 20px 60px rgba(0,0,0,0.2)"
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, 5, -5, 0],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                      >
-                        <Icon className="w-20 h-20 text-white" />
-                      </motion.div>
-                    </motion.div>
-
-                    {/* Sparkles */}
-                    <motion.div
-                      className="absolute -top-2 -right-2"
-                      animate={{ 
-                        rotate: 360,
-                        scale: [1, 1.5, 1]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      <Sparkles className="w-8 h-8 text-yellow-400" />
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.h1 
-                    className="text-4xl font-bold text-gray-900 mb-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {slide.title}
-                  </motion.h1>
-                  
-                  <motion.p 
-                    className="text-lg text-gray-600 mb-8 px-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    {slide.description}
-                  </motion.p>
-                </motion.div>
-              ) : null;
-            })}
-          </AnimatePresence>
-          </div>
-
-          {/* Swipe indicator */}
-          <motion.div 
-            className="flex justify-center items-center gap-2 mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: currentSlide < slides.length - 1 ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              animate={{ x: [-10, 10, -10] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="text-gray-400 text-sm font-medium"
-            >
-              Swipe to continue
-            </motion.div>
-            <motion.div
-              animate={{ x: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="text-orange-500"
-            >
-              →
-            </motion.div>
-          </motion.div>
-
-          {/* Progress dots */}
-          <div className="flex justify-center gap-2 mb-8">
-            {slides.map((_, index) => (
+            <div className={`w-56 h-56 rounded-full ${slide.tint} flex items-center justify-center mb-10`}>
               <motion.div
-                key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? 'w-8 bg-gradient-to-r from-orange-500 to-orange-600'
-                    : 'w-2 bg-gray-300'
-                }`}
-                whileHover={{ scale: 1.2 }}
-                onClick={() => setCurrentSlide(index)}
-              />
-            ))}
-          </div>
-
-          {/* Buttons */}
-          <motion.div 
-            className="space-y-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Button
-              onClick={handleNext}
-              className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-lg font-semibold rounded-2xl shadow-lg shadow-orange-500/30 transition-all hover:shadow-xl hover:scale-[1.02]"
-            >
-              {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
-            </Button>
-            {currentSlide < slides.length - 1 && (
-              <Button
-                onClick={handleSkip}
-                variant="ghost"
-                className="w-full h-14 text-gray-600 hover:text-gray-900 text-base rounded-2xl"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.05 }}
+                className={`w-32 h-32 rounded-[2rem] ${slide.iconBg} flex items-center justify-center shadow-lg`}
               >
-                Skip for now
-              </Button>
-            )}
+                <Icon className={`w-14 h-14 ${slide.iconColor}`} strokeWidth={1.8} />
+              </motion.div>
+            </div>
+            <h1 className="text-[28px] font-semibold text-gray-900 leading-tight">{slide.title}</h1>
+            <p className="text-[15px] text-gray-500 mt-2.5 max-w-[280px]">{slide.description}</p>
           </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Progress + actions */}
+      <div className="max-w-sm w-full mx-auto">
+        <div className="flex justify-center gap-2 mb-6" role="tablist" aria-label="Intro slides">
+          {SLIDES.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={index === currentSlide}
+              aria-label={`Slide ${index + 1}`}
+              onClick={() => { setPaused(true); setCurrentSlide(index); }}
+              className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-fooda-gold' : 'w-2 bg-gray-300'}`}
+            />
+          ))}
         </div>
+
+        <button
+          onClick={handleNext}
+          className="w-full h-14 rounded-2xl text-[15px] font-semibold uppercase tracking-wide f-btn-gold press"
+        >
+          {isLast ? 'Get started' : 'Next'}
+        </button>
       </div>
     </div>
   );
