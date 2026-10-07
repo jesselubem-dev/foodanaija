@@ -251,7 +251,7 @@ function CustomerHomeContent() {
               <Link to={createPageUrl('Chefs')} className="block mb-5">
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-3 flex items-center gap-3 press-card">
                   <div className="w-11 h-11 rounded-xl bg-fooda-gold flex items-center justify-center flex-shrink-0">
-                    <ChefHat className="w-5 h-5" style={{ color: '#111111' }} />
+                    <ChefHat className="w-5 h-5 f-on-gold" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[15px] text-gray-900 leading-tight">Book a Personal Chef</p>
@@ -304,8 +304,7 @@ function CustomerHomeContent() {
                       )}
                       {!isOpen && (
                         <span
-                          className="absolute top-2.5 right-2.5 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm"
-                          style={{ backgroundColor: '#ffffff', color: '#374151' }}
+                          className="absolute top-2.5 right-2.5 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm f-float"
                         >
                           Unavailable
                         </span>

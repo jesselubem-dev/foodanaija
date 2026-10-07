@@ -128,15 +128,14 @@ function CartContent() {
             transition={{ duration: 0.3, ease: EASE_NATIVE }}
             className="flex flex-col items-center justify-center py-24"
           >
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: '#FFFBEB' }}>
-              <ShoppingCart className="w-9 h-9" style={{ color: '#F5B700' }} />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5 f-tint-gold">
+              <ShoppingCart className="w-9 h-9 f-text-gold" />
             </div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">Your order is empty</h2>
             <p className="text-gray-500 text-sm mb-6">Add some delicious food to get started</p>
             <Link
               to={createPageUrl('CustomerHome')}
-              className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press"
-              style={{ backgroundColor: '#F5B700', color: '#111111' }}
+              className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press f-btn-gold"
             >
               Browse restaurants
             </Link>
@@ -182,41 +181,37 @@ function CartContent() {
                               <p className="text-[11px] text-gray-500 mt-0.5 truncate">
                                 {descriptions[item.item_id] || item.restaurant_name || ''}
                               </p>
-                              <p className="text-[12px] font-medium mt-1" style={{ color: '#15803D' }}>
+                              <p className="text-[12px] font-medium mt-1 f-text-green">
                                 ₦{Number(item.price || 0).toLocaleString()} each
                               </p>
                             </div>
 
                             {/* Quantity stepper */}
                             <div
-                              className="flex items-center gap-2.5 rounded-full px-1.5 py-1 flex-shrink-0"
-                              style={{ backgroundColor: '#F5B700' }}
+                              className="flex items-center gap-2.5 rounded-full px-1.5 py-1 flex-shrink-0 bg-fooda-gold"
                             >
                               <button
                                 onClick={() => updateQuantity(item.item_id, -1)}
                                 aria-label={item.quantity === 1 ? `Remove ${item.name}` : `One less ${item.name}`}
-                                className="w-7 h-7 rounded-full flex items-center justify-center press"
-                                style={{ backgroundColor: '#111111' }}
+                                className="w-7 h-7 rounded-full flex items-center justify-center press f-bg-ink"
                               >
-                                <Minus className="w-3.5 h-3.5" style={{ color: '#ffffff' }} strokeWidth={3} />
+                                <Minus className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                               </button>
                               <motion.span
                                 key={item.quantity}
                                 initial={{ scale: 0.6, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-                                className="text-[13px] font-semibold w-4 text-center"
-                                style={{ color: '#111111' }}
+                                className="text-[13px] font-semibold w-4 text-center f-on-gold"
                               >
                                 {item.quantity}
                               </motion.span>
                               <button
                                 onClick={() => updateQuantity(item.item_id, 1)}
                                 aria-label={`One more ${item.name}`}
-                                className="w-7 h-7 rounded-full flex items-center justify-center press"
-                                style={{ backgroundColor: '#111111' }}
+                                className="w-7 h-7 rounded-full flex items-center justify-center press f-bg-ink"
                               >
-                                <Plus className="w-3.5 h-3.5" style={{ color: '#ffffff' }} strokeWidth={3} />
+                                <Plus className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                               </button>
                             </div>
                           </div>
@@ -230,8 +225,7 @@ function CartContent() {
 
             <Link
               to={addMoreUrl}
-              className="inline-flex items-center gap-1 mt-4 text-[12px] font-bold uppercase tracking-wide"
-              style={{ color: '#15803D' }}
+              className="inline-flex items-center gap-1 mt-4 text-[12px] font-bold uppercase tracking-wide f-text-green"
             >
               <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Add more items
             </Link>
@@ -270,8 +264,7 @@ function CartContent() {
         >
           <Link
             to={createPageUrl('Checkout')}
-            className="max-w-lg mx-auto h-14 rounded-2xl flex items-center justify-center gap-1 text-[14px] font-semibold uppercase tracking-wide press"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="max-w-lg mx-auto h-14 rounded-2xl flex items-center justify-center gap-1 text-[14px] font-semibold uppercase tracking-wide press f-btn-gold"
           >
             Checkout · ₦{total.toLocaleString()} <ChevronRight className="w-4 h-4" />
           </Link>

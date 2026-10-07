@@ -70,14 +70,13 @@ export default function HomePromoCard() {
           </p>
           <button
             onClick={redeem}
-            className="mt-3 bg-white text-gray-900 text-[13px] font-semibold px-3.5 py-2 rounded-lg press"
-            style={{ color: '#111111', backgroundColor: '#ffffff' }}
+            className="mt-3 bg-white text-gray-900 text-[13px] font-semibold px-3.5 py-2 rounded-lg press f-float"
           >
             Redeem now
           </button>
         </div>
         <div className="w-16 h-16 rounded-2xl bg-fooda-gold flex items-center justify-center flex-shrink-0">
-          <Truck className="w-7 h-7" style={{ color: '#111111' }} strokeWidth={2} />
+          <Truck className="w-7 h-7 f-on-gold" strokeWidth={2} />
         </div>
       </div>
     </div>

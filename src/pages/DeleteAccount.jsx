@@ -104,8 +104,8 @@ export default function DeleteAccount() {
       <div className="max-w-lg mx-auto px-4 pt-4">
         {/* Intro */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: '#FEF2F2' }}>
-            <UserX className="w-7 h-7" style={{ color: '#DC2626' }} />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 f-tint-red">
+            <UserX className="w-7 h-7 f-text-red" />
           </div>
           <h2 className="text-[20px] font-semibold text-gray-900">We're sorry to see you go</h2>
           <p className="text-[13px] text-gray-500 mt-1 max-w-[300px]">
@@ -116,8 +116,7 @@ export default function DeleteAccount() {
         {/* Account being deleted */}
         <div className="mt-6 rounded-2xl border border-gray-200 p-3.5 flex items-center gap-3">
           <div
-            className="w-11 h-11 rounded-full flex items-center justify-center text-[17px] font-bold flex-shrink-0"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="w-11 h-11 rounded-full flex items-center justify-center text-[17px] font-bold flex-shrink-0 f-btn-gold"
           >
             {initial}
           </div>
@@ -128,10 +127,10 @@ export default function DeleteAccount() {
         </div>
 
         {/* What happens */}
-        <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: '#FECACA', backgroundColor: '#FFFBFB' }}>
+        <div className="mt-4 rounded-2xl border p-4 f-border-red f-tint-red">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4" style={{ color: '#DC2626' }} />
-            <h3 className="text-[14px] font-semibold" style={{ color: '#991B1B' }}>What happens when you delete</h3>
+            <AlertTriangle className="w-4 h-4 f-text-red" />
+            <h3 className="text-[14px] font-semibold f-text-red-strong">What happens when you delete</h3>
           </div>
           <ul className="space-y-2.5">
             {[
@@ -140,8 +139,8 @@ export default function DeleteAccount() {
               { icon: AlertTriangle, text: 'This cannot be undone. To use Fooda again you will need to sign up afresh.' },
             ].map(({ icon: Icon, text }, i) => (
               <li key={i} className="flex items-start gap-2.5">
-                <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#B91C1C' }} />
-                <span className="text-[13px] leading-snug" style={{ color: '#7F1D1D' }}>{text}</span>
+                <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 f-text-red-strong" />
+                <span className="text-[13px] leading-snug f-text-red-strong">{text}</span>
               </li>
             ))}
           </ul>
@@ -152,8 +151,8 @@ export default function DeleteAccount() {
           <h3 className="text-[13px] font-semibold text-gray-500 mb-2 px-1">Not sure yet?</h3>
           <div className="rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3.5 py-3 text-left press">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F3F4F6' }}>
-                <LogOut className="w-[18px] h-[18px]" style={{ color: '#374151' }} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 f-tint-gray">
+                <LogOut className="w-[18px] h-[18px] f-text-soft" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[14px] font-medium text-gray-900">Just log out instead</p>
@@ -161,8 +160,8 @@ export default function DeleteAccount() {
               </div>
             </button>
             <a href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-3.5 py-3 press">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF3' }}>
-                <MessageCircle className="w-[18px] h-[18px]" style={{ color: '#15803D' }} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 f-tint-green">
+                <MessageCircle className="w-[18px] h-[18px] f-text-green" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[14px] font-medium text-gray-900">Talk to us on WhatsApp</p>
@@ -173,7 +172,7 @@ export default function DeleteAccount() {
         </div>
 
         {failed && (
-          <div className="mt-4 rounded-xl px-3.5 py-3 text-[13px]" style={{ backgroundColor: '#FEF2F2', color: '#991B1B' }}>
+          <div className="mt-4 rounded-xl px-3.5 py-3 text-[13px] f-tint-red f-text-red-strong">
             Your account could not be deleted from the app. Please{' '}
             <a href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
               message us on WhatsApp
@@ -188,8 +187,7 @@ export default function DeleteAccount() {
         <div className="max-w-lg mx-auto flex flex-col gap-2">
           <button
             onClick={() => setShowConfirm(true)}
-            className="w-full h-12 rounded-2xl text-[14px] font-semibold uppercase tracking-wide press"
-            style={{ backgroundColor: '#DC2626', color: '#ffffff' }}
+            className="w-full h-12 rounded-2xl text-[14px] font-semibold uppercase tracking-wide press f-btn-danger"
           >
             Delete my account
           </button>
@@ -206,12 +204,12 @@ export default function DeleteAccount() {
       <Dialog open={showConfirm} onOpenChange={(open) => { if (!open) closeConfirm(); }}>
         <DialogContent className="rounded-2xl max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2" style={{ color: '#991B1B' }}>
+            <DialogTitle className="flex items-center gap-2 f-text-red-strong">
               <AlertTriangle className="w-5 h-5" /> Final confirmation
             </DialogTitle>
           </DialogHeader>
           <p className="text-[14px] text-gray-600">
-            This is <strong className="text-gray-900">permanent</strong>. Type <strong style={{ color: '#DC2626' }}>DELETE</strong> below to confirm.
+            This is <strong className="text-gray-900">permanent</strong>. Type <strong className="f-text-red">DELETE</strong> below to confirm.
           </p>
           <Input
             value={confirmText}
@@ -233,8 +231,7 @@ export default function DeleteAccount() {
             <button
               onClick={handleDelete}
               disabled={!confirmed || deleting}
-              className="flex-1 h-12 rounded-xl text-[14px] font-semibold disabled:opacity-40 press"
-              style={{ backgroundColor: '#DC2626', color: '#ffffff' }}
+              className="flex-1 h-12 rounded-xl text-[14px] font-semibold disabled:opacity-40 press f-btn-danger"
             >
               {deleting ? 'Deleting...' : 'Delete account'}
             </button>

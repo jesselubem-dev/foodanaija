@@ -230,8 +230,7 @@ function CustomerSettingsContent() {
         {/* Profile card */}
         <div className="rounded-2xl p-4 flex items-center gap-3.5 bg-gradient-to-br from-fooda-green to-fooda-green-light">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-[22px] font-bold flex-shrink-0"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="w-14 h-14 rounded-full flex items-center justify-center text-[22px] font-bold flex-shrink-0 f-btn-gold"
           >
             {initial}
           </div>
@@ -271,8 +270,7 @@ function CustomerSettingsContent() {
             action={
               <button
                 onClick={openAdd}
-                className="flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide press-sm"
-                style={{ color: '#15803D' }}
+                className="flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide press-sm f-text-green"
               >
                 <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Add
               </button>
@@ -286,8 +284,8 @@ function CustomerSettingsContent() {
               onClick={openAdd}
               className="w-full rounded-2xl border border-dashed border-gray-300 p-5 flex flex-col items-center text-center press"
             >
-              <div className="w-11 h-11 rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: '#FFFBEB' }}>
-                <MapPin className="w-5 h-5" style={{ color: '#F5B700' }} />
+              <div className="w-11 h-11 rounded-full flex items-center justify-center mb-2 f-tint-gold">
+                <MapPin className="w-5 h-5 f-text-gold" />
               </div>
               <p className="text-[14px] font-medium text-gray-900">Add a delivery address</p>
               <p className="text-[12px] text-gray-500 mt-0.5">Your default address fills in at checkout</p>
@@ -306,7 +304,7 @@ function CustomerSettingsContent() {
                       <div className="flex items-center gap-2">
                         <h3 className="text-[14px] font-semibold text-gray-900 truncate">{address.label}</h3>
                         {address.is_default && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#ECFDF3', color: '#15803D' }}>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 f-tint-green f-text-green">
                             Default
                           </span>
                         )}
@@ -327,7 +325,7 @@ function CustomerSettingsContent() {
                         aria-label={`Delete ${address.label}`}
                         className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-50 press-sm"
                       >
-                        <Trash2 className="w-4 h-4" style={{ color: '#DC2626' }} />
+                        <Trash2 className="w-4 h-4 f-text-red" />
                       </button>
                     </div>
                   </div>
@@ -335,8 +333,7 @@ function CustomerSettingsContent() {
                     <button
                       onClick={() => setDefaultMutation.mutate(address.id)}
                       disabled={setDefaultMutation.isPending}
-                      className="mt-2 ml-12 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide disabled:opacity-50 press-sm"
-                      style={{ color: '#15803D' }}
+                      className="mt-2 ml-12 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide disabled:opacity-50 press-sm f-text-green"
                     >
                       <Check className="w-3 h-3" strokeWidth={3} /> Set as default
                     </button>
@@ -397,8 +394,7 @@ function CustomerSettingsContent() {
             <button
               onClick={confirmDelete}
               disabled={deleteMutation.isPending}
-              className="flex-1 h-11 rounded-xl text-[14px] font-semibold disabled:opacity-60 press"
-              style={{ backgroundColor: '#DC2626', color: '#ffffff' }}
+              className="flex-1 h-11 rounded-xl text-[14px] font-semibold disabled:opacity-60 press f-btn-danger"
             >
               {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </button>
@@ -419,8 +415,7 @@ function CustomerSettingsContent() {
             </button>
             <button
               onClick={handleLogout}
-              className="flex-1 h-11 rounded-xl text-[14px] font-semibold press"
-              style={{ backgroundColor: '#F5B700', color: '#111111' }}
+              className="flex-1 h-11 rounded-xl text-[14px] font-semibold press f-btn-gold"
             >
               Log out
             </button>
@@ -473,8 +468,7 @@ function CustomerSettingsContent() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 h-12 rounded-xl text-[14px] font-semibold uppercase tracking-wide disabled:opacity-60 press"
-                style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                className="flex-1 h-12 rounded-xl text-[14px] font-semibold uppercase tracking-wide disabled:opacity-60 press f-btn-gold"
               >
                 {saving ? 'Saving...' : editingAddress ? 'Update' : 'Save'}
               </button>

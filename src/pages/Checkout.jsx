@@ -447,8 +447,7 @@ export default function Checkout() {
           <p className="text-sm text-gray-500 mb-6">Add some food before checking out</p>
           <Link
             to={createPageUrl('CustomerHome')}
-            className="inline-flex h-11 px-6 rounded-xl text-sm font-semibold items-center press"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="inline-flex h-11 px-6 rounded-xl text-sm font-semibold items-center press f-btn-gold"
           >
             Browse restaurants
           </Link>
@@ -553,20 +552,19 @@ export default function Checkout() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: -6 }}
                 transition={{ duration: 0.24, ease: EASE_NATIVE }}
-                className="rounded-xl border p-3 flex items-start justify-between gap-3"
-                style={{ backgroundColor: '#ECFDF3', borderColor: '#BBF7D0' }}
+                className="rounded-xl border p-3 flex items-start justify-between gap-3 f-tint-green f-border-green"
               >
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-5 h-5 mt-0.5" style={{ color: '#15803D' }} />
+                  <Check className="w-5 h-5 mt-0.5 f-text-green" />
                   <div>
-                    <p className="font-semibold text-[14px]" style={{ color: '#111111' }}>{appliedPromo.code}</p>
-                    <p className="text-[12px] mt-0.5" style={{ color: '#15803D' }}>
+                    <p className="font-semibold text-[14px] f-on-gold">{appliedPromo.code}</p>
+                    <p className="text-[12px] mt-0.5 f-text-green">
                       {(appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) ? 'Free delivery & service fee' :
                        appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}% off` :
                        `₦${Number(appliedPromo.discount_value).toLocaleString()} off`}
                     </p>
                     {appliedPromo.description && (
-                      <p className="text-[11px] mt-0.5" style={{ color: '#6B7280' }}>{appliedPromo.description}</p>
+                      <p className="text-[11px] mt-0.5 f-text-muted">{appliedPromo.description}</p>
                     )}
                   </div>
                 </div>
@@ -574,8 +572,7 @@ export default function Checkout() {
                   type="button"
                   onClick={removePromoCode}
                   aria-label="Remove promo code"
-                  className="p-1"
-                  style={{ color: '#6B7280' }}
+                  className="p-1 f-text-muted"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -604,14 +601,13 @@ export default function Checkout() {
                     type="button"
                     onClick={applyPromoCode}
                     disabled={promoLoading || !promoCode.trim()}
-                    className="h-12 px-5 rounded-xl text-[12px] font-semibold uppercase tracking-wide disabled:opacity-60 press"
-                    style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                    className="h-12 px-5 rounded-xl text-[12px] font-semibold uppercase tracking-wide disabled:opacity-60 press f-btn-gold"
                   >
                     {promoLoading ? '...' : 'Apply'}
                   </button>
                 </div>
                 {promoError && (
-                  <p className="text-[12px] mt-1.5" style={{ color: '#DC2626' }}>{promoError}</p>
+                  <p className="text-[12px] mt-1.5 f-text-red">{promoError}</p>
                 )}
               </motion.div>
             )}
@@ -625,7 +621,7 @@ export default function Checkout() {
         </div>
 
         {/* Order summary */}
-        <div className="mt-6 rounded-2xl border p-4" style={{ borderColor: '#FDE68A' }}>
+        <div className="mt-6 rounded-2xl border p-4 f-border-gold">
           <h3 className="text-[15px] font-semibold text-gray-900 mb-3">Order summary</h3>
           <div className="space-y-2 text-[13px]">
             <div className="flex justify-between">
@@ -642,8 +638,8 @@ export default function Checkout() {
             </div>
             {promoDiscount > 0 && (
               <div className="flex justify-between">
-                <span className="font-medium" style={{ color: '#15803D' }}>Promo discount</span>
-                <span className="font-medium" style={{ color: '#15803D' }}>-₦{promoDiscount.toLocaleString()}</span>
+                <span className="font-medium f-text-green">Promo discount</span>
+                <span className="font-medium f-text-green">-₦{promoDiscount.toLocaleString()}</span>
               </div>
             )}
             <div className="flex justify-between pt-1.5 text-[16px]">
@@ -668,8 +664,7 @@ export default function Checkout() {
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             disabled={processing}
-            className="w-full max-w-lg mx-auto h-14 rounded-2xl flex items-center justify-center gap-1 text-[14px] font-semibold uppercase tracking-wide disabled:opacity-70"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="w-full max-w-lg mx-auto h-14 rounded-2xl flex items-center justify-center gap-1 text-[14px] font-semibold uppercase tracking-wide disabled:opacity-70 f-btn-gold"
           >
             {processing ? 'Processing...' : <>Place order · ₦{total.toLocaleString()} <ChevronRight className="w-4 h-4" /></>}
           </motion.button>

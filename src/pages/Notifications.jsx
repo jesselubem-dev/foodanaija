@@ -111,8 +111,7 @@ function NotificationsContent() {
             <button
               onClick={() => markAllRead.mutate()}
               disabled={markAllRead.isPending}
-              className="absolute right-0 text-[12px] font-semibold disabled:opacity-50"
-              style={{ color: '#15803D' }}
+              className="absolute right-0 text-[12px] font-semibold disabled:opacity-50 f-text-green"
             >
               Mark all read
             </button>
@@ -157,8 +156,8 @@ function NotificationsContent() {
           </div>
         ) : groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-24">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: '#FFFBEB' }}>
-              <Bell className="w-9 h-9" style={{ color: '#F5B700' }} />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5 f-tint-gold">
+              <Bell className="w-9 h-9 f-text-gold" />
             </div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               {filter === 'unread' ? "You're all caught up" : 'No notifications yet'}
@@ -170,8 +169,7 @@ function NotificationsContent() {
             </p>
             <Link
               to={createPageUrl('CustomerHome')}
-              className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press"
-              style={{ backgroundColor: '#F5B700', color: '#111111' }}
+              className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press f-btn-gold"
             >
               Browse restaurants
             </Link>
@@ -204,8 +202,7 @@ function NotificationsContent() {
                         )}
                         {!n.is_read && (
                           <span
-                            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white"
-                            style={{ backgroundColor: '#E5383B' }}
+                            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-fooda-red"
                           />
                         )}
                       </div>
@@ -219,7 +216,7 @@ function NotificationsContent() {
                         </div>
                         <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
                         {n.order_id && (
-                          <span className="inline-flex items-center gap-0.5 mt-1.5 text-[11px] font-bold uppercase tracking-wide" style={{ color: '#15803D' }}>
+                          <span className="inline-flex items-center gap-0.5 mt-1.5 text-[11px] font-bold uppercase tracking-wide f-text-green">
                             View order <ChevronRight className="w-3 h-3" strokeWidth={3} />
                           </span>
                         )}

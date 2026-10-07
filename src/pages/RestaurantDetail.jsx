@@ -221,28 +221,25 @@ function RestaurantDetailContent() {
             <Link
               to={createPageUrl('CustomerHome')}
               aria-label="Back"
-              className="absolute top-3 left-3 w-10 h-10 rounded-full flex items-center justify-center shadow-sm press"
-              style={{ backgroundColor: '#ffffff' }}
+              className="absolute top-3 left-3 w-10 h-10 rounded-full flex items-center justify-center shadow-sm press f-float"
             >
-              <ArrowLeft className="w-5 h-5" style={{ color: '#111111' }} />
+              <ArrowLeft className="w-5 h-5 f-on-gold" />
             </Link>
 
             <div className="absolute top-3 right-3 flex items-center gap-2">
               <button
                 onClick={() => { setSearchOpen(o => !o); if (searchOpen) setMenuSearch(''); }}
                 aria-label="Search menu"
-                className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm press"
-                style={{ backgroundColor: '#ffffff' }}
+                className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm press f-float"
               >
                 {searchOpen
-                  ? <X className="w-5 h-5" style={{ color: '#111111' }} />
-                  : <Search className="w-5 h-5" style={{ color: '#111111' }} />}
+                  ? <X className="w-5 h-5 f-on-gold" />
+                  : <Search className="w-5 h-5 f-on-gold" />}
               </button>
               <button
                 onClick={toggleFavourite}
                 aria-label={isFavourite ? 'Remove from favourites' : 'Save to favourites'}
-                className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm press"
-                style={{ backgroundColor: '#ffffff' }}
+                className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm press f-float"
               >
                 <Heart
                   className="w-5 h-5"
@@ -324,8 +321,8 @@ function RestaurantDetailContent() {
         )}
 
         {!isOpen && (
-          <div className="mt-4 p-3 rounded-xl border" style={{ backgroundColor: '#FEF2F2', borderColor: '#FECACA' }}>
-            <p className="text-sm font-medium text-center" style={{ color: '#B91C1C' }}>
+          <div className="mt-4 p-3 rounded-xl border f-tint-red f-border-red">
+            <p className="text-sm font-medium text-center f-text-red-strong">
               This restaurant is currently closed{openingLabel ? ` · opens ${openingLabel}` : ''}
             </p>
           </div>
@@ -391,8 +388,7 @@ function RestaurantDetailContent() {
                             <button
                               onClick={() => setSelectedItem(item)}
                               aria-label={`${qty} in cart — change quantity`}
-                              className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1 border"
-                              style={{ backgroundColor: '#ECFDF3', color: '#15803D', borderColor: '#BBF7D0' }}
+                              className="h-9 px-3 rounded-lg text-[12px] font-semibold flex items-center gap-1 border f-tint-green f-text-green f-border-green"
                             >
                               ADDED{qty > 1 ? ` ×${qty}` : ''} <Check className="w-3.5 h-3.5" />
                             </button>
@@ -427,7 +423,7 @@ function RestaurantDetailContent() {
               )}
               <div className="p-5">
                 {selectedItem.is_popular && (
-                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full mb-3 inline-block" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>🔥 Popular</span>
+                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full mb-3 inline-block f-tint-gold f-text-amber">🔥 Popular</span>
                 )}
                 <h2 className="text-xl font-semibold text-gray-900 mt-1 mb-1">{selectedItem.name}</h2>
                 {selectedItem.description && (
@@ -456,24 +452,22 @@ function RestaurantDetailContent() {
                       {isOpen ? 'ADD TO ORDER +' : 'Closed'}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 rounded-xl px-2 py-1.5" style={{ backgroundColor: '#FFFBEB' }}>
+                    <div className="flex items-center gap-3 rounded-xl px-2 py-1.5 f-tint-gold">
                       <button
                         onClick={() => updateQuantity(selectedItem.id, -1)}
                         aria-label="Remove one"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm"
-                        style={{ backgroundColor: '#ffffff' }}
+                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm f-float"
                       >
-                        <Minus className="w-4 h-4" style={{ color: '#111111' }} />
+                        <Minus className="w-4 h-4 f-on-gold" />
                       </button>
-                      <span className="font-semibold w-5 text-center" style={{ color: '#111111' }}>{getItemQuantity(selectedItem.id)}</span>
+                      <span className="font-semibold w-5 text-center f-on-gold">{getItemQuantity(selectedItem.id)}</span>
                       <button
                         onClick={() => addToCart(selectedItem)}
                         disabled={!isOpen}
                         aria-label="Add one"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm disabled:opacity-50"
-                        style={{ backgroundColor: '#F5B700' }}
+                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm disabled:opacity-50 bg-fooda-gold"
                       >
-                        <Plus className="w-4 h-4" style={{ color: '#111111' }} />
+                        <Plus className="w-4 h-4 f-on-gold" />
                       </button>
                     </div>
                   )}
@@ -497,12 +491,10 @@ function RestaurantDetailContent() {
         <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <button
             onClick={() => setCartOpen(true)}
-            className="w-full max-w-2xl mx-auto h-14 rounded-2xl flex items-center gap-3 px-3 shadow-lg press"
-            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+            className="w-full max-w-2xl mx-auto h-14 rounded-2xl flex items-center gap-3 px-3 shadow-lg press f-btn-gold"
           >
             <span
-              className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold flex-shrink-0"
-              style={{ backgroundColor: '#15803D', color: '#ffffff' }}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold flex-shrink-0 bg-green-700 text-white"
             >
               {cartItemCount > 99 ? '99+' : cartItemCount}
             </span>

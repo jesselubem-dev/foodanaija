@@ -59,7 +59,7 @@ function Tracker({ order }) {
   }[order.delivery_status];
 
   return (
-    <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: '#FFFBEB' }}>
+    <div className="mt-3 rounded-xl p-3 f-tint-gold">
       <div className="flex items-center">
         {STEPS.map((label, i) => {
           const done = i <= current;
@@ -70,10 +70,10 @@ function Tracker({ order }) {
                 style={{ backgroundColor: done ? '#F5B700' : '#E5E7EB' }}
               >
                 {i === 2 && current === 2
-                  ? <Bike className="w-3.5 h-3.5" style={{ color: '#111111' }} />
+                  ? <Bike className="w-3.5 h-3.5 f-on-gold" />
                   : done
-                    ? <Check className="w-3.5 h-3.5" style={{ color: '#111111' }} strokeWidth={3} />
-                    : <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#9CA3AF' }} />}
+                    ? <Check className="w-3.5 h-3.5 f-on-gold" strokeWidth={3} />
+                    : <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />}
               </div>
               {i < STEPS.length - 1 && (
                 <div className="flex-1 h-[3px] mx-1 rounded-full" style={{ backgroundColor: i < current ? '#F5B700' : '#E5E7EB' }} />
@@ -94,7 +94,7 @@ function Tracker({ order }) {
         ))}
       </div>
       {(riderNote || order.rider_name) && order.status === 'accepted' && (
-        <p className="text-[12px] mt-2" style={{ color: '#374151' }}>
+        <p className="text-[12px] mt-2 f-text-soft">
           {riderNote}{order.rider_name ? ` · ${order.rider_name}` : ''}
         </p>
       )}
@@ -236,8 +236,8 @@ function OrderHistoryContent() {
             </div>
           ) : list.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-20">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: '#FFFBEB' }}>
-                <ReceiptText className="w-9 h-9" style={{ color: '#F5B700' }} />
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5 f-tint-gold">
+                <ReceiptText className="w-9 h-9 f-text-gold" />
               </div>
               <h2 className="text-lg font-semibold text-gray-900 mb-1">
                 {tab === 'active' ? 'No active orders' : 'No past orders yet'}
@@ -249,8 +249,7 @@ function OrderHistoryContent() {
               </p>
               <Link
                 to={createPageUrl('CustomerHome')}
-                className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press"
-                style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press f-btn-gold"
               >
                 Browse restaurants
               </Link>
@@ -326,12 +325,12 @@ function OrderHistoryContent() {
                     {/* Live tracker for orders in progress */}
                     {d.active && d.key !== 'pending' && <Tracker order={order} />}
                     {d.key === 'unpaid' && (
-                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2" style={{ backgroundColor: '#F9FAFB', color: '#6B7280' }}>
+                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2 f-tint-gray f-text-muted">
                         Payment wasn't completed for this order. Tap Reorder to try again.
                       </p>
                     )}
                     {d.key === 'pending' && (
-                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2" style={{ backgroundColor: '#FFFBEB', color: '#92400E' }}>
+                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2 f-tint-gold f-text-amber">
                         Waiting for {order.restaurant_name} to accept your order
                       </p>
                     )}
@@ -347,8 +346,7 @@ function OrderHistoryContent() {
                           <button
                             onClick={() => setCancelOrderId(order.id)}
                             disabled={cancelOrderMutation.isPending}
-                            className="h-9 px-3.5 rounded-lg text-[12px] font-semibold border disabled:opacity-50 press"
-                            style={{ borderColor: '#FECACA', color: '#B91C1C', backgroundColor: '#ffffff' }}
+                            className="h-9 px-3.5 rounded-lg text-[12px] font-semibold border disabled:opacity-50 press f-btn-outline-danger"
                           >
                             Cancel
                           </button>
@@ -356,8 +354,7 @@ function OrderHistoryContent() {
                         {!d.active && items.length > 0 && (
                           <button
                             onClick={() => handleReorder(order)}
-                            className="h-9 px-4 rounded-lg text-[12px] font-semibold uppercase tracking-wide press"
-                            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                            className="h-9 px-4 rounded-lg text-[12px] font-semibold uppercase tracking-wide press f-btn-gold"
                           >
                             Reorder
                           </button>
