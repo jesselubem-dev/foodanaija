@@ -90,10 +90,13 @@ function RestaurantDetailContent() {
     }
   }, [deepLinkItemId, menuItems]);
 
-  const sortedCategories = useMemo(
-    () => [...categories].sort((a, b) => (a.display_order || 0) - (b.display_order || 0)),
-    [categories]
-  );
+  // Only categories that actually contain dishes, in the restaurant's display order.
+  const sortedCategories = useMemo(() => {
+    const used = new Set(menuItems.map(i => i.category_id));
+    return categories
+      .filter(c => used.has(c.id))
+      .sort((a, b) => (a.display_order || 0) - (b.display_order || 0) || (a.name || '').localeCompare(b.name || ''));
+  }, [categories, menuItems]);
 
   // Group the (filtered) menu into sections by category, in display order.
   const sections = useMemo(() => {
@@ -300,7 +303,7 @@ function RestaurantDetailContent() {
         )}
 
         {/* Category chips */}
-        {sortedCategories.length > 0 && (
+        {sortedCategories.length > 1 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {[{ id: 'all', name: 'All' }, ...sortedCategories].map(cat => {
               const active = selectedCategory === cat.id;
