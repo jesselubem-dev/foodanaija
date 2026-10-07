@@ -20,13 +20,18 @@ const STATUS = {
   declined:  { label: 'Declined',  bg: '#FEF2F2', fg: '#B91C1C' },
   cancelled: { label: 'Cancelled', bg: '#FEF2F2', fg: '#B91C1C' },
   refunded:  { label: 'Refunded',  bg: '#EFF6FF', fg: '#1D4ED8' },
+  unpaid:    { label: 'Not paid',  bg: '#F3F4F6', fg: '#6B7280' },
 };
+
+// A checkout that was saved but never paid (payment never confirmed).
+const isUnpaid = (order) => order.status === 'pending' && order.payment_status === 'initiated';
 
 // One place that decides how an order is shown.
 function describe(order) {
   const ds = order.delivery_status;
   if (order.status === 'cancelled') return { key: order.refunded ? 'refunded' : 'cancelled', active: false };
   if (order.status === 'declined') return { key: 'declined', active: false };
+  if (isUnpaid(order)) return { key: 'unpaid', active: false };
   if (order.status === 'delivered' || ds === 'delivered') return { key: 'delivered', active: false };
   if (order.status === 'accepted' && (ds === 'picked_up' || ds === 'on_the_way')) return { key: 'on_way', active: true };
   if (order.status === 'accepted') return { key: 'accepted', active: true };
@@ -320,6 +325,11 @@ function OrderHistoryContent() {
 
                     {/* Live tracker for orders in progress */}
                     {d.active && d.key !== 'pending' && <Tracker order={order} />}
+                    {d.key === 'unpaid' && (
+                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2" style={{ backgroundColor: '#F9FAFB', color: '#6B7280' }}>
+                        Payment wasn't completed for this order. Tap Reorder to try again.
+                      </p>
+                    )}
                     {d.key === 'pending' && (
                       <p className="mt-3 text-[12px] rounded-xl px-3 py-2" style={{ backgroundColor: '#FFFBEB', color: '#92400E' }}>
                         Waiting for {order.restaurant_name} to accept your order
@@ -333,7 +343,7 @@ function OrderHistoryContent() {
                         <p className="text-[16px] font-bold text-gray-900">₦{Number(order.total || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2">
-                        {order.status === 'pending' && (
+                        {d.key === 'pending' && (
                           <button
                             onClick={() => setCancelOrderId(order.id)}
                             disabled={cancelOrderMutation.isPending}
