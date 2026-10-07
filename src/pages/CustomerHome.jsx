@@ -152,6 +152,17 @@ function CustomerHomeContent() {
     }
   }, [user]);
 
+  const isRestaurantOpen = (restaurant) => {
+    if (!restaurant.is_open) return false;
+    if (!restaurant.opening_time || !restaurant.closing_time) return restaurant.is_open;
+    const now = new Date();
+    const cur = now.getHours() * 60 + now.getMinutes();
+    const [oh, om] = restaurant.opening_time.split(':').map(Number);
+    const [ch, cm] = restaurant.closing_time.split(':').map(Number);
+    const open = oh * 60 + om, close = ch * 60 + cm;
+    return close < open ? (cur >= open || cur <= close) : (cur >= open && cur <= close);
+  };
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = (user?.full_name || '').trim().split(' ')[0];
@@ -170,17 +181,6 @@ function CustomerHomeContent() {
       (b.rating || 0) - (a.rating || 0) || (b.total_reviews || 0) - (a.total_reviews || 0));
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  const isRestaurantOpen = (restaurant) => {
-    if (!restaurant.is_open) return false;
-    if (!restaurant.opening_time || !restaurant.closing_time) return restaurant.is_open;
-    const now = new Date();
-    const cur = now.getHours() * 60 + now.getMinutes();
-    const [oh, om] = restaurant.opening_time.split(':').map(Number);
-    const [ch, cm] = restaurant.closing_time.split(':').map(Number);
-    const open = oh * 60 + om, close = ch * 60 + cm;
-    return close < open ? (cur >= open || cur <= close) : (cur >= open && cur <= close);
-  };
 
   const updateCartQuantity = (itemId, newQuantity) => {
     if (newQuantity === 0) { removeFromCart(itemId); return; }
