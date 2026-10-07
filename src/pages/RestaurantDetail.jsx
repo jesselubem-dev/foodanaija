@@ -340,7 +340,7 @@ function RestaurantDetailContent() {
                         {item.images?.[0] ? (
                           <img src={item.images[0]} alt={item.name} loading="lazy" className="w-[60px] h-[60px] rounded-xl object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-[60px] h-[60px] rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                          <div className="w-[60px] h-[60px] rounded-xl f-tint-gold flex items-center justify-center flex-shrink-0">
                             <span className="text-2xl">🍽️</span>
                           </div>
                         )}
@@ -404,7 +404,7 @@ function RestaurantDetailContent() {
               {selectedItem.images?.[0] ? (
                 <img src={selectedItem.images[0]} alt={selectedItem.name} className="w-full h-64 object-cover" />
               ) : (
-                <div className="w-full h-64 bg-amber-50 flex items-center justify-center">
+                <div className="w-full h-64 f-tint-gold flex items-center justify-center">
                   <span className="text-6xl">🍽️</span>
                 </div>
               )}

@@ -154,7 +154,7 @@ function CartContent() {
                             {item.image_url ? (
                               <img src={item.image_url} alt={item.name} className="w-[60px] h-[60px] rounded-xl object-cover flex-shrink-0" />
                             ) : (
-                              <div className="w-[60px] h-[60px] rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                              <div className="w-[60px] h-[60px] rounded-xl f-tint-gold flex items-center justify-center flex-shrink-0">
                                 <span className="text-2xl">🍽️</span>
                               </div>
                             )}
