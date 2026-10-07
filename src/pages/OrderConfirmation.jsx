@@ -4,7 +4,6 @@ import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Check, X, Loader2, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import confetti from 'canvas-confetti';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
@@ -66,9 +65,11 @@ export default function OrderConfirmation() {
             transition={{ duration: 0.3, ease: EASE_NATIVE }}
             className="text-center"
           >
-            <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Verifying your payment…</h2>
-            <p className="text-gray-500 text-sm">Please don't close this page.</p>
+            <div className="w-20 h-20 rounded-full f-tint-gold flex items-center justify-center mx-auto mb-5">
+              <Loader2 className="w-9 h-9 f-text-gold animate-spin" />
+            </div>
+            <h2 className="text-[20px] font-semibold text-gray-900 mb-1">Confirming your payment…</h2>
+            <p className="text-gray-500 text-sm">Please keep this page open.</p>
           </motion.div>
         )}
 
@@ -77,23 +78,29 @@ export default function OrderConfirmation() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, ease: EASE_NATIVE }}
-            className="text-center max-w-sm"
+            className="text-center max-w-sm w-full"
           >
             <motion.div
               initial={{ scale: 0, rotate: -30 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.05 }}
-              className="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-20 h-20 rounded-full bg-fooda-gold flex items-center justify-center mx-auto mb-5"
             >
-              <Check className="w-10 h-10 text-white" strokeWidth={3} />
+              <Check className="w-10 h-10 f-on-gold" strokeWidth={3} />
             </motion.div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed! 🎉</h2>
-            <p className="text-gray-600 mb-4">Your order has been successfully sent to the restaurant.</p>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-left">
-              <p className="text-sm text-orange-800 font-medium">✓ Restaurant will review your order shortly</p>
-              <p className="text-xs text-orange-700 mt-1">You'll receive notifications about your order status</p>
+            <h2 className="text-[22px] font-semibold text-gray-900 mb-1">Order placed!</h2>
+            <p className="text-gray-500 text-sm mb-5">Your payment went through and your order is with the restaurant.</p>
+            <div className="rounded-2xl p-4 text-left f-tint-green space-y-1">
+              <p className="text-[13px] font-semibold f-text-green">✓ The restaurant will accept it shortly</p>
+              <p className="text-[12px] f-text-green">We'll notify you as your order is accepted and on its way.</p>
             </div>
-            <p className="text-xs text-gray-400 mt-4">Redirecting to your orders…</p>
+            <Link
+              to={createPageUrl('OrderHistory')}
+              className="mt-5 h-12 rounded-2xl flex items-center justify-center text-[14px] font-semibold uppercase tracking-wide f-btn-gold press"
+            >
+              Track my order
+            </Link>
+            <p className="text-[12px] text-gray-400 mt-3">Taking you to your orders…</p>
           </motion.div>
         )}
 
@@ -102,19 +109,25 @@ export default function OrderConfirmation() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: EASE_NATIVE }}
-            className="text-center max-w-sm"
+            className="text-center max-w-sm w-full"
           >
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-10 h-10 text-red-500" strokeWidth={3} />
+            <div className="w-20 h-20 rounded-full f-tint-red flex items-center justify-center mx-auto mb-5">
+              <X className="w-10 h-10 f-text-red" strokeWidth={3} />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment not confirmed</h2>
-            <p className="text-gray-600 mb-6">{message}</p>
-            <div className="flex flex-col gap-3">
-              <Link to={createPageUrl('OrderHistory')}>
-                <Button className="w-full bg-orange-500 hover:bg-orange-600">View My Orders</Button>
+            <h2 className="text-[22px] font-semibold text-gray-900 mb-1">Payment not confirmed</h2>
+            <p className="text-gray-500 text-sm mb-6">{message}</p>
+            <div className="flex flex-col gap-2.5">
+              <Link
+                to={createPageUrl('OrderHistory')}
+                className="h-12 rounded-2xl flex items-center justify-center text-[14px] font-semibold uppercase tracking-wide f-btn-gold press"
+              >
+                View my orders
               </Link>
-              <Link to={createPageUrl('CustomerHome')}>
-                <Button variant="outline" className="w-full"><Home className="w-4 h-4 mr-2" />Back to Home</Button>
+              <Link
+                to={createPageUrl('CustomerHome')}
+                className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[14px] font-semibold f-btn-outline press"
+              >
+                <Home className="w-4 h-4" /> Back to home
               </Link>
             </div>
           </motion.div>
