@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import NotificationBell from '../components/customer/NotificationBell';
 import PromoModal from '../components/customer/PromoModal';
 import VoiceOrderModal from '../components/customer/VoiceOrderModal';
-import RiderRatingModal from '../components/customer/RiderRatingModal';
+import RiderRatingModal, { hasSkippedRiderRating } from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
 import FloatingWhatsApp from '../components/customer/FloatingWhatsApp';
 import HomePromoCard from '../components/customer/HomePromoCard';
@@ -47,7 +47,7 @@ function CustomerHomeContent() {
       try {
         const userOrders = await base44.entities.Order.filter({ customer_email: user.email }, '-created_date', 5);
         const deliveredOrder = userOrders.find(o => o.delivery_status === 'delivered');
-        if (deliveredOrder && deliveredOrder.rider_id) {
+        if (deliveredOrder && deliveredOrder.rider_id && !hasSkippedRiderRating(deliveredOrder.id)) {
           const existingRating = await base44.entities.RiderRating.filter({ order_id: deliveredOrder.id, customer_email: user.email });
           if (existingRating.length === 0) setRiderRatingOrder(deliveredOrder);
         }
