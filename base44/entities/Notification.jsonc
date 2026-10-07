@@ -1,46 +1,60 @@
 {
   "name": "Notification",
-  "type": "object",
   "properties": {
-    "user_email": {
-      "type": "string",
-      "description": "Customer email"
+    "is_read": {
+      "default": false,
+      "description": "Whether notification has been read",
+      "type": "boolean"
     },
-    "title": {
-      "type": "string",
-      "description": "Notification title"
+    "link": {
+      "description": "In-app page to open when tapped, e.g. OrderHistory or RestaurantDetail?id=...",
+      "type": "string"
     },
     "message": {
-      "type": "string",
-      "description": "Notification message"
-    },
-    "type": {
-      "type": "string",
-      "enum": [
-        "order_accepted",
-        "order_declined",
-        "order_delivered"
-      ],
-      "description": "Notification type"
-    },
-    "order_id": {
-      "type": "string",
-      "description": "Related order ID"
-    },
-    "is_read": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether notification has been read"
+      "description": "Notification message",
+      "type": "string"
     },
     "metadata": {
-      "type": "object",
       "description": "Additional notification data like image URLs",
       "properties": {
         "image_url": {
-          "type": "string",
-          "description": "Image to display in notification"
+          "description": "Image to display in notification",
+          "type": "string"
         }
-      }
+      },
+      "type": "object"
+    },
+    "order_id": {
+      "description": "Related order ID",
+      "type": "string"
+    },
+    "restaurant_id": {
+      "description": "Related restaurant ID",
+      "type": "string"
+    },
+    "title": {
+      "description": "Notification title",
+      "type": "string"
+    },
+    "type": {
+      "description": "Notification type",
+      "enum": [
+        "order_placed",
+        "order_accepted",
+        "order_declined",
+        "rider_assigned",
+        "order_picked_up",
+        "order_on_the_way",
+        "order_delivered",
+        "order_cancelled",
+        "restaurant_open",
+        "promo"
+      ],
+      "type": "string"
+    },
+    "user_email": {
+      "description": "Customer email",
+      "type": "string"
     }
   },
   "required": [
@@ -48,5 +62,6 @@
     "title",
     "message",
     "type"
-  ]
+  ],
+  "type": "object"
 }
