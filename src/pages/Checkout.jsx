@@ -3,17 +3,12 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Ticket, X, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from "sonner";
-import confetti from 'canvas-confetti';
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+
+
 import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
@@ -435,25 +430,28 @@ export default function Checkout() {
   
   const total = subtotal + deliveryFee + valueAddedService - promoDiscount;
 
+  const fieldClass = "h-12 rounded-xl border-gray-200 bg-white text-[14px] shadow-none focus-visible:ring-1 focus-visible:ring-fooda-gold";
+  const labelClass = "block text-[13px] font-medium text-gray-900 mb-1.5";
+
   if (cart.length === 0) {
     return (
       <ErrorBoundary>
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE_NATIVE }}
+          className="text-center"
         >
-        <Card>
-          <CardContent className="p-12 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-            <Link to={createPageUrl('CustomerHome')}>
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                Browse Restaurants
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Your order is empty</h2>
+          <p className="text-sm text-gray-500 mb-6">Add some food before checking out</p>
+          <Link
+            to={createPageUrl('CustomerHome')}
+            className="inline-flex h-11 px-6 rounded-xl text-sm font-semibold items-center press"
+            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+          >
+            Browse restaurants
+          </Link>
         </motion.div>
       </div>
       </ErrorBoundary>
@@ -462,269 +460,221 @@ export default function Checkout() {
 
   return (
     <ErrorBoundary>
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pb-32">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('Cart')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
-          </div>
+      <header className="bg-white sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2">
+        <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
+          <Link
+            to={createPageUrl('Cart')}
+            aria-label="Back to your order"
+            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-900" />
+          </Link>
+          <h1 className="text-[17px] font-semibold text-gray-900">Checkout</h1>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
-          {/* Delivery Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Drinks Upsell */}
-            <DrinkUpsell onAddDrink={handleAddDrink} selectedDrinks={selectedDrinks} />
-            <Card className="border-gray-100">
-              <CardHeader>
-                <CardTitle>Delivery Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2">
-                    Full Name *
-                  </label>
-                  <Input
-                    required
-                    value={formData.customer_name}
-                    onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
-                    placeholder="Enter your full name"
-                  />
-                </div>
+      <form id="checkout-form" onSubmit={handleSubmit} className="max-w-lg mx-auto px-4">
+        <h2 className="text-[15px] font-semibold text-gray-900 text-center mt-2 mb-4">Delivery details</h2>
 
-                <div>
-                  <label className="text-sm font-medium mb-2">
-                    Email *
-                  </label>
-                  <Input
-                    required
-                    type="email"
-                    value={formData.customer_email}
-                    onChange={(e) => setFormData({...formData, customer_email: e.target.value})}
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2">
-                    Phone Number *
-                  </label>
-                  <Input
-                    required
-                    value={formData.customer_phone}
-                    onChange={(e) => setFormData({...formData, customer_phone: e.target.value})}
-                    placeholder="e.g. 0801234567"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2">
-                    Delivery Address *
-                  </label>
-                  <Textarea
-                    required
-                    value={formData.delivery_address}
-                    onChange={(e) => setFormData({...formData, delivery_address: e.target.value})}
-                    placeholder="Enter your delivery address"
-                    className="min-h-[80px]"
-                  />
-                </div>
-
-                <div>
-                   <label className="text-sm font-medium mb-2">Special Instructions (Optional)</label>
-                   <Textarea
-                     value={formData.notes}
-                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                     placeholder="Any special requests..."
-                     className="min-h-[80px]"
-                   />
-                 </div>
-                </CardContent>
-                </Card>
-
-                {/* Promo Code */}
-                <Card className="border-gray-100">
-                <CardHeader>
-                 <CardTitle className="flex items-center gap-2">
-                   <Ticket className="w-5 h-5 text-orange-500" />
-                   Promo Code
-                 </CardTitle>
-                </CardHeader>
-                <CardContent>
-                 <AnimatePresence mode="wait">
-                 {appliedPromo ? (
-                   <motion.div
-                     key="applied"
-                     initial={{ opacity: 0, scale: 0.96, y: 6 }}
-                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 0.96, y: -6 }}
-                     transition={{ duration: 0.24, ease: EASE_NATIVE }}
-                     className="bg-green-50 border border-green-200 rounded-lg p-4"
-                   >
-                     <div className="flex items-start justify-between">
-                       <div className="flex items-start gap-3">
-                         <Check className="w-5 h-5 text-green-600 mt-0.5" />
-                         <div>
-                           <p className="font-semibold text-gray-900">{appliedPromo.code}</p>
-                           <p className="text-sm text-green-700 mt-1">
-                             {(appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) ? 'Free Delivery & Service Fee' :
-                              appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}% off` :
-                              `₦${appliedPromo.discount_value} off`}
-                           </p>
-                           {appliedPromo.description && (
-                             <p className="text-xs text-gray-500 mt-1">{appliedPromo.description}</p>
-                           )}
-                         </div>
-                       </div>
-                       <button
-                         type="button"
-                         onClick={removePromoCode}
-                         className="text-gray-400 hover:text-red-500"
-                       >
-                         <X className="w-5 h-5" />
-                       </button>
-                     </div>
-                   </motion.div>
-                 ) : (
-                   <motion.div
-                     key="input"
-                     initial={{ opacity: 0, scale: 0.96, y: 6 }}
-                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 0.96, y: -6 }}
-                     transition={{ duration: 0.24, ease: EASE_NATIVE }}
-                     className="space-y-3"
-                   >
-                     <div className="flex gap-2">
-                       <Input
-                         type="text"
-                         value={promoCode}
-                         onChange={(e) => {
-                           setPromoCode(e.target.value.toUpperCase());
-                           setPromoError('');
-                         }}
-                         placeholder="Enter promo code"
-                         onKeyPress={(e) => e.key === 'Enter' && applyPromoCode()}
-                       />
-                       <Button
-                         type="button"
-                         onClick={applyPromoCode}
-                         disabled={promoLoading || !promoCode.trim()}
-                         className="bg-orange-500 hover:bg-orange-600"
-                       >
-                         {promoLoading ? 'Applying...' : 'Apply'}
-                       </Button>
-                     </div>
-                     {promoError && (
-                       <p className="text-sm text-red-600">{promoError}</p>
-                     )}
-                   </motion.div>
-                 )}
-                 </AnimatePresence>
-                </CardContent>
-                </Card>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="co-name" className={labelClass}>Full name</label>
+            <Input
+              id="co-name"
+              required
+              autoComplete="name"
+              value={formData.customer_name}
+              onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
+              className={fieldClass}
+            />
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <Card className="border-gray-100 sticky top-24">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <AnimatePresence initial={false}>
-                {cart.map((item) => (
-                  <motion.div
-                    key={item.item_id}
-                    layout
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 12 }}
-                    transition={{ duration: 0.24, ease: EASE_NATIVE }}
-                    className="flex justify-between text-sm"
-                  >
-                    <span className="text-gray-600">
-                      {item.name} x{item.quantity}
-                    </span>
-                    <span className="font-medium">
-                      ₦{(item.price * item.quantity).toLocaleString()}
-                    </span>
-                  </motion.div>
-                ))}
-                </AnimatePresence>
+          <div>
+            <label htmlFor="co-email" className={labelClass}>Email</label>
+            <Input
+              id="co-email"
+              required
+              type="email"
+              autoComplete="email"
+              value={formData.customer_email}
+              onChange={(e) => setFormData({...formData, customer_email: e.target.value})}
+              className={fieldClass}
+            />
+          </div>
 
-                {selectedDrinks.length > 0 && (
-                  <div className="pt-2 border-t">
-                    {selectedDrinks.map((drink) => (
-                      <div key={drink.id} className="flex justify-between text-sm">
-                        <span className="text-gray-600">
-                          🥤 {drink.name} x{drink.quantity}
-                        </span>
-                        <span className="font-medium text-orange-600">
-                          ₦{(drink.price * drink.quantity).toLocaleString()}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+          <div>
+            <label htmlFor="co-phone" className={labelClass}>Phone number</label>
+            <Input
+              id="co-phone"
+              required
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              value={formData.customer_phone}
+              onChange={(e) => setFormData({...formData, customer_phone: e.target.value})}
+              placeholder="e.g. 08012345678"
+              className={fieldClass}
+            />
+          </div>
 
-                <div className="border-t pt-4 space-y-2.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span className="font-medium text-gray-800">₦{subtotal.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Delivery Fee {restaurantCount > 1 ? `(${restaurantCount}x)` : ''}</span>
-                    <span className="font-medium text-gray-800">₦{deliveryFee.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Service Fee</span>
-                    <span className="font-medium text-gray-800">₦{valueAddedService.toLocaleString()}</span>
-                  </div>
-                  {promoDiscount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600 font-medium">Promo Discount</span>
-                      <span className="font-medium text-green-600">-₦{promoDiscount.toLocaleString()}</span>
-                    </div>
-                  )}
-                  <div className="border-t pt-3 mt-1">
-                    <div className="flex justify-between">
-                      <span className="font-bold text-gray-900">Total</span>
-                      <motion.span
-                        key={total}
-                        initial={{ scale: 0.85, opacity: 0.5 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 24 }}
-                        className="font-bold text-orange-600 text-lg origin-right inline-block"
-                      >
-                        ₦{total.toLocaleString()}
-                      </motion.span>
-                   </div>
+          <div>
+            <label htmlFor="co-address" className={labelClass}>Delivery address</label>
+            <Input
+              id="co-address"
+              required
+              autoComplete="street-address"
+              value={formData.delivery_address}
+              onChange={(e) => setFormData({...formData, delivery_address: e.target.value})}
+              className={fieldClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="co-notes" className={labelClass}>Special instruction</label>
+            <Textarea
+              id="co-notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              placeholder="Optional — e.g. no pepper, call when you arrive"
+              className="min-h-[96px] rounded-xl border-gray-200 bg-white text-[14px] shadow-none focus-visible:ring-1 focus-visible:ring-fooda-gold"
+            />
+          </div>
+
+          {/* Promo code */}
+          <div>
+            <label htmlFor="co-promo" className={labelClass}>Promo code</label>
+            <AnimatePresence mode="wait">
+            {appliedPromo ? (
+              <motion.div
+                key="applied"
+                initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                transition={{ duration: 0.24, ease: EASE_NATIVE }}
+                className="rounded-xl border p-3 flex items-start justify-between gap-3"
+                style={{ backgroundColor: '#ECFDF3', borderColor: '#BBF7D0' }}
+              >
+                <div className="flex items-start gap-2.5">
+                  <Check className="w-5 h-5 mt-0.5" style={{ color: '#15803D' }} />
+                  <div>
+                    <p className="font-semibold text-[14px]" style={{ color: '#111111' }}>{appliedPromo.code}</p>
+                    <p className="text-[12px] mt-0.5" style={{ color: '#15803D' }}>
+                      {(appliedPromo.discount_type === 'free_delivery' || appliedPromo.is_free_delivery) ? 'Free delivery & service fee' :
+                       appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}% off` :
+                       `₦${Number(appliedPromo.discount_value).toLocaleString()} off`}
+                    </p>
+                    {appliedPromo.description && (
+                      <p className="text-[11px] mt-0.5" style={{ color: '#6B7280' }}>{appliedPromo.description}</p>
+                    )}
                   </div>
                 </div>
-
-                <motion.div whileTap={{ scale: 0.98 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }}>
-                <Button 
-                  type="submit"
-                  className="w-full bg-orange-500 hover:bg-orange-600 h-12"
-                  disabled={processing}
+                <button
+                  type="button"
+                  onClick={removePromoCode}
+                  aria-label="Remove promo code"
+                  className="p-1"
+                  style={{ color: '#6B7280' }}
                 >
-                  {processing ? 'Processing...' : 'Pay ₦' + total.toLocaleString()}
-                </Button>
-                </motion.div>
-              </CardContent>
-            </Card>
+                  <X className="w-4 h-4" />
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="input"
+                initial={{ opacity: 0, scale: 0.96, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -6 }}
+                transition={{ duration: 0.24, ease: EASE_NATIVE }}
+              >
+                <div className="flex gap-2.5">
+                  <Input
+                    id="co-promo"
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => {
+                      setPromoCode(e.target.value.toUpperCase());
+                      setPromoError('');
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromoCode(); } }}
+                    className={`${fieldClass} flex-1 uppercase`}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyPromoCode}
+                    disabled={promoLoading || !promoCode.trim()}
+                    className="h-12 px-5 rounded-xl text-[12px] font-semibold uppercase tracking-wide disabled:opacity-60 press"
+                    style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                  >
+                    {promoLoading ? '...' : 'Apply'}
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-[12px] mt-1.5" style={{ color: '#DC2626' }}>{promoError}</p>
+                )}
+              </motion.div>
+            )}
+            </AnimatePresence>
           </div>
-        </form>
-      </div>
+        </div>
 
+        {/* Drinks upsell (existing feature) */}
+        <div className="mt-6">
+          <DrinkUpsell onAddDrink={handleAddDrink} selectedDrinks={selectedDrinks} />
+        </div>
+
+        {/* Order summary */}
+        <div className="mt-6 rounded-2xl border p-4" style={{ borderColor: '#FDE68A' }}>
+          <h3 className="text-[15px] font-semibold text-gray-900 mb-3">Order summary</h3>
+          <div className="space-y-2 text-[13px]">
+            <div className="flex justify-between">
+              <span className="text-gray-700">Subtotal{drinksSubtotal > 0 ? ' (incl. drinks)' : ''}</span>
+              <span className="text-gray-900">₦{subtotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-700">Service charge</span>
+              <span className="text-gray-900">₦{valueAddedService.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-700">Delivery{restaurantCount > 1 ? ` (${restaurantCount} restaurants)` : ''}</span>
+              <span className="text-gray-900">₦{deliveryFee.toLocaleString()}</span>
+            </div>
+            {promoDiscount > 0 && (
+              <div className="flex justify-between">
+                <span className="font-medium" style={{ color: '#15803D' }}>Promo discount</span>
+                <span className="font-medium" style={{ color: '#15803D' }}>-₦{promoDiscount.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-1.5 text-[16px]">
+              <span className="font-bold text-gray-900">Total</span>
+              <motion.span
+                key={total}
+                initial={{ scale: 0.85, opacity: 0.5 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+                className="font-bold text-gray-900 origin-right inline-block"
+              >
+                ₦{total.toLocaleString()}
+              </motion.span>
+            </div>
+          </div>
+        </div>
+
+        {/* Place order */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <motion.button
+            type="submit"
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            disabled={processing}
+            className="w-full max-w-lg mx-auto h-14 rounded-2xl flex items-center justify-center gap-1 text-[14px] font-semibold uppercase tracking-wide disabled:opacity-70"
+            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+          >
+            {processing ? 'Processing...' : <>Place order · ₦{total.toLocaleString()} <ChevronRight className="w-4 h-4" /></>}
+          </motion.button>
+        </div>
+      </form>
     </div>
     </ErrorBoundary>
   );
