@@ -364,7 +364,7 @@ Make it sound delicious and irresistible!`;
               transition={{ duration: 1.5, repeat: Infinity }}
               className={`w-32 h-32 rounded-full flex items-center justify-center mb-4 ${
                 isListening 
-                  ? 'bg-gradient-to-br from-orange-500 to-red-500' 
+                  ? 'bg-fooda-gold' 
                   : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
               }`}
             >
@@ -396,7 +396,7 @@ Make it sound delicious and irresistible!`;
                 className={`p-3 rounded-xl ${
                   msg.role === 'user'
                     ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 ml-8'
-                    : 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 mr-8'
+                    : 'f-tint-gold border f-border-gold mr-8'
                 }`}
               >
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">

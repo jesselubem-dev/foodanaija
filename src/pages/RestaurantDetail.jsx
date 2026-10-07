@@ -216,7 +216,7 @@ function RestaurantDetailContent() {
                 className={`w-full h-[170px] object-cover ${!isOpen ? 'grayscale' : ''}`}
               />
             ) : (
-              <div className="w-full h-[170px] bg-gradient-to-br from-amber-100 to-emerald-100" />
+              <div className="w-full h-[170px] f-tint-gold" />
             )}
 
             <Link

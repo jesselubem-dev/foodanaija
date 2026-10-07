@@ -297,7 +297,7 @@ function CustomerHomeContent() {
                           className={`w-full h-[150px] object-cover ${!isOpen ? 'grayscale' : ''}`}
                         />
                       ) : (
-                        <div className={`w-full h-[150px] bg-gradient-to-br from-amber-100 to-emerald-100 ${!isOpen ? 'grayscale' : ''}`} />
+                        <div className={`w-full h-[150px] f-tint-gold ${!isOpen ? 'grayscale' : ''}`} />
                       )}
                       {!isOpen && (
                         <span

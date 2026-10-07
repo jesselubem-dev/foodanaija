@@ -81,11 +81,11 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
   }
 
   return (
-    <Card className="my-4 border-2 border-orange-200 shadow-xl bg-gradient-to-br from-orange-50 to-white">
+    <Card className="my-4 rounded-2xl border f-border-gold bg-white shadow-sm">
       <CardContent className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6 text-orange-600" />
+          <div className="w-12 h-12 f-tint-gold rounded-full flex items-center justify-center">
+            <ShoppingBag className="w-6 h-6 f-text-gold" />
           </div>
           <div>
             <h3 className="font-bold text-lg text-gray-900">Confirm Your Order</h3>
@@ -96,7 +96,7 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-lg p-4 mb-4 border border-orange-100 space-y-2">
+        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200 space-y-2">
           {orderData.map((order, index) => (
             <div key={index} className="pb-2 border-b last:border-b-0 last:pb-0">
               <p className="font-semibold text-gray-900">{order.restaurant_name}</p>
@@ -114,10 +114,10 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
         </div>
 
         {/* Total */}
-        <div className="bg-orange-100 rounded-lg p-4 mb-4">
+        <div className="f-tint-gold rounded-xl p-4 mb-4">
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold text-gray-900">Total Amount</span>
-            <span className="text-2xl font-bold text-orange-600">₦{totalAmount.toLocaleString()}</span>
+            <span className="text-2xl font-bold text-gray-900">₦{totalAmount.toLocaleString()}</span>
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export default function ChatPaymentCard({ orderData, onPaymentSuccess, onCancel 
            </Button>
            <Button
              onClick={handleAddToCart}
-             className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+             className="flex-1 f-btn-gold hover:opacity-90"
              disabled={processing}
            >
              {processing ? (

@@ -63,7 +63,7 @@ export default function ThemeToggle({ className = '' }) {
             exit={{ y: -16, opacity: 0, rotate: 30 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           >
-            <Moon className="w-[18px] h-[18px] text-amber-400" />
+            <Moon className="w-[18px] h-[18px] f-text-gold" />
           </motion.span>
         ) : (
           <motion.span
@@ -73,7 +73,7 @@ export default function ThemeToggle({ className = '' }) {
             exit={{ y: -16, opacity: 0, rotate: -30 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           >
-            <Sun className="w-[18px] h-[18px] text-orange-500" />
+            <Sun className="w-[18px] h-[18px] f-text-amber" />
           </motion.span>
         )}
       </AnimatePresence>

@@ -76,7 +76,7 @@ export default function NoInternet() {
 
           <Button 
             onClick={handleReload}
-            className="bg-gradient-to-r from-orange-500 to-orange-600 w-full h-12"
+            className="f-btn-gold hover:opacity-90 w-full h-12"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
             Reload Page
