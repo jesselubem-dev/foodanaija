@@ -127,7 +127,7 @@ function RestaurantDetailContent() {
     if (existingItem) {
       newCart = cart.map(i => i.item_id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
     } else {
-      newCart = [...cart, { item_id: item.id, name: item.name, price: item.price, quantity: 1, image_url: item.images?.[0], restaurant_id: restaurantId, restaurant_name: restaurant.name }];
+      newCart = [...cart, { item_id: item.id, name: item.name, description: item.description || '', price: item.price, quantity: 1, image_url: item.images?.[0], restaurant_id: restaurantId, restaurant_name: restaurant.name }];
     }
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
