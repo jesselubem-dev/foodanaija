@@ -10,6 +10,17 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			// Foodanaija brand palette (Figma redesign)
+  			fooda: {
+  				gold: '#F5B700',
+  				'gold-light': '#F5C518',
+  				green: '#0B4D33',
+  				'green-light': '#157A4C',
+  				red: '#E5383B',
+  				ink: '#111111',
+  				muted: '#6B7280',
+  				line: '#E5E7EB'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
