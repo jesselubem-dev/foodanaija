@@ -10,6 +10,10 @@ import { Button } from '@/components/ui/button';
 import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '@/components/ui/motion';
 import NoInternet from './components/NoInternet';
+import InAppNotifier from './components/customer/InAppNotifier';
+
+// Customer-facing pages that show the in-app notification banner.
+const CUSTOMER_BANNER_PAGES = ['CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'CustomerSettings', 'LiveChat', 'Chefs', 'ChefDetail', 'CustomerSupport', 'DeleteAccount'];
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -41,7 +45,8 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['Chefs', 'ChefDetail', 'ChefSetup', 'SuperAdminChefs', 'SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'SuperAdminDrinkOrders', 'SuperAdminCancelledOrders', 'SuperAdminReports', 'SuperAdminRiderComplaints', 'AdminLiveChat', 'SuperAdminMenuMarketing', 'SuperAdminSupport', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'Notifications', 'CustomerSupport', 'Profile', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification', 'CustomerSettings'];
   if (noLayoutPages.includes(currentPageName)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50/30 dark:bg-none dark:bg-background">
+      <div className="min-h-screen bg-white dark:bg-background">
+        {user && CUSTOMER_BANNER_PAGES.includes(currentPageName) && <InAppNotifier user={user} />}
         <AnimatePresence mode="wait">
           <PageTransition k={location.pathname}>
             {children}

@@ -2,20 +2,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNowStrict, isToday, isYesterday, format } from 'date-fns';
-import { ChevronRight, Check, X, PackageCheck, Bell } from 'lucide-react';
+import { ChevronRight, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
+import { styleFor, linkFor } from '@/lib/notificationStyles';
 import { LanguageProvider } from '../components/LanguageContext';
 import { ChipGroup, PageHeader } from '../components/fooda/ui';
-
-// Visual style per notification type, matching the Fooda palette.
-const TYPE_STYLE = {
-  order_accepted: { Icon: Check, bg: '#ECFDF3', fg: '#15803D', label: 'Order update' },
-  order_declined: { Icon: X, bg: '#FEF2F2', fg: '#DC2626', label: 'Order update' },
-  order_delivered: { Icon: PackageCheck, bg: '#FFFBEB', fg: '#B45309', label: 'Delivered' },
-};
-const DEFAULT_STYLE = { Icon: Bell, bg: '#FFFBEB', fg: '#B45309', label: 'Notification' };
 
 const timeLabel = (dateStr) => {
   const d = new Date(dateStr);
@@ -87,7 +80,8 @@ function NotificationsContent() {
 
   const openNotification = (n) => {
     if (!n.is_read) markRead.mutate(n.id);
-    if (n.order_id) navigate(createPageUrl('OrderHistory'));
+    const link = linkFor(n);
+    if (link) navigate(createPageUrl(link));
   };
 
   return (
@@ -155,7 +149,7 @@ function NotificationsContent() {
               <h2 className="text-[13px] font-semibold text-gray-500 mb-2">{group.title}</h2>
               <div className="space-y-2.5">
                 {group.items.map(n => {
-                  const style = TYPE_STYLE[n.type] || DEFAULT_STYLE;
+                  const style = styleFor(n.type);
                   const { Icon } = style;
                   const image = n.metadata?.image_url;
                   return (
@@ -170,8 +164,8 @@ function NotificationsContent() {
                         {image ? (
                           <img src={image} alt="" className="w-11 h-11 rounded-xl object-cover" />
                         ) : (
-                          <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: style.bg }}>
-                            <Icon className="w-5 h-5" style={{ color: style.fg }} strokeWidth={2.4} />
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${style.tint}`}>
+                            <Icon className={`w-5 h-5 ${style.icon}`} strokeWidth={2.4} />
                           </div>
                         )}
                         {!n.is_read && (

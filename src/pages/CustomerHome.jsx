@@ -58,30 +58,6 @@ function CustomerHomeContent() {
     return () => clearInterval(interval);
   }, [user?.email]);
 
-  useEffect(() => {
-    if (!user?.email) return;
-    const checkNewNotifications = async () => {
-      try {
-        const notifications = await base44.entities.Notification.filter({ user_email: user.email, is_read: false }, '-created_date', 5);
-        const recent = notifications.filter(n => (Date.now() - new Date(n.created_date).getTime()) < 60000);
-        recent.forEach(async notification => {
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(notification.title, {
-              body: notification.message,
-              icon: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/2f8e2d4ee_Gemini_Generated_Image_afhnisafhnisafhn-removebg-preview.png',
-              tag: notification.id,
-            });
-          }
-          toast.success(notification.message, { duration: 8000, position: 'top-center' });
-          setTimeout(() => base44.entities.Notification.update(notification.id, { is_read: true }), 2000);
-        });
-      } catch {}
-    };
-    checkNewNotifications();
-    const interval = setInterval(checkNewNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
-
   const checkAuth = async () => {
     try {
       const userData = await base44.auth.me();
