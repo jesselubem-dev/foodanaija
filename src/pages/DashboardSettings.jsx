@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { notifyRestaurantOpen } from '@/lib/notifyCustomer';
 import { 
   Store, Upload, MapPin, Clock, Phone, Mail, 
   Loader2, Save, Eye, EyeOff, Trash2, LogOut
@@ -104,6 +105,7 @@ export default function DashboardSettings() {
     setFormData(prev => ({ ...prev, is_open: newStatus }));
     try {
       await base44.entities.Restaurant.update(restaurant.id, { is_open: newStatus });
+      if (newStatus) notifyRestaurantOpen(restaurant.id); // tell past customers
       toast.success(newStatus ? 'Restaurant is now open' : 'Restaurant is now closed');
     } catch (error) {
       setFormData(prev => ({ ...prev, is_open: !newStatus }));

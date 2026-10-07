@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
+import { notifyOrderUpdated } from '@/lib/notifyCustomer';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   ShoppingBag, ArrowLeft, Search, Filter, Eye, Calendar, UserPlus
@@ -77,7 +78,9 @@ export default function SuperAdminOrders() {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ orderId, status }) => {
-      return base44.entities.Order.update(orderId, { status });
+      const updated = await base44.entities.Order.update(orderId, { status });
+      notifyOrderUpdated(orderId);
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['all-orders']);
@@ -91,11 +94,13 @@ export default function SuperAdminOrders() {
   const assignRiderMutation = useMutation({
     mutationFn: async ({ orderId, riderId }) => {
       const rider = riders.find(r => r.id === riderId);
-      return base44.entities.Order.update(orderId, {
+      const updated = await base44.entities.Order.update(orderId, {
         rider_id: riderId,
         rider_name: rider?.full_name,
         delivery_status: 'assigned'
       });
+      notifyOrderUpdated(orderId);
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['all-orders']);

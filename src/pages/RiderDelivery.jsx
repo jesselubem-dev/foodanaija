@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
+import { notifyOrderUpdated } from '@/lib/notifyCustomer';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   ArrowLeft, MapPin, Phone, User, Package, CheckCircle, Navigation, Clock
@@ -86,7 +87,9 @@ export default function RiderDelivery() {
         });
       }
       
-      return base44.entities.Order.update(orderId, updates);
+      const updated = await base44.entities.Order.update(orderId, updates);
+      await notifyOrderUpdated(orderId); // tell the customer
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['order', orderId]);

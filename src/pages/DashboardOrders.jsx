@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { notifyOrderUpdated } from '@/lib/notifyCustomer';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay, endOfDay, subDays, startOfWeek, startOfMonth } from 'date-fns';
 import { 
@@ -71,34 +72,21 @@ export default function DashboardOrders() {
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status, customerEmail }) => {
       await base44.entities.Order.update(id, { status });
-      
-      // Create notification for customer
-      if (status === 'accepted') {
-        await base44.entities.Notification.create({
-          user_email: customerEmail,
-          title: 'Order Accepted! 🎉',
-          message: 'Good news! Your order has been accepted by the restaurant and will be prepared shortly.',
-          type: 'order_accepted',
-          order_id: id,
-        });
 
+      // In-app notification for the customer (accepted / declined)
+      await notifyOrderUpdated(id);
+
+      if (status === 'accepted') {
         // Automatically assign rider to accepted order
         try {
           const result = await base44.functions.invoke('assignRiderToOrder', { orderId: id });
           if (result.data.success) {
             toast.success('Rider assigned successfully');
+            notifyOrderUpdated(id); // "Rider assigned"
           }
         } catch (error) {
           console.error('Failed to assign rider:', error);
         }
-      } else if (status === 'declined') {
-        await base44.entities.Notification.create({
-          user_email: customerEmail,
-          title: 'Order Declined',
-          message: 'Sorry, the restaurant is unable to fulfill your order at this time.',
-          type: 'order_declined',
-          order_id: id,
-        });
       }
     },
     onMutate: async ({ id, status }) => {

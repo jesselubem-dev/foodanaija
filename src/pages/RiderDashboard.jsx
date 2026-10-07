@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
+import { notifyOrderUpdated } from '@/lib/notifyCustomer';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Bike, Package, Clock, CheckCircle, MapPin, Star, Phone, User, Navigation, LogOut, TrendingUp, Menu, X, MessageSquare
@@ -281,6 +282,7 @@ export default function RiderDashboard() {
                               return;
                             }
                             await base44.entities.Order.update(order.id, { rider_id: rider.id, rider_name: rider.full_name, delivery_status: 'assigned', accepted_at: new Date().toISOString() });
+                            await notifyOrderUpdated(order.id); // "Rider assigned" for the customer
                             window.location.href = createPageUrl(`RiderDelivery?id=${order.id}`);
                           } catch (error) { alert('Failed to accept order. Please try again.'); }
                         }}
