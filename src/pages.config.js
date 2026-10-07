@@ -64,6 +64,7 @@ import LiveChat from './pages/LiveChat';
 import Onboarding from './pages/Onboarding';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
+import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import RestaurantDetail from './pages/RestaurantDetail';
 import RestaurantSetup from './pages/RestaurantSetup';
@@ -103,6 +104,7 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "OrderConfirmation": OrderConfirmation,
     "OrderHistory": OrderHistory,
+    "Notifications": Notifications,
     "Profile": Profile,
     "RestaurantDetail": RestaurantDetail,
     "RestaurantSetup": RestaurantSetup,

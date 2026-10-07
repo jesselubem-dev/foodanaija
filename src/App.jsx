@@ -18,6 +18,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import OrderHistory from './pages/OrderHistory';
+import Notifications from './pages/Notifications';
 import CustomerSettings from './pages/CustomerSettings';
 import DeleteAccount from './pages/DeleteAccount';
 import LiveChat from './pages/LiveChat';
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
       <Route path="/Checkout" element={<LayoutWrapper currentPageName="Checkout"><Checkout /></LayoutWrapper>} />
       <Route path="/OrderConfirmation" element={<LayoutWrapper currentPageName="OrderConfirmation"><OrderConfirmation /></LayoutWrapper>} />
       <Route path="/OrderHistory" element={<LayoutWrapper currentPageName="OrderHistory"><OrderHistory /></LayoutWrapper>} />
+      <Route path="/Notifications" element={<LayoutWrapper currentPageName="Notifications"><Notifications /></LayoutWrapper>} />
       <Route path="/CustomerSettings" element={<LayoutWrapper currentPageName="CustomerSettings"><CustomerSettings /></LayoutWrapper>} />
       <Route path="/DeleteAccount" element={<LayoutWrapper currentPageName="DeleteAccount"><DeleteAccount /></LayoutWrapper>} />
       <Route path="/LiveChat" element={<LayoutWrapper currentPageName="LiveChat"><LiveChat /></LayoutWrapper>} />
