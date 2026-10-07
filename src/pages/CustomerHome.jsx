@@ -198,98 +198,78 @@ function CustomerHomeContent() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <NoInternet />
 
         {/* Header */}
-        <div className="bg-white px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3 sticky top-0 z-30 border-b border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs font-medium text-orange-500 uppercase tracking-widest mb-0.5">Good day!</p>
-              <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-                {user ? `Hi, ${(user.full_name || '').split(' ')[0]} 👋` : 'Welcome to Fooda'}
-              </h1>
-              <p className="text-sm text-gray-400 mt-0.5">What are you craving today?</p>
+        <div className="bg-white px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="min-w-0">
+                <p className="text-[13px] font-medium text-fooda-red leading-tight">
+                  {greeting}{firstName ? `, ${firstName}` : ''}
+                </p>
+                <h1 className="text-[20px] font-semibold text-gray-900 leading-snug mt-0.5">
+                  What are you craving today?
+                </h1>
+              </div>
+              <div className="flex items-center flex-shrink-0">
+                {user ? (
+                  <NotificationBell userEmail={user.email} />
+                ) : (
+                  <button
+                    onClick={() => base44.auth.redirectToLogin(window.location.href)}
+                    className="bg-fooda-gold text-[#111111] font-semibold text-sm px-4 py-2 rounded-lg press"
+                  >
+                    Log In
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {user && <NotificationBell user={user} />}
-              <ThemeToggle />
-              {!user && (
-                <button
-                  onClick={() => base44.auth.redirectToLogin(window.location.href)}
-                  className="bg-orange-500 text-white font-semibold text-sm px-5 py-2.5 rounded-full shadow-md shadow-orange-200"
-                >
-                  Log In
-                </button>
-              )}
-            </div>
-          </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search restaurants, dishes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11 rounded-xl border-gray-200 bg-gray-50 focus:bg-white text-sm"
-            />
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-500 pointer-events-none" />
+              <Input
+                placeholder="Search restaurants, dishes, or cuisines"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-12 rounded-[14px] border-gray-200 bg-white text-[14px] shadow-none focus-visible:ring-1 focus-visible:ring-fooda-gold"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 pt-5 pb-24 lg:pb-6">
+        <div className="max-w-2xl mx-auto px-4 pt-1 pb-28 lg:pb-8">
 
-          {/* Book a Chef Banner */}
-          <Link to={createPageUrl('Chefs')} className="block mb-5">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 p-4">
-              <div className="absolute right-0 top-0 w-32 h-full opacity-20">
-                <div className="w-32 h-32 bg-white rounded-full -translate-y-8 translate-x-8"></div>
-              </div>
-              <div className="flex items-center gap-3 relative">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ChefHat className="w-6 h-6 text-white" />
+          {!term && (
+            <>
+              {/* Promo card (live promo code) */}
+              <HomePromoCard />
+
+              {/* Book a Chef */}
+              <Link to={createPageUrl('Chefs')} className="block mb-5">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-3 flex items-center gap-3 press-card">
+                  <div className="w-11 h-11 rounded-xl bg-fooda-gold flex items-center justify-center flex-shrink-0">
+                    <ChefHat className="w-5 h-5" style={{ color: '#111111' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-[15px] text-gray-900 leading-tight">Book a Personal Chef</p>
+                    <p className="text-[12px] text-gray-500 mt-0.5 truncate">Describe your meal, a chef cooks it for you</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 </div>
-                <div className="text-white">
-                  <p className="font-bold text-base leading-tight">Book a Personal Chef</p>
-                  <p className="text-xs text-white/80 mt-0.5">Describe your meal, a chef cooks it for you</p>
-                </div>
-                <div className="ml-auto text-white/80 text-lg font-light">›</div>
-              </div>
-            </div>
-          </Link>
-
-          {/* City Filter */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-5">
-            {['all', ...cities].map(city => (
-              <button
-                key={city}
-                onClick={() => setSelectedCity(city)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
-                  selectedCity === city
-                    ? 'bg-orange-500 text-white shadow-sm shadow-orange-200'
-                    : 'bg-white text-gray-600 border border-gray-200'
-                }`}
-              >
-                {city === 'all' ? 'All Cities' : city}
-              </button>
-            ))}
-          </div>
-
-          {/* Section Header */}
-          {!searchTerm && (
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Restaurants Near You</h2>
-              <span className="text-sm text-gray-400">{filteredRestaurants.length} places</span>
-            </div>
+              </Link>
+            </>
           )}
 
           {/* Restaurants */}
           {restaurantsLoading ? (
             <div className="space-y-4">
-              {[1,2,3].map(i => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-                  <div className="h-44 bg-gray-100" />
-                  <div className="p-4 space-y-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
+                  <div className="h-[150px] bg-gray-100" />
+                  <div className="p-3.5 space-y-2">
                     <div className="h-4 bg-gray-100 rounded w-2/3" />
                     <div className="h-3 bg-gray-100 rounded w-1/2" />
                   </div>
@@ -302,60 +282,48 @@ function CustomerHomeContent() {
                 <Search className="w-8 h-8 text-gray-300" />
               </div>
               <p className="text-gray-500 font-medium">No restaurants found</p>
-              <p className="text-gray-400 text-sm mt-1">Try a different search or city</p>
+              <p className="text-gray-400 text-sm mt-1">Try a different search</p>
             </div>
           ) : (
             <div className="space-y-4">
               {filteredRestaurants.map((restaurant, idx) => {
-                 const isOpen = isRestaurantOpen(restaurant);
-                 const content = (
-                  <div className={`bg-white rounded-2xl overflow-hidden border border-gray-100 ${isOpen ? 'active:scale-[0.98] transition-transform' : 'opacity-70'}`}>
+                const isOpen = isRestaurantOpen(restaurant);
+                const subtitle = restaurant.description || restaurant.cuisine_types?.slice(0, 3).join(' · ') || '';
+                const content = (
+                  <div className={`bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] ${isOpen ? 'press-card' : 'opacity-60'}`}>
                     <div className="relative">
                       {restaurant.cover_image_url ? (
-                        <img src={restaurant.cover_image_url} alt="" className={`w-full h-48 object-cover ${!isOpen ? 'grayscale' : ''}`} />
+                        <img
+                          src={restaurant.cover_image_url}
+                          alt={restaurant.name}
+                          loading="lazy"
+                          className={`w-full h-[150px] object-cover ${!isOpen ? 'grayscale' : ''}`}
+                        />
                       ) : (
-                        <div className={`w-full h-48 bg-gradient-to-br from-orange-100 to-amber-100 ${!isOpen ? 'grayscale' : ''}`} />
+                        <div className={`w-full h-[150px] bg-gradient-to-br from-amber-100 to-emerald-100 ${!isOpen ? 'grayscale' : ''}`} />
                       )}
-                      <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold ${isOpen ? 'bg-green-500 text-white' : 'bg-gray-800 text-white'}`}>
-                        {isOpen ? '● Open' : '● Closed'}
-                      </div>
-                      {restaurant.rating > 0 && (
-                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          <span className="text-xs font-bold text-gray-800">{restaurant.rating}</span>
-                        </div>
+                      {!isOpen && (
+                        <span
+                          className="absolute top-2.5 right-2.5 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm"
+                          style={{ backgroundColor: '#ffffff', color: '#374151' }}
+                        >
+                          Unavailable
+                        </span>
                       )}
                     </div>
 
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <h3 className="font-bold text-gray-900 text-base">{restaurant.name}</h3>
-                          {restaurant.cuisine_types?.length > 0 && (
-                            <p className="text-sm text-gray-400 mt-0.5">{restaurant.cuisine_types.slice(0, 2).join(' · ')}</p>
-                          )}
-                        </div>
-                        {restaurant.logo_url && (
-                          <img src={restaurant.logo_url} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-gray-100" />
+                    <div className="px-3.5 py-3 flex items-center gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-gray-900 text-[17px] leading-tight truncate">{restaurant.name}</h3>
+                        {subtitle && (
+                          <p className="text-[13px] text-gray-500 mt-1 truncate">{subtitle}</p>
                         )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>{restaurant.delivery_time || '30-45 min'}</span>
+                        <div className="flex items-center gap-5 mt-1.5 text-[12px] text-gray-700">
+                          <span>Delivery ₦{Number(restaurant.delivery_fee || 0).toLocaleString()}</span>
+                          <span>{restaurant.delivery_time || '30-45 mins'}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Bike className="w-3.5 h-3.5" />
-                          <span>₦{(restaurant.delivery_fee || 0).toLocaleString()} delivery</span>
-                        </div>
-                        {restaurant.city && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span>{restaurant.city}</span>
-                          </div>
-                        )}
                       </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     </div>
                   </div>
                 );
@@ -366,11 +334,12 @@ function CustomerHomeContent() {
                       <Link
                         to={user ? createPageUrl(`RestaurantDetail?id=${restaurant.id}`) : '#'}
                         onClick={!user ? (e) => { e.preventDefault(); base44.auth.redirectToLogin(window.location.href); } : undefined}
+                        className="block"
                       >
                         {content}
                       </Link>
                     ) : (
-                      <div>{content}</div>
+                      <div aria-disabled="true">{content}</div>
                     )}
                   </StaggerItem>
                 );
