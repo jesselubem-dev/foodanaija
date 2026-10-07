@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  ChevronLeft, Clock, CheckCircle, XCircle, Package, RotateCcw, Bike
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Check, Bike, ReceiptText, MapPin, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
@@ -16,10 +11,97 @@ import { LanguageProvider } from '../components/LanguageContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import BottomNav from '../components/customer/BottomNav';
 
+// Status pill colours, in the Fooda palette.
+const STATUS = {
+  pending:   { label: 'Pending',   bg: '#FEF3C7', fg: '#92400E' },
+  accepted:  { label: 'Accepted',  bg: '#ECFDF3', fg: '#15803D' },
+  on_way:    { label: 'On the way', bg: '#ECFDF3', fg: '#15803D' },
+  delivered: { label: 'Delivered', bg: '#F3F4F6', fg: '#374151' },
+  declined:  { label: 'Declined',  bg: '#FEF2F2', fg: '#B91C1C' },
+  cancelled: { label: 'Cancelled', bg: '#FEF2F2', fg: '#B91C1C' },
+  refunded:  { label: 'Refunded',  bg: '#EFF6FF', fg: '#1D4ED8' },
+};
+
+// One place that decides how an order is shown.
+function describe(order) {
+  const ds = order.delivery_status;
+  if (order.status === 'cancelled') return { key: order.refunded ? 'refunded' : 'cancelled', active: false };
+  if (order.status === 'declined') return { key: 'declined', active: false };
+  if (order.status === 'delivered' || ds === 'delivered') return { key: 'delivered', active: false };
+  if (order.status === 'accepted' && (ds === 'picked_up' || ds === 'on_the_way')) return { key: 'on_way', active: true };
+  if (order.status === 'accepted') return { key: 'accepted', active: true };
+  return { key: 'pending', active: true };
+}
+
+// 0 placed, 1 accepted, 2 rider has it, 3 delivered
+function stepIndex(order) {
+  const ds = order.delivery_status;
+  if (order.status === 'delivered' || ds === 'delivered') return 3;
+  if (ds === 'picked_up' || ds === 'on_the_way') return 2;
+  if (order.status === 'accepted') return 1;
+  return 0;
+}
+
+const STEPS = ['Placed', 'Accepted', 'On the way', 'Delivered'];
+
+function Tracker({ order }) {
+  const current = stepIndex(order);
+  const riderNote = {
+    unassigned: 'Finding a rider for you',
+    assigned: 'Rider assigned — heading to the restaurant',
+    picked_up: 'Rider has picked up your food',
+    on_the_way: 'Your food is on the way',
+  }[order.delivery_status];
+
+  return (
+    <div className="mt-3 rounded-xl p-3" style={{ backgroundColor: '#FFFBEB' }}>
+      <div className="flex items-center">
+        {STEPS.map((label, i) => {
+          const done = i <= current;
+          return (
+            <React.Fragment key={label}>
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: done ? '#F5B700' : '#E5E7EB' }}
+              >
+                {i === 2 && current === 2
+                  ? <Bike className="w-3.5 h-3.5" style={{ color: '#111111' }} />
+                  : done
+                    ? <Check className="w-3.5 h-3.5" style={{ color: '#111111' }} strokeWidth={3} />
+                    : <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#9CA3AF' }} />}
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className="flex-1 h-[3px] mx-1 rounded-full" style={{ backgroundColor: i < current ? '#F5B700' : '#E5E7EB' }} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+      <div className="flex justify-between mt-1.5">
+        {STEPS.map((label, i) => (
+          <span
+            key={label}
+            className="text-[10px] font-medium"
+            style={{ color: i <= current ? '#111111' : '#9CA3AF', width: '25%', textAlign: i === 0 ? 'left' : i === STEPS.length - 1 ? 'right' : 'center' }}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+      {(riderNote || order.rider_name) && order.status === 'accepted' && (
+        <p className="text-[12px] mt-2" style={{ color: '#374151' }}>
+          {riderNote}{order.rider_name ? ` · ${order.rider_name}` : ''}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function OrderHistoryContent() {
   const [user, setUser] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
-  const [showAll, setShowAll] = useState(false);
+  const [tab, setTab] = useState('active');
+  const [expanded, setExpanded] = useState({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -28,7 +110,7 @@ function OrderHistoryContent() {
         const userData = await base44.auth.me();
         setUser(userData);
       } catch (e) {
-        // User not logged in, Layout will handle redirect
+        base44.auth.redirectToLogin(window.location.href);
       }
     };
     loadUser();
@@ -62,7 +144,7 @@ function OrderHistoryContent() {
   });
 
   const handleReorder = (order) => {
-    const cart = order.items.map(item => ({
+    const cart = (order.items || []).map(item => ({
       item_id: item.item_id,
       name: item.name,
       price: item.price,
@@ -73,218 +155,213 @@ function OrderHistoryContent() {
     }));
 
     localStorage.setItem('cart', JSON.stringify(cart));
-    toast.success(`${order.items.length} items added to cart`);
+    toast.success(`${cart.length} item${cart.length === 1 ? '' : 's'} added to your order`);
     window.location.href = createPageUrl('Cart');
   };
 
-  const statusConfig = {
-    pending: { icon: Clock, color: 'bg-yellow-100 text-yellow-700', label: 'Pending' },
-    accepted: { icon: CheckCircle, color: 'bg-blue-100 text-blue-700', label: 'Accepted' },
-    declined: { icon: XCircle, color: 'bg-red-100 text-red-700', label: 'Declined' },
-    preparing: { icon: Package, color: 'bg-purple-100 text-purple-700', label: 'Preparing' },
-    ready: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Ready' },
-    delivered: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Delivered' },
-    cancelled: { icon: XCircle, color: 'bg-red-100 text-red-700', label: 'Cancelled' },
-    refunded: { icon: CheckCircle, color: 'bg-green-100 text-green-700', label: 'Refunded' }
-  };
+  const { active, past } = useMemo(() => {
+    const a = [], p = [];
+    orders.forEach(o => (describe(o).active ? a : p).push(o));
+    return { active: a, past: p };
+  }, [orders]);
+
+  // Open on "Past" when there's nothing in progress.
+  useEffect(() => {
+    if (!isLoading && orders.length > 0 && active.length === 0) setTab('past');
+  }, [isLoading, orders.length, active.length]);
+
+  const list = tab === 'active' ? active : past;
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin w-8 h-8 border-2 border-fooda-gold border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50/30 to-yellow-50 pb-20">
+      <div className="min-h-screen bg-white pb-28">
         {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-orange-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
-                <ChevronLeft className="w-6 h-6" />
-                Back
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Order History</h1>
-              <p className="text-sm text-gray-500">{orders.length} orders</p>
+        <div className="bg-white px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
+          <div className="max-w-lg mx-auto">
+            <h1 className="text-[20px] font-semibold text-gray-900">Your orders</h1>
+            <p className="text-[13px] text-gray-500 mt-0.5">Track what's on the way and reorder favourites</p>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mt-4">
+              {[
+                { id: 'active', label: `Active${active.length ? ` (${active.length})` : ''}` },
+                { id: 'past', label: 'Past orders' },
+              ].map(t => {
+                const on = tab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    className={`px-3.5 py-1.5 rounded-lg text-[14px] border transition-colors ${
+                      on ? 'border-fooda-gold text-fooda-gold font-semibold' : 'border-gray-200 text-gray-700 bg-white'
+                    }`}
+                    style={on ? { backgroundColor: '#FFFBEB' } : undefined}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
-      </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
-          </div>
-        ) : orders.length === 0 ? (
-          <Card className="border-orange-100">
-            <CardContent className="p-12 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">No orders yet</h2>
-              <p className="text-gray-500 mb-6">Start ordering from your favorite restaurants</p>
-              <Link to={createPageUrl('CustomerHome')}>
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600">
-                  Browse Restaurants
-                </Button>
+        <div className="max-w-lg mx-auto px-4 pt-3">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="p-3 rounded-2xl border border-gray-100 animate-pulse">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100" />
+                    <div className="flex-1 space-y-2 py-1">
+                      <div className="h-3.5 bg-gray-100 rounded w-1/2" />
+                      <div className="h-3 bg-gray-100 rounded w-1/3" />
+                    </div>
+                  </div>
+                  <div className="h-3 bg-gray-100 rounded w-3/4 mt-3" />
+                </div>
+              ))}
+            </div>
+          ) : list.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-20">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: '#FFFBEB' }}>
+                <ReceiptText className="w-9 h-9" style={{ color: '#F5B700' }} />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                {tab === 'active' ? 'No active orders' : 'No past orders yet'}
+              </h2>
+              <p className="text-sm text-gray-500 mb-6 max-w-[260px]">
+                {tab === 'active'
+                  ? "When you place an order, you can track it right here."
+                  : 'Orders you complete will show up here so you can reorder in one tap.'}
+              </p>
+              <Link
+                to={createPageUrl('CustomerHome')}
+                className="h-11 px-6 rounded-xl text-sm font-semibold flex items-center press"
+                style={{ backgroundColor: '#F5B700', color: '#111111' }}
+              >
+                Browse restaurants
               </Link>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {(showAll ? orders : orders.slice(0, 3)).map((order) => {
-              const displayStatus = order.status === 'cancelled' && order.refunded ? 'refunded' : order.status;
-              const status = statusConfig[displayStatus] || statusConfig.pending;
-              const StatusIcon = status.icon;
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {list.map(order => {
+                const d = describe(order);
+                const pill = STATUS[d.key];
+                const items = order.items || [];
+                const thumb = items.find(i => i.image_url)?.image_url;
+                const itemCount = items.reduce((s, i) => s + (i.quantity || 0), 0);
+                const isOpen = !!expanded[order.id];
+                const summary = items.map(i => `${i.quantity}× ${i.name}`).join(', ');
 
-              return (
-                <Card key={order.id} className="border-orange-100 hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900">{order.restaurant_name}</h3>
-                        <p className="text-sm text-gray-500">
-                          {moment(order.created_date).format('MMM DD, YYYY • h:mm A')}
+                return (
+                  <div
+                    key={order.id}
+                    className={`rounded-2xl border p-3 bg-white ${d.active ? 'border-fooda-gold/40' : 'border-gray-200'}`}
+                  >
+                    {/* Top row */}
+                    <div className="flex items-start gap-3">
+                      {thumb ? (
+                        <img src={thumb} alt="" className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl">🍽️</span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-[15px] font-semibold text-gray-900 leading-tight truncate">{order.restaurant_name}</h3>
+                          <span
+                            className="text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: pill.bg, color: pill.fg }}
+                          >
+                            {pill.label}
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-gray-500 mt-0.5">
+                          {moment(order.created_date).format('D MMM YYYY · h:mm A')} · {itemCount} item{itemCount === 1 ? '' : 's'}
                         </p>
                       </div>
-                      <Badge className={status.color}>
-                        <StatusIcon className="w-3 h-3 mr-1" />
-                        {status.label}
-                      </Badge>
                     </div>
 
-                    <div className="space-y-2 mb-4">
-                      {order.items.slice(0, 3).map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-sm">
-                          <span className="text-gray-600">
-                            {item.quantity}x {item.name}
-                          </span>
-                          <span className="text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</span>
-                        </div>
-                      ))}
-                      {order.items.length > 3 && (
-                        <p className="text-sm text-gray-500">
-                          +{order.items.length - 3} more items
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Delivery Progress Bar */}
-                    {order.status === 'accepted' && (
-                      <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-sm font-medium text-gray-700">Delivery Progress</p>
-                          <p className="text-xs text-gray-500">
-                            {order.delivery_status === 'unassigned' && 'Waiting for rider'}
-                            {order.delivery_status === 'assigned' && 'Rider assigned'}
-                            {order.delivery_status === 'picked_up' && 'Order picked up'}
-                            {order.delivery_status === 'on_the_way' && 'On the way'}
-                            {order.delivery_status === 'delivered' && 'Delivered'}
-                          </p>
-                        </div>
-                        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-visible">
-                          <div
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
-                            style={{
-                              width: 
-                                order.delivery_status === 'unassigned' ? '0%' :
-                                order.delivery_status === 'assigned' ? '25%' :
-                                order.delivery_status === 'picked_up' ? '50%' :
-                                order.delivery_status === 'on_the_way' ? '75%' :
-                                order.delivery_status === 'delivered' ? '100%' : '0%'
-                            }}
-                          />
-                          {order.delivery_status !== 'unassigned' && (
-                            <div
-                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-500"
-                              style={{
-                                left: 
-                                  order.delivery_status === 'assigned' ? '25%' :
-                                  order.delivery_status === 'picked_up' ? '50%' :
-                                  order.delivery_status === 'on_the_way' ? '75%' :
-                                  order.delivery_status === 'delivered' ? '100%' : '0%'
-                              }}
-                            >
-                              <div className="bg-white rounded-full p-1 shadow-lg">
-                                <Bike className="w-4 h-4 text-blue-600" />
-                              </div>
+                    {/* Items */}
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(e => ({ ...e, [order.id]: !e[order.id] }))}
+                      className="w-full text-left mt-2.5 flex items-start gap-1"
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? (
+                        <div className="flex-1 space-y-1">
+                          {items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-[13px]">
+                              <span className="text-gray-700">{item.quantity}× {item.name}</span>
+                              <span className="text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</span>
                             </div>
+                          ))}
+                          {order.delivery_address && (
+                            <p className="flex items-start gap-1 text-[12px] text-gray-500 pt-1.5">
+                              <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {order.delivery_address}
+                            </p>
                           )}
                         </div>
-                        <div className="flex justify-between mt-2 text-xs text-gray-500">
-                          <span className={order.delivery_status !== 'unassigned' ? 'text-blue-600 font-medium' : ''}>Assigned</span>
-                          <span className={['picked_up', 'on_the_way', 'delivered'].includes(order.delivery_status) ? 'text-blue-600 font-medium' : ''}>Picked Up</span>
-                          <span className={['on_the_way', 'delivered'].includes(order.delivery_status) ? 'text-blue-600 font-medium' : ''}>On the Way</span>
-                          <span className={order.delivery_status === 'delivered' ? 'text-blue-600 font-medium' : ''}>Delivered</span>
-                        </div>
-                        {order.rider_name && (
-                          <p className="text-xs text-gray-600 mt-2">
-                            Rider: <span className="font-medium">{order.rider_name}</span>
-                          </p>
-                        )}
-                      </div>
+                      ) : (
+                        <p className="flex-1 text-[13px] text-gray-700 truncate">{summary}</p>
+                      )}
+                      <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Live tracker for orders in progress */}
+                    {d.active && d.key !== 'pending' && <Tracker order={order} />}
+                    {d.key === 'pending' && (
+                      <p className="mt-3 text-[12px] rounded-xl px-3 py-2" style={{ backgroundColor: '#FFFBEB', color: '#92400E' }}>
+                        Waiting for {order.restaurant_name} to accept your order
+                      </p>
                     )}
 
-                    <div className="border-t pt-4 flex items-center justify-between gap-2">
+                    {/* Footer */}
+                    <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-100">
                       <div>
-                        <p className="text-sm text-gray-500">Total Amount</p>
-                        <p className="text-xl font-bold text-orange-600">
-                          ₦{order.total?.toLocaleString()}
-                        </p>
+                        <p className="text-[11px] text-gray-500">Total</p>
+                        <p className="text-[16px] font-bold text-gray-900">₦{Number(order.total || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2">
                         {order.status === 'pending' && (
-                          <Button
+                          <button
                             onClick={() => setCancelOrderId(order.id)}
-                            variant="outline"
-                            className="gap-2 border-red-200 text-red-600 hover:bg-red-50"
                             disabled={cancelOrderMutation.isPending}
+                            className="h-9 px-3.5 rounded-lg text-[12px] font-semibold border disabled:opacity-50 press"
+                            style={{ borderColor: '#FECACA', color: '#B91C1C', backgroundColor: '#ffffff' }}
                           >
-                            <XCircle className="w-4 h-4" />
                             Cancel
-                          </Button>
+                          </button>
                         )}
-                        <Button
-                          onClick={() => handleReorder(order)}
-                          variant="outline"
-                        >
-                          Reorder
-                        </Button>
+                        {!d.active && items.length > 0 && (
+                          <button
+                            onClick={() => handleReorder(order)}
+                            className="h-9 px-4 rounded-lg text-[12px] font-semibold uppercase tracking-wide press"
+                            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+                          >
+                            Reorder
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    {order.delivery_address && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-xs text-gray-500">Delivery Address</p>
-                        <p className="text-sm text-gray-700">{order.delivery_address}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-            
-            {/* View All Button */}
-            {orders.length > 3 && !showAll && (
-              <div className="flex justify-center pt-4">
-                <Button
-                  onClick={() => setShowAll(true)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  View All Orders ({orders.length})
-                </Button>
-              </div>
-            )}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        <BottomNav />
+        <BottomNav user={user} />
 
         {/* Cancel Order Modal */}
         <CancelOrderModal
