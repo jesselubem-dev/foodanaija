@@ -7,6 +7,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LanguageProvider } from '../components/LanguageContext';
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 function CartContent() {
   const navigate = useNavigate();
@@ -52,10 +54,30 @@ function CartContent() {
     toast.success('Order cleared');
   };
 
+  const restaurantIds = [...new Set(cart.map(i => i.restaurant_id))].sort();
+
+  // Dish descriptions aren't stored in the cart, so look them up (read-only).
+  const { data: descriptions = {} } = useQuery({
+    queryKey: ['cart-item-descriptions', restaurantIds.join(',')],
+    queryFn: async () => {
+      const map = {};
+      await Promise.all(restaurantIds.map(async (rid) => {
+        try {
+          const items = await base44.entities.MenuItem.filter({ restaurant_id: rid });
+          items.forEach(i => { if (i.description) map[i.id] = i.description; });
+        } catch {}
+      }));
+      return map;
+    },
+    enabled: restaurantIds.length > 0,
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const restaurantCount = new Set(cart.map(i => i.restaurant_id)).size;
-  // Same fee rules as before: platform delivery fee + tiered service fee per restaurant.
-  const delivery = cart.length > 0 ? settings.delivery_fee : 0;
+  const restaurantCount = restaurantIds.length;
+  // Same fee rules as Checkout: one delivery fee per restaurant + tiered service fee per restaurant.
+  const delivery = restaurantCount * settings.delivery_fee;
   const serviceFee = cart.length > 0 ? calculateTotalVAS(cart) : 0;
   const total = subtotal + delivery + serviceFee;
 
@@ -158,7 +180,7 @@ function CartContent() {
                             <div className="flex-1 min-w-0">
                               <h3 className="text-[15px] font-medium text-gray-900 leading-tight truncate">{item.name}</h3>
                               <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                                {item.description || item.restaurant_name || ''}
+                                {descriptions[item.item_id] || item.restaurant_name || ''}
                               </p>
                               <p className="text-[12px] font-medium mt-1" style={{ color: '#15803D' }}>
                                 ₦{Number(item.price || 0).toLocaleString()} each
