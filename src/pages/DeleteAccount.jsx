@@ -1,26 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { ChevronLeft, AlertTriangle, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, AlertTriangle, UserX, LogOut, Lock, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+const SUPPORT_WHATSAPP = 'https://wa.me/2347078700001';
 
 export default function DeleteAccount() {
   const [user, setUser] = useState(null);
   const [confirmText, setConfirmText] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadUser();
   }, []);
 
@@ -33,156 +29,215 @@ export default function DeleteAccount() {
     }
   };
 
+  const clearDevice = () => {
+    try {
+      localStorage.removeItem('onboarding_completed');
+      localStorage.removeItem('cart');
+      sessionStorage.clear();
+    } catch {}
+  };
+
   const handleDelete = async () => {
-    if (confirmText !== 'DELETE') {
+    if (confirmText.trim().toUpperCase() !== 'DELETE') {
       toast.error('Please type DELETE to confirm');
       return;
     }
 
     setDeleting(true);
+    setFailed(false);
     try {
-      // Delete user record
+      // Delete user record (unchanged behaviour)
       await base44.entities.User.delete(user.id);
-      
-      toast.success('Account deleted successfully');
-      
+
+      toast.success('Your account has been deleted');
+      clearDevice();
+
       // Logout and redirect
       setTimeout(() => {
-        base44.auth.logout();
+        base44.auth.logout(createPageUrl('CustomerHome'));
       }, 1000);
     } catch (error) {
-      toast.error('Failed to delete account. Please contact support.');
+      setFailed(true);
       setDeleting(false);
+      toast.error('We could not delete your account. Please contact support.');
     }
+  };
+
+  const handleLogout = () => {
+    clearDevice();
+    base44.auth.logout(createPageUrl('CustomerHome'));
+  };
+
+  const closeConfirm = () => {
+    if (deleting) return;
+    setShowConfirm(false);
+    setConfirmText('');
   };
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin w-8 h-8 border-2 border-fooda-gold border-t-transparent rounded-full" />
       </div>
     );
   }
 
+  const initial = (user.full_name || user.email || 'U').charAt(0).toUpperCase();
+  const confirmed = confirmText.trim().toUpperCase() === 'DELETE';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-white pb-36">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('CustomerHome')}>
-              <Button variant="ghost" className="flex items-center gap-1 text-orange-500 font-medium pl-0">
-                <ChevronLeft className="w-6 h-6" />
-                Back
-              </Button>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">Delete Account</h1>
-          </div>
+      <div className="bg-white px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
+        <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
+          <Link
+            to={createPageUrl('CustomerSettings')}
+            aria-label="Back to profile"
+            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-900" />
+          </Link>
+          <h1 className="text-[17px] font-semibold text-gray-900">Delete account</h1>
         </div>
-      </header>
-
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <Card className="border-red-200 bg-white">
-          <CardHeader className="border-b border-red-100 bg-red-50">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <CardTitle className="text-red-900">Delete Your Account</CardTitle>
-                <p className="text-sm text-red-700 mt-1">This action cannot be undone</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="font-bold text-red-900 mb-2">⚠️ Warning</h3>
-              <p className="text-sm text-red-800">
-                Deleting your account will permanently remove:
-              </p>
-              <ul className="text-sm text-red-800 mt-2 space-y-1 list-disc list-inside">
-                <li>Your profile and personal information</li>
-                <li>Order history and tracking</li>
-                <li>Saved addresses</li>
-                <li>All account data</li>
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  Account to be deleted:
-                </p>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="font-semibold text-gray-900">{user.full_name}</p>
-                  <p className="text-sm text-gray-600">{user.email}</p>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => setShowConfirm(true)}
-                variant="destructive"
-                className="w-full bg-red-600 hover:bg-red-700 h-12"
-              >
-                <Trash2 className="w-5 h-5 mr-2" />
-                Delete My Account
-              </Button>
-
-              <Link to={createPageUrl('CustomerHome')}>
-                <Button variant="outline" className="w-full">
-                  Cancel
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="max-w-md">
+      <div className="max-w-lg mx-auto px-4 pt-4">
+        {/* Intro */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: '#FEF2F2' }}>
+            <UserX className="w-7 h-7" style={{ color: '#DC2626' }} />
+          </div>
+          <h2 className="text-[20px] font-semibold text-gray-900">We're sorry to see you go</h2>
+          <p className="text-[13px] text-gray-500 mt-1 max-w-[300px]">
+            Deleting your account is permanent. Please read this before you continue.
+          </p>
+        </div>
+
+        {/* Account being deleted */}
+        <div className="mt-6 rounded-2xl border border-gray-200 p-3.5 flex items-center gap-3">
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center text-[17px] font-bold flex-shrink-0"
+            style={{ backgroundColor: '#F5B700', color: '#111111' }}
+          >
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold text-gray-900 truncate">{user.full_name || 'Fooda customer'}</p>
+            <p className="text-[12px] text-gray-500 truncate">{user.email}</p>
+          </div>
+        </div>
+
+        {/* What happens */}
+        <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: '#FECACA', backgroundColor: '#FFFBFB' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4" style={{ color: '#DC2626' }} />
+            <h3 className="text-[14px] font-semibold" style={{ color: '#991B1B' }}>What happens when you delete</h3>
+          </div>
+          <ul className="space-y-2.5">
+            {[
+              { icon: Lock, text: 'Your Fooda account is closed and you will not be able to log in with it again.' },
+              { icon: LogOut, text: "You'll be logged out and your cart on this device will be cleared." },
+              { icon: AlertTriangle, text: 'This cannot be undone. To use Fooda again you will need to sign up afresh.' },
+            ].map(({ icon: Icon, text }, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#B91C1C' }} />
+                <span className="text-[13px] leading-snug" style={{ color: '#7F1D1D' }}>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Alternatives */}
+        <div className="mt-6">
+          <h3 className="text-[13px] font-semibold text-gray-500 mb-2 px-1">Not sure yet?</h3>
+          <div className="rounded-2xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3.5 py-3 text-left press">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F3F4F6' }}>
+                <LogOut className="w-[18px] h-[18px]" style={{ color: '#374151' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium text-gray-900">Just log out instead</p>
+                <p className="text-[12px] text-gray-500">Keep your account for later</p>
+              </div>
+            </button>
+            <a href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3 px-3.5 py-3 press">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF3' }}>
+                <MessageCircle className="w-[18px] h-[18px]" style={{ color: '#15803D' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium text-gray-900">Talk to us on WhatsApp</p>
+                <p className="text-[12px] text-gray-500">Tell us what went wrong — we'll try to fix it</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        {failed && (
+          <div className="mt-4 rounded-xl px-3.5 py-3 text-[13px]" style={{ backgroundColor: '#FEF2F2', color: '#991B1B' }}>
+            Your account could not be deleted from the app. Please{' '}
+            <a href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+              message us on WhatsApp
+            </a>{' '}
+            and we'll delete it for you.
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto flex flex-col gap-2">
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="w-full h-12 rounded-2xl text-[14px] font-semibold uppercase tracking-wide press"
+            style={{ backgroundColor: '#DC2626', color: '#ffffff' }}
+          >
+            Delete my account
+          </button>
+          <Link
+            to={createPageUrl('CustomerSettings')}
+            className="w-full h-11 rounded-2xl text-[14px] font-semibold flex items-center justify-center text-gray-900 press"
+          >
+            Keep my account
+          </Link>
+        </div>
+      </div>
+
+      {/* Final confirmation */}
+      <Dialog open={showConfirm} onOpenChange={(open) => { if (!open) closeConfirm(); }}>
+        <DialogContent className="rounded-2xl max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-red-900 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
-              Final Confirmation
+            <DialogTitle className="flex items-center gap-2" style={{ color: '#991B1B' }}>
+              <AlertTriangle className="w-5 h-5" /> Final confirmation
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-gray-700">
-              This action is <strong>permanent</strong> and cannot be reversed. All your data will be permanently deleted.
-            </p>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Type <span className="font-bold text-red-600">DELETE</span> to confirm:
-              </label>
-              <Input
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder="Type DELETE"
-                className="border-red-200 focus:border-red-400"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowConfirm(false);
-                  setConfirmText('');
-                }}
-                className="flex-1"
-                disabled={deleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                className="flex-1 bg-red-600 hover:bg-red-700"
-                disabled={confirmText !== 'DELETE' || deleting}
-              >
-                {deleting ? 'Deleting...' : 'Delete Account'}
-              </Button>
-            </div>
+          <p className="text-[14px] text-gray-600">
+            This is <strong className="text-gray-900">permanent</strong>. Type <strong style={{ color: '#DC2626' }}>DELETE</strong> below to confirm.
+          </p>
+          <Input
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="Type DELETE"
+            autoCapitalize="characters"
+            autoComplete="off"
+            aria-label="Type DELETE to confirm"
+            className="h-12 rounded-xl border-gray-200 text-[14px] shadow-none focus-visible:ring-1 focus-visible:ring-red-400"
+          />
+          <div className="flex gap-2.5 mt-1">
+            <button
+              onClick={closeConfirm}
+              disabled={deleting}
+              className="flex-1 h-12 rounded-xl border border-gray-200 text-[14px] font-semibold text-gray-900 disabled:opacity-50 press"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={!confirmed || deleting}
+              className="flex-1 h-12 rounded-xl text-[14px] font-semibold disabled:opacity-40 press"
+              style={{ backgroundColor: '#DC2626', color: '#ffffff' }}
+            >
+              {deleting ? 'Deleting...' : 'Delete account'}
+            </button>
           </div>
         </DialogContent>
       </Dialog>
