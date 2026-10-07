@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, Star, Clock, ChefHat, MapPin, Bike } from 'lucide-react';
+import { Search, ChefHat, ChevronRight } from 'lucide-react';
 import BottomNav from '../components/customer/BottomNav';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,7 @@ import VoiceOrderModal from '../components/customer/VoiceOrderModal';
 import RiderRatingModal from '../components/customer/RiderRatingModal';
 import FloatingCart from '../components/customer/FloatingCart';
 import FloatingWhatsApp from '../components/customer/FloatingWhatsApp';
-import ThemeToggle from '../components/customer/ThemeToggle';
+import HomePromoCard from '../components/customer/HomePromoCard';
 import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -152,15 +152,22 @@ function CustomerHomeContent() {
     }
   }, [user]);
 
-  const cities = ['Sokoto'];
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = (user?.full_name || '').trim().split(' ')[0];
+
+  const term = searchTerm.trim().toLowerCase();
   const filteredRestaurants = restaurants
     .filter(r => {
-      const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.cuisine_types?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = !term ||
+        (r.name || '').toLowerCase().includes(term) ||
+        r.description?.toLowerCase().includes(term) ||
+        r.cuisine_types?.some(c => c.toLowerCase().includes(term));
       return matchesSearch && (selectedCity === 'all' || r.city === selectedCity);
     })
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.total_reviews || 0) - (a.total_reviews || 0));
+    // Open restaurants first, then by rating
+    .sort((a, b) => (Number(isRestaurantOpen(b)) - Number(isRestaurantOpen(a))) ||
+      (b.rating || 0) - (a.rating || 0) || (b.total_reviews || 0) - (a.total_reviews || 0));
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
