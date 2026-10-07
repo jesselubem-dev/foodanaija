@@ -218,6 +218,71 @@ button:focus-visible {
 }
 
 /* ------------------------------------------------------------------
+   Fooda design system — shared customer-app styles.
+   One place for brand colours so every screen matches and dark mode
+   works. Use these classes instead of inline colour styles.
+   ------------------------------------------------------------------ */
+@layer components {
+  /* Buttons */
+  .f-btn-gold    { background-color: #F5B700; color: #111111; }
+  .f-btn-gold:disabled { background-color: #E5E7EB; color: #6B7280; }
+  .f-btn-danger  { background-color: #DC2626; color: #ffffff; }
+  .f-btn-outline { background-color: #ffffff; color: #111111; border: 1px solid #E5E7EB; }
+  .f-btn-outline-danger { background-color: #ffffff; color: #B91C1C; border: 1px solid #FECACA; }
+
+  /* Fixed surfaces that sit on photos or gold (stay light in dark mode) */
+  .f-float       { background-color: #ffffff; color: #111111; }
+  .f-on-gold     { color: #111111; }
+  .f-bg-ink      { background-color: #111111; color: #ffffff; }
+
+  /* Tinted panels */
+  .f-tint-gold   { background-color: #FFFBEB; }
+  .f-tint-cream  { background-color: #FFFDF5; }
+  .f-tint-green  { background-color: #ECFDF3; }
+  .f-tint-red    { background-color: #FEF2F2; }
+  .f-tint-gray   { background-color: #F3F4F6; }
+  .f-border-red  { border-color: #FECACA; }
+  .f-border-green{ border-color: #BBF7D0; }
+  .f-border-gold { border-color: #FDE68A; }
+
+  /* Text */
+  .f-text-green  { color: #15803D; }
+  .f-text-red    { color: #DC2626; }
+  .f-text-red-strong { color: #991B1B; }
+  .f-text-amber  { color: #92400E; }
+  .f-text-gold   { color: #F5B700; }
+  .f-text-soft   { color: #374151; }
+  .f-text-muted  { color: #6B7280; }
+
+  /* Filter chips */
+  .f-chip        { padding: 0.375rem 0.875rem; border-radius: 0.5rem; font-size: 14px; border: 1px solid #E5E7EB; color: #374151; background-color: #ffffff; transition: color .15s, border-color .15s, background-color .15s; }
+  .f-chip-active { border-color: #F5B700; color: #B07F00; background-color: #FFFBEB; font-weight: 600; }
+
+  /* Text inputs */
+  .f-input { height: 3rem; border-radius: 0.75rem; border-color: #E5E7EB; background-color: #ffffff; font-size: 14px; box-shadow: none; }
+  .f-input:focus-visible { outline: none; box-shadow: 0 0 0 1px #F5B700; }
+}
+
+.dark .f-btn-outline, .dark .f-btn-outline-danger { background-color: hsl(20 8% 13%); color: hsl(40 6% 96%); border-color: hsl(20 8% 22%); }
+.dark .f-btn-outline-danger { color: #F87171; border-color: hsl(0 35% 28%); }
+.dark .f-tint-gold  { background-color: hsl(45 45% 13%); }
+.dark .f-tint-cream { background-color: hsl(45 30% 11%); }
+.dark .f-tint-green { background-color: hsl(142 30% 13%); }
+.dark .f-tint-red   { background-color: hsl(0 35% 14%); }
+.dark .f-tint-gray  { background-color: hsl(20 8% 16%); }
+.dark .f-border-red   { border-color: hsl(0 35% 28%); }
+.dark .f-border-green { border-color: hsl(142 30% 25%); }
+.dark .f-border-gold  { border-color: hsl(45 50% 30%); }
+.dark .f-text-green { color: #4ADE80; }
+.dark .f-text-red, .dark .f-text-red-strong { color: #F87171; }
+.dark .f-text-amber { color: #FBBF24; }
+.dark .f-text-soft  { color: hsl(40 6% 82%); }
+.dark .f-text-muted { color: hsl(20 6% 62%); }
+.dark .f-chip { background-color: hsl(20 8% 13%); border-color: hsl(20 8% 22%); color: hsl(40 6% 82%); }
+.dark .f-chip-active { background-color: hsl(45 45% 13%); border-color: #F5B700; color: #F5C518; }
+.dark .f-input { background-color: hsl(20 8% 13%); border-color: hsl(20 8% 22%); }
+
+/* ------------------------------------------------------------------
    Dark mode overrides for the app's hardcoded light palette.
    Unlayered so they outrank Tailwind utilities; scoped to `.dark`.
    ------------------------------------------------------------------ */
