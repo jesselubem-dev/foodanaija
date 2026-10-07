@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNowStrict, isToday, isYesterday, format } from 'date-fns';
-import { ChevronLeft, ChevronRight, Check, X, PackageCheck, Bell } from 'lucide-react';
+import { ChevronRight, Check, X, PackageCheck, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
@@ -88,11 +88,6 @@ function NotificationsContent() {
   const openNotification = (n) => {
     if (!n.is_read) markRead.mutate(n.id);
     if (n.order_id) navigate(createPageUrl('OrderHistory'));
-  };
-
-  const goBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate(createPageUrl('CustomerHome'));
   };
 
   return (

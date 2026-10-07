@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { ChevronLeft, ChevronRight, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { ChevronRight, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LanguageProvider } from '../components/LanguageContext';
@@ -12,7 +12,6 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
 function CartContent() {
-  const navigate = useNavigate();
   const [cart, setCart] = useState([]);
   const [isLoadingCart, setIsLoadingCart] = useState(true);
   const { settings, calculateTotalVAS } = usePlatformSettings();
@@ -87,11 +86,6 @@ function CartContent() {
   const addMoreUrl = lastRestaurantId
     ? createPageUrl(`RestaurantDetail?id=${lastRestaurantId}`)
     : createPageUrl('CustomerHome');
-
-  const goBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate(createPageUrl('CustomerHome'));
-  };
 
   // Group by restaurant only when the order spans more than one.
   const groups = [];

@@ -18,14 +18,12 @@ import HomePromoCard from '../components/customer/HomePromoCard';
 import RamadanBanner from '../components/customer/RamadanBanner';
 import NoInternet from '../components/NoInternet';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { LanguageProvider, useLanguage } from '../components/LanguageContext';
+import { LanguageProvider } from '../components/LanguageContext';
 import { StaggerItem } from '@/components/ui/motion';
 
 
 function CustomerHomeContent() {
-  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCity, setSelectedCity] = useState('all');
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showPromo, setShowPromo] = useState(false);
@@ -174,13 +172,12 @@ function CustomerHomeContent() {
         (r.name || '').toLowerCase().includes(term) ||
         r.description?.toLowerCase().includes(term) ||
         r.cuisine_types?.some(c => c.toLowerCase().includes(term));
-      return matchesSearch && (selectedCity === 'all' || r.city === selectedCity);
+      return matchesSearch;
     })
     // Open restaurants first, then by rating
     .sort((a, b) => (Number(isRestaurantOpen(b)) - Number(isRestaurantOpen(a))) ||
       (b.rating || 0) - (a.rating || 0) || (b.total_reviews || 0) - (a.total_reviews || 0));
 
-  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const updateCartQuantity = (itemId, newQuantity) => {
     if (newQuantity === 0) { removeFromCart(itemId); return; }
