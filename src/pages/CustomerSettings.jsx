@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronRight, Plus, MapPin, Trash2, Pencil, Check, LogOut, UserX,
-  MessageCircle, Bell, ReceiptText, Moon, Headphones,
+  MessageCircle, Bell, ReceiptText, Moon, Headphones, Mail,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -354,6 +354,7 @@ function CustomerSettingsContent() {
           <SectionTitle>Help</SectionTitle>
           <Card>
             <Row icon={Headphones} title="Chat with Fooda" subtitle="Ask about an order in the app" to={createPageUrl('LiveChat')} />
+            <Row icon={Mail} title="Contact support" subtitle="Send a message, get a written reply" to={createPageUrl('CustomerSupport')} />
             <Row
               icon={MessageCircle}
               iconBg="#ECFDF3"
