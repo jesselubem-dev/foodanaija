@@ -134,7 +134,7 @@ function NotificationsContent() {
             <p className="text-sm text-gray-500 mb-6 max-w-[260px]">
               {filter === 'unread'
                 ? 'New updates about your orders will show up here.'
-                : "We'll let you know when a restaurant accepts your order or it's delivered."}
+                : "We'll let you know as your order is accepted, picked up and delivered — and when your favourite restaurants open."}
             </p>
             <Link
               to={createPageUrl('CustomerHome')}
@@ -183,9 +183,9 @@ function NotificationsContent() {
                           <span className="text-[11px] text-gray-400 flex-shrink-0 mt-0.5">{timeLabel(n.created_date)}</span>
                         </div>
                         <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
-                        {n.order_id && (
+                        {linkFor(n) && (
                           <span className="inline-flex items-center gap-0.5 mt-1.5 text-[11px] font-bold uppercase tracking-wide f-text-green">
-                            View order <ChevronRight className="w-3 h-3" strokeWidth={3} />
+                            {n.type === 'restaurant_open' ? 'Order now' : 'View order'} <ChevronRight className="w-3 h-3" strokeWidth={3} />
                           </span>
                         )}
                       </div>
