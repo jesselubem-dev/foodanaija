@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import ReviewSection from '../components/restaurant/ReviewSection';
 import FloatingCart from '../components/customer/FloatingCart';
 import { LanguageProvider } from '../components/LanguageContext';
+import { ChipGroup } from '../components/fooda/ui';
 
 const FAV_KEY = 'favourite_restaurants';
 const readFavs = () => {
@@ -264,10 +265,7 @@ function RestaurantDetailContent() {
                 {subtitle && <p className="text-[12px] font-semibold text-gray-700 mt-0.5 truncate">{subtitle}</p>}
               </div>
               <span
-                className="flex-shrink-0 text-[12px] font-medium px-2.5 py-1 rounded-full"
-                style={isOpen
-                  ? { backgroundColor: '#FEF3C7', color: '#111111' }
-                  : { backgroundColor: '#FEE2E2', color: '#B91C1C' }}
+                className={`flex-shrink-0 text-[12px] font-medium px-2.5 py-1 rounded-full ${isOpen ? 'f-tint-gold text-gray-900' : 'f-tint-red f-text-red-strong'}`}
               >
                 {statusLong}
               </span>
@@ -301,23 +299,13 @@ function RestaurantDetailContent() {
 
         {/* Category chips */}
         {sortedCategories.length > 1 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {[{ id: 'all', name: 'All' }, ...sortedCategories].map(cat => {
-              const active = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3.5 py-1.5 rounded-lg text-[14px] border transition-colors ${
-                    active ? 'border-fooda-gold text-fooda-gold font-semibold' : 'border-gray-200 text-gray-700 bg-white'
-                  }`}
-                  style={active ? { backgroundColor: '#FFFBEB' } : undefined}
-                >
-                  {cat.name}
-                </button>
-              );
-            })}
-          </div>
+          <ChipGroup
+            wrap
+            className="mt-4"
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            options={[{ id: 'all', label: 'All' }, ...sortedCategories.map(c => ({ id: c.id, label: c.name }))]}
+          />
         )}
 
         {!isOpen && (
@@ -345,10 +333,9 @@ function RestaurantDetailContent() {
                       <div
                         key={item.id}
                         onClick={() => setSelectedItem(item)}
-                        className={`flex items-center gap-3 p-2 rounded-2xl border bg-white cursor-pointer press-card ${
-                          qty > 0 ? 'border-fooda-gold/40' : 'border-gray-200'
+                        className={`flex items-center gap-3 p-2 rounded-2xl border cursor-pointer press-card ${
+                          qty > 0 ? 'border-fooda-gold/40 f-tint-cream' : 'border-gray-200 bg-white'
                         }`}
-                        style={qty > 0 ? { backgroundColor: '#FFFDF5' } : undefined}
                       >
                         {item.images?.[0] ? (
                           <img src={item.images[0]} alt={item.name} loading="lazy" className="w-[60px] h-[60px] rounded-xl object-cover flex-shrink-0" />

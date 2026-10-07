@@ -10,6 +10,7 @@ import CancelOrderModal from '../components/customer/CancelOrderModal';
 import { LanguageProvider } from '../components/LanguageContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import BottomNav from '../components/customer/BottomNav';
+import { ChipGroup } from '../components/fooda/ui';
 
 // Status pill colours, in the Fooda palette.
 const STATUS = {
@@ -86,8 +87,8 @@ function Tracker({ order }) {
         {STEPS.map((label, i) => (
           <span
             key={label}
-            className="text-[10px] font-medium"
-            style={{ color: i <= current ? '#111111' : '#9CA3AF', width: '25%', textAlign: i === 0 ? 'left' : i === STEPS.length - 1 ? 'right' : 'center' }}
+            className={`text-[10px] font-medium ${i <= current ? 'text-gray-900' : 'text-gray-400'}`}
+            style={{ width: '25%', textAlign: i === 0 ? 'left' : i === STEPS.length - 1 ? 'right' : 'center' }}
           >
             {label}
           </span>
@@ -195,26 +196,15 @@ function OrderHistoryContent() {
             <p className="text-[13px] text-gray-500 mt-0.5">Track what's on the way and reorder favourites</p>
 
             {/* Tabs */}
-            <div className="flex gap-2 mt-4">
-              {[
+            <ChipGroup
+              className="mt-4"
+              value={tab}
+              onChange={setTab}
+              options={[
                 { id: 'active', label: `Active${active.length ? ` (${active.length})` : ''}` },
                 { id: 'past', label: 'Past orders' },
-              ].map(t => {
-                const on = tab === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setTab(t.id)}
-                    className={`px-3.5 py-1.5 rounded-lg text-[14px] border transition-colors ${
-                      on ? 'border-fooda-gold text-fooda-gold font-semibold' : 'border-gray-200 text-gray-700 bg-white'
-                    }`}
-                    style={on ? { backgroundColor: '#FFFBEB' } : undefined}
-                  >
-                    {t.label}
-                  </button>
-                );
-              })}
-            </div>
+              ]}
+            />
           </div>
         </div>
 

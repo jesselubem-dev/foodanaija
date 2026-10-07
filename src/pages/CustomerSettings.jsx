@@ -44,9 +44,7 @@ function Row({ icon, iconBg, iconFg, title, subtitle, to, href, onClick, right, 
     <>
       <RowIcon icon={icon} bg={iconBg} fg={iconFg} />
       <div className="flex-1 min-w-0 text-left">
-        <p className="text-[14px] font-medium truncate" style={danger ? { color: '#DC2626' } : undefined}>
-          <span className={danger ? '' : 'text-gray-900'}>{title}</span>
-        </p>
+        <p className={`text-[14px] font-medium truncate ${danger ? 'f-text-red' : 'text-gray-900'}`}>{title}</p>
         {subtitle && <p className="text-[12px] text-gray-500 truncate">{subtitle}</p>}
       </div>
       {right ?? <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />}
@@ -295,8 +293,7 @@ function CustomerSettingsContent() {
               {addresses.map((address) => (
                 <div
                   key={address.id}
-                  className={`rounded-2xl border p-3 ${address.is_default ? 'border-fooda-gold/40' : 'border-gray-200 bg-white'}`}
-                  style={address.is_default ? { backgroundColor: '#FFFDF5' } : undefined}
+                  className={`rounded-2xl border p-3 ${address.is_default ? 'border-fooda-gold/40 f-tint-cream' : 'border-gray-200 bg-white'}`}
                 >
                   <div className="flex items-start gap-3">
                     <RowIcon icon={MapPin} />

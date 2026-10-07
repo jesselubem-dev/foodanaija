@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { LanguageProvider } from '../components/LanguageContext';
+import { ChipGroup } from '../components/fooda/ui';
 
 // Visual style per notification type, matching the Fooda palette.
 const TYPE_STYLE = {
@@ -121,26 +122,15 @@ function NotificationsContent() {
 
       <div className="max-w-lg mx-auto px-4">
         {/* Filter chips */}
-        <div className="flex gap-2 mt-2 mb-4">
-          {[
+        <ChipGroup
+          className="mt-2 mb-4"
+          value={filter}
+          onChange={setFilter}
+          options={[
             { id: 'all', label: 'All' },
             { id: 'unread', label: unreadCount ? `Unread (${unreadCount})` : 'Unread' },
-          ].map(chip => {
-            const active = filter === chip.id;
-            return (
-              <button
-                key={chip.id}
-                onClick={() => setFilter(chip.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-[14px] border transition-colors ${
-                  active ? 'border-fooda-gold text-fooda-gold font-semibold' : 'border-gray-200 text-gray-700 bg-white'
-                }`}
-                style={active ? { backgroundColor: '#FFFBEB' } : undefined}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
+          ]}
+        />
 
         {isLoading || !user ? (
           <div className="space-y-3">
@@ -188,9 +178,8 @@ function NotificationsContent() {
                       key={n.id}
                       onClick={() => openNotification(n)}
                       className={`w-full text-left flex items-start gap-3 p-3 rounded-2xl border press-card ${
-                        n.is_read ? 'border-gray-200 bg-white' : 'border-fooda-gold/40'
+                        n.is_read ? 'border-gray-200 bg-white' : 'border-fooda-gold/40 f-tint-cream'
                       }`}
-                      style={!n.is_read ? { backgroundColor: '#FFFDF5' } : undefined}
                     >
                       <div className="relative flex-shrink-0">
                         {image ? (
