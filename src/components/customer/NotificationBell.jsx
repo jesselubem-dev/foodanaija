@@ -47,16 +47,16 @@ export default function NotificationBell({ userEmail }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
+        <Button variant="ghost" size="icon" className="relative text-gray-900 hover:bg-gray-50" aria-label="Notifications">
+          <Bell className="w-[22px] h-[22px]" strokeWidth={1.9} />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              {unreadCount}
+            <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 bg-fooda-red text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 mb-2" align="end" side="top">
+      <PopoverContent className="w-80 max-w-[calc(100vw-2rem)] p-0 mt-1" align="end" side="bottom">
         <div className="p-4 border-b">
           <h3 className="font-semibold">Notifications</h3>
           <p className="text-xs text-gray-500">{unreadCount} unread</p>
