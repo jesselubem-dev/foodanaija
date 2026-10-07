@@ -6,6 +6,7 @@ import { ChevronLeft, AlertTriangle, UserX, LogOut, Lock, MessageCircle } from '
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { PageHeader } from '../components/fooda/ui';
 
 const SUPPORT_WHATSAPP = 'https://wa.me/2347078700001';
 
@@ -87,19 +88,7 @@ export default function DeleteAccount() {
 
   return (
     <div className="min-h-screen bg-white pb-36">
-      {/* Header */}
-      <div className="bg-white px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
-        <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
-          <Link
-            to={createPageUrl('CustomerSettings')}
-            aria-label="Back to profile"
-            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-900" />
-          </Link>
-          <h1 className="text-[17px] font-semibold text-gray-900">Delete account</h1>
-        </div>
-      </div>
+      <PageHeader title="Delete account" backTo="CustomerSettings" />
 
       <div className="max-w-lg mx-auto px-4 pt-4">
         {/* Intro */}

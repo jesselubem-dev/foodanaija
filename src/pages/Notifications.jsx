@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { LanguageProvider } from '../components/LanguageContext';
-import { ChipGroup } from '../components/fooda/ui';
+import { ChipGroup, PageHeader } from '../components/fooda/ui';
 
 // Visual style per notification type, matching the Fooda palette.
 const TYPE_STYLE = {
@@ -97,28 +97,18 @@ function NotificationsContent() {
 
   return (
     <div className="min-h-screen bg-white pb-10">
-      {/* Header */}
-      <div className="bg-white px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
-        <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
+      <PageHeader
+        title="Notifications"
+        right={unreadCount > 0 && (
           <button
-            onClick={goBack}
-            aria-label="Back"
-            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press"
+            onClick={() => markAllRead.mutate()}
+            disabled={markAllRead.isPending}
+            className="text-[12px] font-semibold f-text-green disabled:opacity-50"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-900" />
+            Mark all read
           </button>
-          <h1 className="text-[17px] font-semibold text-gray-900">Notifications</h1>
-          {unreadCount > 0 && (
-            <button
-              onClick={() => markAllRead.mutate()}
-              disabled={markAllRead.isPending}
-              className="absolute right-0 text-[12px] font-semibold disabled:opacity-50 f-text-green"
-            >
-              Mark all read
-            </button>
-          )}
-        </div>
-      </div>
+        )}
+      />
 
       <div className="max-w-lg mx-auto px-4">
         {/* Filter chips */}

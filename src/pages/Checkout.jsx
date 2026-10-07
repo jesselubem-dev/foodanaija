@@ -13,6 +13,7 @@ import DrinkUpsell from '../components/customer/DrinkUpsell';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
+import { PageHeader } from '../components/fooda/ui';
 
 // Dynamically loads the Flutterwave Inline checkout SDK (v3.js) once.
 function loadFlutterwaveSDK() {
@@ -460,19 +461,7 @@ export default function Checkout() {
   return (
     <ErrorBoundary>
     <div className="min-h-screen bg-white pb-32">
-      {/* Header */}
-      <header className="bg-white sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2">
-        <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
-          <Link
-            to={createPageUrl('Cart')}
-            aria-label="Back to your order"
-            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-900" />
-          </Link>
-          <h1 className="text-[17px] font-semibold text-gray-900">Checkout</h1>
-        </div>
-      </header>
+      <PageHeader title="Checkout" backTo="Cart" />
 
       <form id="checkout-form" onSubmit={handleSubmit} className="max-w-lg mx-auto px-4">
         <h2 className="text-[15px] font-semibold text-gray-900 text-center mt-2 mb-4">Delivery details</h2>
