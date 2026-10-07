@@ -90,8 +90,13 @@ async function handleRestaurantOpen(base44, restaurantId) {
   const orders = await base44.asServiceRole.entities.Order.filter(
     { restaurant_id: restaurant.id, payment_status: 'paid' }, '-created_date', 2000
   );
-  const emails = [...new Set(orders.map(o => (o.customer_email || '').toLowerCase()).filter(Boolean))]
-    .slice(0, RESTAURANT_OPEN_MAX_RECIPIENTS);
+  // One per customer (compare case-insensitively, keep the email exactly as stored).
+  const byLower = new Map();
+  for (const o of orders) {
+    const e = (o.customer_email || '').trim();
+    if (e && !byLower.has(e.toLowerCase())) byLower.set(e.toLowerCase(), e);
+  }
+  const emails = [...byLower.values()].slice(0, RESTAURANT_OPEN_MAX_RECIPIENTS);
   if (emails.length === 0) return { sent: 0, reason: 'no_past_customers' };
 
   const title = `${restaurant.name} is open now 🍽️`;
