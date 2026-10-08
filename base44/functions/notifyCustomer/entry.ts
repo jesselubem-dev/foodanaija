@@ -14,8 +14,30 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
  */
 
 const ORDER_LINK = 'OrderHistory';
+const APP_URL = 'https://foodanaija.base44.app';
 const RESTAURANT_OPEN_COOLDOWN_HOURS = 12;   // at most one "now open" per restaurant per 12h
 const RESTAURANT_OPEN_MAX_RECIPIENTS = 500;
+
+// Send a native push notification to the order's customer (server-side only).
+async function sendOrderPush(base44, order, msg) {
+  try {
+    const users = await base44.asServiceRole.entities.User.filter({ email: order.customer_email });
+    const user = users?.[0];
+    if (!user?.id) return { push: false, reason: 'user_not_found' };
+
+    await base44.asServiceRole.integrations.Core.SendPushNotification({
+      user_id: user.id,
+      title: msg.title,
+      content: msg.message,
+      action_label: 'View Order',
+      action_url: `${APP_URL}/OrderHistory`,
+    });
+    return { push: true };
+  } catch (e) {
+    console.warn('Push notification failed:', e?.message || e);
+    return { push: false, reason: e?.message || 'error' };
+  }
+}
 
 // Which customer-facing step an order is at right now (null = nothing to announce).
 function orderStep(order) {
@@ -69,7 +91,11 @@ async function handleOrderUpdated(base44, orderId) {
     is_read: false,
     metadata: { event: step, image_url: order.items?.[0]?.image_url || '' },
   });
-  return { sent: 1, step };
+
+  // Also fire a native push to the customer's phone (order accepted + tracking updates).
+  const push = await sendOrderPush(base44, order, msg);
+
+  return { sent: 1, step, push };
 }
 
 async function handleRestaurantOpen(base44, restaurantId) {
