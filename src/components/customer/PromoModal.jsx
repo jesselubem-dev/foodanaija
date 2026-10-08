@@ -17,18 +17,18 @@ function Backdrop({ onClose, children }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/55"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <motion.div
-        initial={{ y: 80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 80, opacity: 0 }}
+        initial={{ y: 40, opacity: 0, scale: 0.96 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 20, opacity: 0, scale: 0.97 }}
         transition={{ type: 'spring', damping: 30, stiffness: 340 }}
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-sm mb-[env(safe-area-inset-bottom)]"
+        className="relative w-full max-w-sm"
       >
         <button
           onClick={onClose}
