@@ -26,8 +26,8 @@ export default function UpdatePrompt() {
 
   const handleUpdate = () => {
     localStorage.setItem(STORAGE_KEY, 'true');
-    window.open(PLAY_STORE_URL, '_blank');
     setVisible(false);
+    window.location.href = PLAY_STORE_URL;
   };
 
   return (
