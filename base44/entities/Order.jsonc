@@ -58,6 +58,10 @@
       "type": "number",
       "description": "Delivery fee"
     },
+    "service_fee": {
+      "type": "number",
+      "description": "Value-added service fee"
+    },
     "total": {
       "type": "number",
       "description": "Total amount"
@@ -113,6 +117,7 @@
       "type": "string",
       "enum": [
         "pending",
+        "initiated",
         "paid",
         "failed"
       ],
@@ -120,11 +125,19 @@
     },
     "payment_reference": {
       "type": "string",
-      "description": "Paystack payment reference"
+      "description": "Payment reference"
     },
     "amount_paid": {
       "type": "number",
       "description": "Amount paid by customer"
+    },
+    "promo_code": {
+      "type": "string",
+      "description": "Applied promo code string"
+    },
+    "promo_code_id": {
+      "type": "string",
+      "description": "ID of the applied promo code"
     },
     "notes": {
       "type": "string",
