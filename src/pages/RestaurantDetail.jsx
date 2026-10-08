@@ -398,37 +398,48 @@ function RestaurantDetailContent() {
 
       {/* Item Detail Modal */}
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="p-0 max-w-md overflow-hidden rounded-3xl border-0">
+        <DialogContent className="p-0 max-w-md overflow-hidden rounded-3xl border-0 gap-0">
           {selectedItem && (
             <>
-              {selectedItem.images?.[0] ? (
-                <img src={selectedItem.images[0]} alt={selectedItem.name} className="w-full h-64 object-cover" />
-              ) : (
-                <div className="w-full h-64 f-tint-gold flex items-center justify-center">
-                  <span className="text-6xl">🍽️</span>
-                </div>
-              )}
-              <div className="p-5">
-                {selectedItem.is_popular && (
-                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full mb-3 inline-block f-tint-gold f-text-amber">🔥 Popular</span>
+              {/* Hero image with overlaid badge */}
+              <div className="relative">
+                {selectedItem.images?.[0] ? (
+                  <img src={selectedItem.images[0]} alt={selectedItem.name} className="w-full h-72 object-cover" />
+                ) : (
+                  <div className="w-full h-72 f-tint-gold flex items-center justify-center">
+                    <span className="text-7xl">🍽️</span>
+                  </div>
                 )}
-                <h2 className="text-xl font-semibold text-gray-900 mt-1 mb-1">{selectedItem.name}</h2>
-                {selectedItem.description && (
-                  <p className="text-gray-500 text-sm mb-4 leading-relaxed">{selectedItem.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
+                {selectedItem.is_popular && (
+                  <span className="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 f-btn-gold">
+                    🔥 Popular
+                  </span>
                 )}
                 {selectedItem.preparation_time && (
-                  <div className="flex items-center gap-1 text-sm text-gray-500 mb-4">
-                    <Clock className="w-4 h-4" />
-                    <span>Ready in {selectedItem.preparation_time}</span>
-                  </div>
+                  <span className="absolute bottom-3 left-3 text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 f-float">
+                    <Clock className="w-3 h-3" />
+                    {selectedItem.preparation_time}
+                  </span>
                 )}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div>
-                    <p className="text-xl font-semibold text-gray-900">₦{Number(selectedItem.price || 0).toLocaleString()}</p>
+              </div>
+
+              {/* Details */}
+              <div className="p-5 pt-4">
+                <h2 className="text-[22px] font-semibold text-gray-900 leading-tight">{selectedItem.name}</h2>
+                {selectedItem.description && (
+                  <p className="text-gray-500 text-[13px] mt-2 leading-relaxed">{selectedItem.description}</p>
+                )}
+
+                {/* Price + action */}
+                <div className="flex items-end justify-between gap-3 mt-5">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-gray-900">₦{Number(selectedItem.price || 0).toLocaleString()}</span>
                     {selectedItem.slashed_price > 0 && (
-                      <p className="text-sm text-gray-400 line-through">₦{Number(selectedItem.slashed_price).toLocaleString()}</p>
+                      <span className="text-sm text-gray-400 line-through">₦{Number(selectedItem.slashed_price).toLocaleString()}</span>
                     )}
                   </div>
+
                   {getItemQuantity(selectedItem.id) === 0 ? (
                     <button
                       onClick={() => { addToCart(selectedItem); setSelectedItem(null); }}
@@ -439,20 +450,20 @@ function RestaurantDetailContent() {
                       {isOpen ? 'ADD TO ORDER +' : 'Closed'}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 rounded-xl px-2 py-1.5 f-tint-gold">
+                    <div className="flex items-center gap-2 rounded-xl p-1 f-tint-gold">
                       <button
                         onClick={() => updateQuantity(selectedItem.id, -1)}
                         aria-label="Remove one"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm f-float"
+                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm press bg-fooda-gold"
                       >
                         <Minus className="w-4 h-4 f-on-gold" />
                       </button>
-                      <span className="font-semibold w-5 text-center f-on-gold">{getItemQuantity(selectedItem.id)}</span>
+                      <span className="font-bold w-6 text-center text-[15px] f-on-gold">{getItemQuantity(selectedItem.id)}</span>
                       <button
                         onClick={() => addToCart(selectedItem)}
                         disabled={!isOpen}
                         aria-label="Add one"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm disabled:opacity-50 bg-fooda-gold"
+                        className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm disabled:opacity-50 press bg-fooda-gold"
                       >
                         <Plus className="w-4 h-4 f-on-gold" />
                       </button>
