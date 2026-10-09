@@ -14,6 +14,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 import { PageHeader } from '../components/fooda/ui';
+import { markCartCompleted } from '@/lib/trackAbandonedCart';
 
 // Dynamically loads the Flutterwave Inline checkout SDK (v3.js) once.
 function loadFlutterwaveSDK() {
@@ -384,6 +385,8 @@ export default function Checkout() {
         callback: function (payment) {
           if (modal) modal.close();
           if (payment && payment.transaction_id) {
+            markCartCompleted();
+            localStorage.removeItem('cart');
             window.location.href = createPageUrl('OrderConfirmation') + `?transaction_id=${payment.transaction_id}`;
           } else {
             setProcessing(false);

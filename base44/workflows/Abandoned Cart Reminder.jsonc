@@ -1,0 +1,50 @@
+{
+  "name": "Abandoned Cart Reminder",
+  "description": "Waits 15 minutes after a cart is first tracked, then sends a pleasing push notification if the customer hasn't checked out yet.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "AbandonedCart",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"active\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "abandoned_cart_reminder",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "wait_15_minutes": {
+          "wait": "PT15M",
+          "then": "send_reminder",
+          "x-base44": {
+            "title": "Wait 15 minutes",
+            "description": "Give the customer time to complete checkout"
+          }
+        }
+      },
+      {
+        "send_reminder": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendAbandonedCartNotification",
+            "args": {
+              "cart_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Send cart reminder",
+            "description": "Push + in-app notification if still active"
+          }
+        }
+      }
+    ]
+  }
+}

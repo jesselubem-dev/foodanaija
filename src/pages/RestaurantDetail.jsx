@@ -11,6 +11,7 @@ import ReviewSection from '../components/restaurant/ReviewSection';
 import FloatingCart from '../components/customer/FloatingCart';
 import { LanguageProvider } from '../components/LanguageContext';
 import { ChipGroup } from '../components/fooda/ui';
+import { syncAbandonedCart } from '@/lib/trackAbandonedCart';
 
 const FAV_KEY = 'favourite_restaurants';
 const readFavs = () => {
@@ -132,6 +133,7 @@ function RestaurantDetailContent() {
     }
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
+    syncAbandonedCart(newCart);
     toast.success(`${item.name} added`);
   };
 

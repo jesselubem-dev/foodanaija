@@ -10,6 +10,7 @@ import { usePlatformSettings } from '../hooks/usePlatformSettings';
 import { PageHeader } from '../components/fooda/ui';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { syncAbandonedCart } from '@/lib/trackAbandonedCart';
 
 function CartContent() {
   const [cart, setCart] = useState([]);
@@ -34,6 +35,7 @@ function CartContent() {
     setCart(newCart);
     if (newCart.length) localStorage.setItem('cart', JSON.stringify(newCart));
     else localStorage.removeItem('cart');
+    syncAbandonedCart(newCart);
   };
 
   const updateQuantity = (itemId, delta) => {

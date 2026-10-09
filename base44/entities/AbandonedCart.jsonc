@@ -1,0 +1,107 @@
+{
+  "name": "AbandonedCart",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "cart_items": {
+      "type": "array",
+      "description": "Items left in the cart",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "image_url": {
+            "type": "string"
+          },
+          "restaurant_name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "item_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total quantity of items"
+    },
+    "total": {
+      "type": "number",
+      "default": 0,
+      "description": "Cart subtotal"
+    },
+    "restaurant_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Restaurant names in the cart"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "notified"
+      ],
+      "default": "active",
+      "description": "Whether the cart is still pending, completed, or the reminder was sent"
+    }
+  },
+  "required": [
+    "user_email",
+    "cart_items",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
