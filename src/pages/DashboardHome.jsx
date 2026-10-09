@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { notifyRestaurantOpen } from '@/lib/notifyCustomer';
+import { notifyRestaurantOpen, notifyRestaurantClosed } from '@/lib/notifyCustomer';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { 
@@ -96,6 +96,7 @@ export default function DashboardHome() {
       if (shouldBeOpen !== restaurant.is_open) {
         await base44.entities.Restaurant.update(restaurant.id, { is_open: shouldBeOpen });
         if (shouldBeOpen) notifyRestaurantOpen(restaurant.id); // tell past customers
+        else notifyRestaurantClosed(restaurant.id); // tell past customers it closed
         loadData();
       }
     };

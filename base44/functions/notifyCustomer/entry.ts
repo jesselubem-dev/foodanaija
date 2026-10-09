@@ -9,14 +9,16 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
  * more than once.
  *
  * Body:
- *   { event: 'order_updated', order_id }        -> notifies the order's customer
- *   { event: 'restaurant_open', restaurant_id } -> notifies past customers of that restaurant
+ *   { event: 'order_updated', order_id }          -> notifies the order's customer (in-app + push)
+ *   { event: 'restaurant_open', restaurant_id }   -> notifies past customers (in-app + push)
+ *   { event: 'restaurant_closed', restaurant_id } -> notifies past customers (in-app + push)
  */
 
 const ORDER_LINK = 'OrderHistory';
 const APP_URL = 'https://foodanaija.base44.app';
-const RESTAURANT_OPEN_COOLDOWN_HOURS = 12;   // at most one "now open" per restaurant per 12h
-const RESTAURANT_OPEN_MAX_RECIPIENTS = 500;
+const RESTAURANT_COOLDOWN_HOURS = 12;   // at most one open/closed notice per restaurant per 12h
+const RESTAURANT_MAX_RECIPIENTS = 500;
+const PUSH_BATCH = 6;
 
 // Send a native push notification to the order's customer (server-side only).
 async function sendOrderPush(base44, order, msg) {
@@ -36,6 +38,38 @@ async function sendOrderPush(base44, order, msg) {
   } catch (e) {
     console.warn('Push notification failed:', e?.message || e);
     return { push: false, reason: e?.message || 'error' };
+  }
+}
+
+// Send a native push notification to every app user whose email is in the list.
+async function sendPushToEmails(base44, emails, title, message, link) {
+  if (!emails.length) return { push_sent: 0, push_failed: 0 };
+  try {
+    const users = await base44.asServiceRole.entities.User.list();
+    const emailSet = new Set(emails.map(e => e.toLowerCase()));
+    const targets = (users || []).filter(u => u.email && emailSet.has(u.email.toLowerCase()));
+
+    let sent = 0, failed = 0;
+    for (let i = 0; i < targets.length; i += PUSH_BATCH) {
+      const batch = targets.slice(i, i + PUSH_BATCH);
+      const results = await Promise.allSettled(batch.map(u =>
+        base44.asServiceRole.integrations.Core.SendPushNotification({
+          user_id: u.id,
+          title,
+          content: message,
+          action_label: 'Open App',
+          action_url: `${APP_URL}/${link}`,
+        })
+      ));
+      for (const r of results) {
+        if (r.status === 'fulfilled') sent++;
+        else failed++;
+      }
+    }
+    return { push_sent: sent, push_failed: failed };
+  } catch (e) {
+    console.warn('Push batch failed:', e?.message || e);
+    return { push_sent: 0, push_failed: 0 };
   }
 }
 
@@ -98,47 +132,21 @@ async function handleOrderUpdated(base44, orderId) {
   return { sent: 1, step, push };
 }
 
-async function handleRestaurantOpen(base44, restaurantId) {
-  const restaurant = (await base44.asServiceRole.entities.Restaurant.filter({ id: restaurantId }))[0];
-  if (!restaurant) return { sent: 0, reason: 'restaurant_not_found' };
-  if (!restaurant.is_open || !restaurant.is_approved) return { sent: 0, reason: 'not_open' };
-
-  // Cooldown so toggling open/closed doesn't spam customers.
-  const recent = await base44.asServiceRole.entities.Notification.filter(
-    { type: 'restaurant_open', restaurant_id: restaurant.id }, '-created_date', 1
-  );
-  const cutoff = Date.now() - RESTAURANT_OPEN_COOLDOWN_HOURS * 3600 * 1000;
-  if (recent[0] && new Date(recent[0].created_date).getTime() > cutoff) {
-    return { sent: 0, reason: 'cooldown' };
-  }
-
-  // Customers who have successfully ordered from this restaurant before.
+// One per customer (case-insensitive), capped.
+async function getPastCustomers(base44, restaurantId) {
   const orders = await base44.asServiceRole.entities.Order.filter(
-    { restaurant_id: restaurant.id, payment_status: 'paid' }, '-created_date', 2000
+    { restaurant_id: restaurantId, payment_status: 'paid' }, '-created_date', 2000
   );
-  // One per customer (compare case-insensitively, keep the email exactly as stored).
   const byLower = new Map();
   for (const o of orders) {
     const e = (o.customer_email || '').trim();
     if (e && !byLower.has(e.toLowerCase())) byLower.set(e.toLowerCase(), e);
   }
-  const emails = [...byLower.values()].slice(0, RESTAURANT_OPEN_MAX_RECIPIENTS);
-  if (emails.length === 0) return { sent: 0, reason: 'no_past_customers' };
+  return [...byLower.values()].slice(0, RESTAURANT_MAX_RECIPIENTS);
+}
 
-  const title = `${restaurant.name} is open now 🍽️`;
-  const message = `Your favourites are back on the menu. Order now — delivery in about ${restaurant.delivery_time || '30-45 mins'}.`;
-  const records = emails.map(email => ({
-    user_email: email,
-    title,
-    message,
-    type: 'restaurant_open',
-    restaurant_id: restaurant.id,
-    link: `RestaurantDetail?id=${restaurant.id}`,
-    is_read: false,
-    metadata: { event: 'restaurant_open', image_url: restaurant.cover_image_url || restaurant.logo_url || '' },
-  }));
-
-  // Insert in chunks to stay well within request limits.
+// Create in-app notification records in chunks.
+async function createNotifications(base44, records) {
   let sent = 0;
   for (let i = 0; i < records.length; i += 50) {
     const chunk = records.slice(i, i + 50);
@@ -147,11 +155,82 @@ async function handleRestaurantOpen(base44, restaurantId) {
       sent += chunk.length;
     } catch (_e) {
       for (const rec of chunk) {
-        try { await base44.asServiceRole.entities.Notification.create(rec); sent++; } catch (_err) { /* skip one */ }
+        try { await base44.asServiceRole.entities.Notification.create(rec); sent++; } catch (_err) { /* skip */ }
       }
     }
   }
-  return { sent };
+  return sent;
+}
+
+// True if a notification of this type was sent for this restaurant recently.
+async function isOnCooldown(base44, type, restaurantId) {
+  const recent = await base44.asServiceRole.entities.Notification.filter(
+    { type, restaurant_id: restaurantId }, '-created_date', 1
+  );
+  const cutoff = Date.now() - RESTAURANT_COOLDOWN_HOURS * 3600 * 1000;
+  return !!(recent[0] && new Date(recent[0].created_date).getTime() > cutoff);
+}
+
+async function handleRestaurantOpen(base44, restaurantId) {
+  const restaurant = (await base44.asServiceRole.entities.Restaurant.filter({ id: restaurantId }))[0];
+  if (!restaurant) return { sent: 0, reason: 'restaurant_not_found' };
+  if (!restaurant.is_open || !restaurant.is_approved) return { sent: 0, reason: 'not_open' };
+
+  if (await isOnCooldown(base44, 'restaurant_open', restaurant.id)) {
+    return { sent: 0, reason: 'cooldown' };
+  }
+
+  const emails = await getPastCustomers(base44, restaurant.id);
+  if (emails.length === 0) return { sent: 0, reason: 'no_past_customers' };
+
+  const title = `${restaurant.name} is open now 🍽️`;
+  const message = `Your favourites are back on the menu. Order now — delivery in about ${restaurant.delivery_time || '30-45 mins'}.`;
+  const link = `RestaurantDetail?id=${restaurant.id}`;
+  const records = emails.map(email => ({
+    user_email: email,
+    title,
+    message,
+    type: 'restaurant_open',
+    restaurant_id: restaurant.id,
+    link,
+    is_read: false,
+    metadata: { event: 'restaurant_open', image_url: restaurant.cover_image_url || restaurant.logo_url || '' },
+  }));
+
+  const sent = await createNotifications(base44, records);
+  const push = await sendPushToEmails(base44, emails, title, message, link);
+  return { sent, ...push };
+}
+
+async function handleRestaurantClosed(base44, restaurantId) {
+  const restaurant = (await base44.asServiceRole.entities.Restaurant.filter({ id: restaurantId }))[0];
+  if (!restaurant) return { sent: 0, reason: 'restaurant_not_found' };
+  if (restaurant.is_open) return { sent: 0, reason: 'still_open' };
+
+  if (await isOnCooldown(base44, 'restaurant_closed', restaurant.id)) {
+    return { sent: 0, reason: 'cooldown' };
+  }
+
+  const emails = await getPastCustomers(base44, restaurant.id);
+  if (emails.length === 0) return { sent: 0, reason: 'no_past_customers' };
+
+  const title = `${restaurant.name} is now closed 🔒`;
+  const message = `${restaurant.name} has closed for now. Check back later for your favourite meals.`;
+  const link = `RestaurantDetail?id=${restaurant.id}`;
+  const records = emails.map(email => ({
+    user_email: email,
+    title,
+    message,
+    type: 'restaurant_closed',
+    restaurant_id: restaurant.id,
+    link,
+    is_read: false,
+    metadata: { event: 'restaurant_closed', image_url: restaurant.cover_image_url || restaurant.logo_url || '' },
+  }));
+
+  const sent = await createNotifications(base44, records);
+  const push = await sendPushToEmails(base44, emails, title, message, link);
+  return { sent, ...push };
 }
 
 export default async function (req) {
@@ -168,6 +247,9 @@ export default async function (req) {
     }
     if (event === 'restaurant_open' && restaurant_id) {
       return Response.json({ success: true, ...(await handleRestaurantOpen(base44, restaurant_id)) });
+    }
+    if (event === 'restaurant_closed' && restaurant_id) {
+      return Response.json({ success: true, ...(await handleRestaurantClosed(base44, restaurant_id)) });
     }
     return Response.json({ success: false, error: 'Unknown event' }, { status: 400 });
   } catch (error) {

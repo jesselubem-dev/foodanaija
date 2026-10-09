@@ -48,6 +48,7 @@
         "order_delivered",
         "order_cancelled",
         "restaurant_open",
+        "restaurant_closed",
         "promo"
       ],
       "type": "string"

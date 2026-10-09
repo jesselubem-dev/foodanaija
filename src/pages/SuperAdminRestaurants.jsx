@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { notifyRestaurantOpen } from '@/lib/notifyCustomer';
+import { notifyRestaurantOpen, notifyRestaurantClosed } from '@/lib/notifyCustomer';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Store, MapPin, Phone, Mail, CheckCircle, XCircle, 
@@ -131,6 +131,7 @@ export default function SuperAdminRestaurants() {
     mutationFn: async ({ id, is_open }) => {
       const updated = await base44.entities.Restaurant.update(id, { is_open });
       if (is_open) notifyRestaurantOpen(id);
+      else notifyRestaurantClosed(id);
       return updated;
     },
     onSuccess: () => {

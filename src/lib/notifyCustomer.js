@@ -17,3 +17,10 @@ export function notifyRestaurantOpen(restaurantId) {
     .invoke('notifyCustomer', { event: 'restaurant_open', restaurant_id: restaurantId })
     .catch((e) => console.warn('notifyCustomer (restaurant) failed:', e?.message || e));
 }
+
+export function notifyRestaurantClosed(restaurantId) {
+  if (!restaurantId) return Promise.resolve();
+  return base44.functions
+    .invoke('notifyCustomer', { event: 'restaurant_closed', restaurant_id: restaurantId })
+    .catch((e) => console.warn('notifyCustomer (restaurant closed) failed:', e?.message || e));
+}
