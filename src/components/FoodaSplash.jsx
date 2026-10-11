@@ -122,10 +122,12 @@ export default function FoodaSplash({ onDone }) {
             <path ref={trailRef} d={ROUTE} fill="none" stroke="#F5B700" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
 
             {/* Restaurant pin */}
-            <g transform={`translate(${START.x} ${START.y})`} className="fs-pin-drop">
-              <circle r="17" fill="#E5383B" />
-              <circle r="17" fill="none" stroke="#fff" strokeWidth="3" />
-              <path d="M-4.5 -7 v6 a2.5 2.5 0 0 0 5 0 v-6 M-2 -7 v14 M4.5 -7 c-2.5 2 -2.5 6 0 7 v7" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <g transform={`translate(${START.x} ${START.y})`}>
+              <g className="fs-pin-drop">
+                <circle r="17" fill="#E5383B" />
+                <circle r="17" fill="none" stroke="#fff" strokeWidth="3" />
+                <path d="M-4.5 -7 v6 a2.5 2.5 0 0 0 5 0 v-6 M-2 -7 v14 M4.5 -7 c-2.5 2 -2.5 6 0 7 v7" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </g>
             </g>
 
             {/* Home pin */}
