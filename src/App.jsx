@@ -7,7 +7,7 @@ import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import UpdatePrompt from '@/components/UpdatePrompt'
 import FoodaSplash from '@/components/FoodaSplash'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -154,6 +154,18 @@ function App() {
     try { sessionStorage.setItem('fooda_splash', '1'); } catch { /* storage unavailable */ }
     setShowSplash(false);
   };
+
+  // Keep the phone's status-bar colour in step with the app's light/dark theme
+  useEffect(() => {
+    const sync = () => {
+      const dark = document.documentElement.classList.contains('dark');
+      document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', dark ? '#131211' : '#ffffff'));
+    };
+    sync();
+    const obs = new MutationObserver(sync);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
