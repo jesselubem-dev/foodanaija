@@ -194,7 +194,7 @@ export default function SuperAdminDashboard() {
       </aside>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-[calc(4rem+var(--sat))] pt-[var(--sat)] bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/19f9697a7_foodalogo.jpeg" 
           alt="Fooda Naija" 
@@ -208,7 +208,7 @@ export default function SuperAdminDashboard() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1 overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="absolute right-0 top-[calc(4rem+var(--sat))] bottom-0 w-64 bg-white p-4 space-y-1 overflow-y-auto" onClick={e => e.stopPropagation()}>
             <SidebarNavLink to="SuperAdminDashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminRestaurants" icon={Store} label="Restaurants" count={pendingRestaurants.length} onClick={() => setMobileMenuOpen(false)} />
             <SidebarNavLink to="SuperAdminUsers" icon={Users} label="Users" onClick={() => setMobileMenuOpen(false)} />
@@ -233,7 +233,7 @@ export default function SuperAdminDashboard() {
       )}
 
       {/* Main Content */}
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0 p-6">
+      <main className="lg:ml-64 min-h-screen pt-[calc(4rem+var(--sat))] lg:pt-0 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
