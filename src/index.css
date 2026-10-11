@@ -379,7 +379,7 @@ button:focus-visible {
 .dark .fs-park { fill: hsl(150 30% 12%); }
 .dark .fs-road { stroke: hsl(20 8% 7%); }
 .dark .fs-route-preview { stroke: hsl(20 6% 28%); }
-.dark .fs-badge { fill: hsl(20 8% 15%); }
+.dark .fs-badge { fill: #ffffff; }
 .dark .fs-tagline { color: hsl(20 6% 62%); }
 
 @keyframes fs-pin-drop {
