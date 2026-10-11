@@ -153,7 +153,7 @@ export default function LiveDeliveryMap({ order, totalMinutes = DEFAULT_MINUTES 
 
       {/* Delivery address tag at the home pin */}
       {address && (
-        <div className="absolute top-[46px] right-2 max-w-[62%] pointer-events-none flex flex-col items-end">
+        <div className="absolute top-[46px] right-2 max-w-[44%] pointer-events-none flex flex-col items-end">
           <span className="w-2 h-2 rotate-45 -mb-1 mr-[14px] f-float" />
           <div className="rounded-lg pl-2 pr-2.5 py-1.5 shadow-[0_4px_14px_rgba(0,0,0,0.12)] f-float min-w-0 max-w-full">
             <p className="text-[9px] font-semibold uppercase tracking-wide text-[#0B4D33] dark:text-[#4ADE80] leading-none">{delivered ? 'Delivered to' : 'Delivering to'}</p>
