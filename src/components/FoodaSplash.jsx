@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/9ad72bcd8_20260225_165100.png';
+const LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png';
 
 // Timeline (ms)
 const RIDE_START = 450;
@@ -9,7 +9,7 @@ const HOLD_UNTIL = 3400;
 const LEAVE_MS = 450;
 
 // Street route from the restaurant to the customer's door (rounded corners)
-const ROUTE = 'M80 590 L80 470 Q80 450 100 450 L220 450 Q240 450 240 430 L240 330 Q240 310 260 310 L310 310 Q330 310 330 290 L330 238';
+const ROUTE = 'M80 590 L80 470 Q80 450 100 450 L220 450 Q240 450 240 430 L240 330 Q240 310 260 310 L310 310 Q330 310 330 290 L330 276';
 const START = { x: 80, y: 590 };
 const END = { x: 330, y: 228 };
 
