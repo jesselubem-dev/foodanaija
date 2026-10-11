@@ -102,7 +102,7 @@ export default function SuperAdminAllMenus() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
+      <header className="bg-white border-b sticky top-0 pt-[var(--sat)] z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link to={createPageUrl('SuperAdminDashboard')}>
             <Button variant="ghost" size="icon"><ArrowLeft className="w-5 h-5" /></Button>

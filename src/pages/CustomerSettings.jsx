@@ -217,7 +217,7 @@ function CustomerSettingsContent() {
       <NoInternet />
 
       {/* Header */}
-      <div className="px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-2">
+      <div className="px-4 pt-[calc(1.25rem+var(--sat))] pb-2">
         <div className="max-w-lg mx-auto">
           <h1 className="text-[20px] font-semibold text-gray-900">Profile</h1>
           <p className="text-[13px] text-gray-500 mt-0.5">Manage your account and delivery details</p>

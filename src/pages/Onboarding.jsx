@@ -77,7 +77,7 @@ export default function Onboarding() {
   const Icon = slide.icon;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-screen bg-white flex flex-col px-6 pt-[calc(1rem+var(--sat))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
       {/* Top bar */}
       <div className="flex items-center justify-between h-10">
         <span className="text-[17px] font-bold text-gray-900 tracking-tight">

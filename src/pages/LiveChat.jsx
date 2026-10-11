@@ -210,7 +210,7 @@ function LiveChatContent() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="bg-white px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 sticky top-0 z-30 border-b border-gray-100">
+      <div className="bg-white px-4 pt-[calc(0.75rem+var(--sat))] pb-3 sticky top-0 z-30 border-b border-gray-100">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <Link
             to={createPageUrl('CustomerSettings')}

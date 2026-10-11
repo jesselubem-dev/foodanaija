@@ -208,7 +208,7 @@ function OrderHistoryContent() {
     <ErrorBoundary>
       <div className="min-h-screen bg-white pb-28">
         {/* Header */}
-        <div className="bg-white px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
+        <div className="bg-white px-4 pt-[calc(1.25rem+var(--sat))] pb-2 sticky top-0 z-30">
           <div className="max-w-lg mx-auto">
             <h1 className="text-[20px] font-semibold text-gray-900">Your orders</h1>
             <p className="text-[13px] text-gray-500 mt-0.5">Track what's on the way and reorder favourites</p>

@@ -18,7 +18,7 @@ export function PageHeader({ title, backTo, right, sticky = true }) {
   const backClass = 'absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center press';
 
   return (
-    <div className={`bg-white px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2 ${sticky ? 'sticky top-0 z-30' : ''}`}>
+    <div className={`bg-white px-4 pt-[calc(0.75rem+var(--sat))] pb-2 ${sticky ? 'sticky top-0 z-30' : ''}`}>
       <div className="max-w-lg mx-auto relative flex items-center justify-center h-10">
         {backTo ? (
           <Link to={createPageUrl(backTo)} aria-label="Back" className={backClass}>
@@ -39,7 +39,7 @@ export function PageHeader({ title, backTo, right, sticky = true }) {
 /** Left-aligned large title used on bottom-tab pages (Orders, Profile). */
 export function TabPageTitle({ title, subtitle, children }) {
   return (
-    <div className="bg-white px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-2 sticky top-0 z-30">
+    <div className="bg-white px-4 pt-[calc(1.25rem+var(--sat))] pb-2 sticky top-0 z-30">
       <div className="max-w-lg mx-auto">
         <h1 className="text-[20px] font-semibold text-gray-900">{title}</h1>
         {subtitle && <p className="text-[13px] text-gray-500 mt-0.5">{subtitle}</p>}

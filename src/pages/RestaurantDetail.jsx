@@ -206,7 +206,7 @@ function RestaurantDetailContent() {
 
   return (
     <div className="min-h-screen bg-white pb-32">
-      <div className="max-w-2xl mx-auto px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+      <div className="max-w-2xl mx-auto px-4 pt-[calc(0.75rem+var(--sat))]">
 
         {/* Hero + info card */}
         <div className="rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">

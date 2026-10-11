@@ -104,7 +104,7 @@ export default function InAppNotifier({ user }) {
   const image = current?.metadata?.image_url;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[60] pointer-events-none px-3 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+    <div className="fixed top-0 left-0 right-0 z-[60] pointer-events-none px-3 pt-[calc(0.5rem+var(--sat))]">
       <AnimatePresence>
         {current && (
           <motion.div

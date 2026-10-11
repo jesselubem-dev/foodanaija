@@ -119,14 +119,14 @@
 }
 
 .safe-area-inset-top {
-  padding-top: env(safe-area-inset-top, 0);
+  padding-top: var(--sat);
 }
 
 /* Fixed headers with safe area */
 header.sticky,
 header.fixed,
 .fixed-header {
-  padding-top: env(safe-area-inset-top, 0);
+  padding-top: var(--sat);
 }
 
 /* Pulse animation for notifications */

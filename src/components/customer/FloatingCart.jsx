@@ -23,7 +23,7 @@ export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col bg-white">
-        <SheetHeader className="px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3 border-b border-gray-100 text-left">
+        <SheetHeader className="px-4 pt-[calc(1rem+var(--sat))] pb-3 border-b border-gray-100 text-left">
           <SheetTitle className="text-[17px] font-semibold text-gray-900">
             Your order {itemCount > 0 && <span className="text-gray-500 font-normal">· {itemCount} item{itemCount === 1 ? '' : 's'}</span>}
           </SheetTitle>

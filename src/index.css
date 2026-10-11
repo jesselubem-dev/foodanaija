@@ -192,7 +192,7 @@ button:focus-visible {
     padding-bottom: env(safe-area-inset-bottom);
   }
   .safe-area-inset-top {
-    padding-top: env(safe-area-inset-top);
+    padding-top: var(--sat);
   }
 
   /* Native press states */

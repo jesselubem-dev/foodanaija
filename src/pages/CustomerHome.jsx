@@ -175,7 +175,7 @@ function CustomerHomeContent() {
         <NoInternet />
 
         {/* Header */}
-        <div className="bg-white px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4">
+        <div className="bg-white px-4 pt-[calc(1.25rem+var(--sat))] pb-4">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="min-w-0">

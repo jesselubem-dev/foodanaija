@@ -139,7 +139,7 @@ export default function RiderDelivery() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100">
       <NoInternet />
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-lg border-b border-blue-100 shadow-lg sticky top-0 z-50">
+      <header className="bg-white/90 backdrop-blur-lg border-b border-blue-100 shadow-lg sticky top-0 pt-[var(--sat)] z-50">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button

@@ -125,7 +125,7 @@ export default function RiderDashboard() {
       <NoInternet />
 
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50 shadow-sm">
+      <header className="bg-white sticky top-0 pt-[var(--sat)] z-50 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <img src={LOGO} alt="Fooda Naija" className="h-9 w-auto object-contain" />

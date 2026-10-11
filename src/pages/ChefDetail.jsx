@@ -103,7 +103,7 @@ export default function ChefDetail() {
 
   return (
     <div className="min-h-screen bg-white pb-32">
-      <div className="max-w-lg mx-auto px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+      <div className="max-w-lg mx-auto px-4 pt-[calc(0.75rem+var(--sat))]">
         {/* Hero card */}
         <div className="rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
           <div className="relative h-[200px] f-tint-gold">
