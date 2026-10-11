@@ -11,6 +11,7 @@ import { LanguageProvider } from '../components/LanguageContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import BottomNav from '../components/customer/BottomNav';
 import { ChipGroup } from '../components/fooda/ui';
+import LiveDeliveryMap, { parseDeliveryMinutes } from '../components/fooda/LiveDeliveryMap';
 
 // Status pill colours, in the Fooda palette.
 const STATUS = {
@@ -133,6 +134,23 @@ function OrderHistoryContent() {
     refetchInterval: 5000,
     staleTime: 0,
   });
+
+  // Restaurant delivery times, for the live ETA
+  const { data: restaurants = [] } = useQuery({
+    queryKey: ['approved-restaurants'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.Restaurant.filter({ is_approved: true });
+      } catch {
+        const res = await base44.functions.invoke('getPublicRestaurants', {});
+        return res.data;
+      }
+    },
+    enabled: !!user?.email,
+    staleTime: 10 * 60 * 1000,
+  });
+  const deliveryMinutes = (restaurantId) =>
+    parseDeliveryMinutes((restaurants || []).find(r => r.id === restaurantId)?.delivery_time);
 
   const cancelOrderMutation = useMutation({
     mutationFn: async (orderId) => {
@@ -313,7 +331,12 @@ function OrderHistoryContent() {
                     </button>
 
                     {/* Live tracker for orders in progress */}
-                    {d.active && d.key !== 'pending' && <Tracker order={order} />}
+                    {d.active && d.key !== 'pending' && (
+                      <>
+                        <LiveDeliveryMap order={order} totalMinutes={deliveryMinutes(order.restaurant_id)} />
+                        <Tracker order={order} />
+                      </>
+                    )}
                     {d.key === 'unpaid' && (
                       <p className="mt-3 text-[12px] rounded-xl px-3 py-2 f-tint-gray f-text-muted">
                         Payment wasn't completed for this order. Tap Reorder to try again.
