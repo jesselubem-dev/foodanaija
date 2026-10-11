@@ -185,7 +185,7 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Header for Dashboard */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-[calc(4rem+var(--sat))] pt-[var(--sat)] bg-white/80 backdrop-blur-xl border-b border-orange-100 z-50 px-4 flex items-center justify-between">
         <Link to={createPageUrl('DashboardHome')} className="flex items-center gap-2">
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png" 
@@ -201,7 +201,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileMenuOpen(false)}>
-          <div className="absolute right-0 top-16 bottom-0 w-64 bg-white p-4 space-y-1 flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="absolute right-0 top-[calc(4rem+var(--sat))] bottom-0 w-64 bg-white p-4 space-y-1 flex flex-col" onClick={e => e.stopPropagation()}>
               <div className="flex-1 space-y-1">
                 <DashboardNavLink to="DashboardHome" icon={LayoutDashboard} label="Dashboard" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
                 <DashboardNavLink to="DashboardMenu" icon={UtensilsCrossed} label="Menu" current={currentPageName} onClick={() => setMobileMenuOpen(false)} />
@@ -227,7 +227,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       )}
 
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+      <main className="lg:ml-64 min-h-screen pt-[calc(4rem+var(--sat))] lg:pt-0">
         <AnimatePresence mode="wait">
           <PageTransition k={location.pathname}>
             {children}
