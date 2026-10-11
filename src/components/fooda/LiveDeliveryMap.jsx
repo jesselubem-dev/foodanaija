@@ -37,7 +37,7 @@ const STAGE_TEXT = {
   assigned: 'Rider heading to restaurant',
   picked_up: 'Rider has your food',
   on_the_way: 'Your food is on the way',
-  delivered: Enjoy your meal!,
+  delivered: 'Enjoy your meal!',
 };
 
 /**
