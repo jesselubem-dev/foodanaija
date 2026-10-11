@@ -6,6 +6,8 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import UpdatePrompt from '@/components/UpdatePrompt'
+import FoodaSplash from '@/components/FoodaSplash'
+import { useState } from 'react'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -144,6 +146,14 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
+  // Rider intro once per app open
+  const [showSplash, setShowSplash] = useState(() => {
+    try { return !sessionStorage.getItem('fooda_splash'); } catch { return true; }
+  });
+  const finishSplash = () => {
+    try { sessionStorage.setItem('fooda_splash', '1'); } catch { /* storage unavailable */ }
+    setShowSplash(false);
+  };
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -153,6 +163,7 @@ function App() {
         </Router>
         <Toaster />
         <SonnerToaster position="top-center" richColors closeButton />
+        {showSplash && <FoodaSplash onDone={finishSplash} />}
         <UpdatePrompt />
         <VisualEditAgent />
       </QueryClientProvider>
