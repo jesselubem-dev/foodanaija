@@ -38,7 +38,15 @@ function loadFlutterwaveSDK() {
 
 export default function Checkout() {
   const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
-  const [cart, setCart] = useState([]);
+  // Read the cart straight away so checkout opens with the items, not an empty screen
+  const [cart, setCart] = useState(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('cart') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
   const [user, setUser] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [selectedDrinks, setSelectedDrinks] = useState([]);
@@ -59,31 +67,29 @@ export default function Checkout() {
   }, []);
 
   const checkAuth = async () => {
+    let userData;
     try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      
-      // Fetch saved addresses
-      const savedAddresses = await base44.entities.SavedAddress.filter({ 
-        user_email: userData.email 
-      });
-      
-      // Get default address or first address
-      const defaultAddress = savedAddresses.find(a => a.is_default) || savedAddresses[0];
-      
-      setFormData(prev => ({
-        ...prev,
-        customer_name: userData.full_name || '',
-        customer_email: userData.email || '',
-        delivery_address: defaultAddress?.address || ''
-      }));
-      
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
-      }
+      userData = await base44.auth.me();
     } catch (e) {
       base44.auth.redirectToLogin(window.location.href);
+      return;
+    }
+    setUser(userData);
+    setFormData(prev => ({
+      ...prev,
+      customer_name: prev.customer_name || userData.full_name || '',
+      customer_email: prev.customer_email || userData.email || '',
+    }));
+
+    // Saved address is a nice-to-have — never block checkout if it fails
+    try {
+      const savedAddresses = await base44.entities.SavedAddress.filter({ user_email: userData.email });
+      const defaultAddress = savedAddresses.find(a => a.is_default) || savedAddresses[0];
+      if (defaultAddress?.address) {
+        setFormData(prev => ({ ...prev, delivery_address: prev.delivery_address || defaultAddress.address }));
+      }
+    } catch (e) {
+      console.warn('Could not load saved addresses:', e);
     }
   };
 
