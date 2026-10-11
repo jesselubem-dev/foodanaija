@@ -72,6 +72,14 @@ export default function LiveDeliveryMap({ order, totalMinutes = DEFAULT_MINUTES 
   const arriveAt = new Date(startedAt + total * 60000);
   const arriveText = arriveAt.toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit' });
 
+  const address = String(order.delivery_address || '').trim();
+  const restaurant = String(order.restaurant_name || '').trim();
+  const stageText = stage === 'assigned' && restaurant
+    ? `Rider heading to ${restaurant}`
+    : stage === 'on_the_way' && address
+      ? 'Rider heading to you'
+      : STAGE_TEXT[stage];
+
   targetRef.current = progress;
 
   // Smoothly glide the rider towards where it should be
@@ -143,6 +151,17 @@ export default function LiveDeliveryMap({ order, totalMinutes = DEFAULT_MINUTES 
         </g>
       </svg>
 
+      {/* Delivery address tag at the home pin */}
+      {address && (
+        <div className="absolute top-[46px] right-2 max-w-[62%] pointer-events-none flex flex-col items-end">
+          <span className="w-2 h-2 rotate-45 -mb-1 mr-[14px] f-float" />
+          <div className="rounded-lg pl-2 pr-2.5 py-1.5 shadow-[0_4px_14px_rgba(0,0,0,0.12)] f-float min-w-0 max-w-full">
+            <p className="text-[9px] font-semibold uppercase tracking-wide text-[#0B4D33] dark:text-[#4ADE80] leading-none">{delivered ? 'Delivered to' : 'Delivering to'}</p>
+            <p className="text-[11.5px] font-semibold leading-tight mt-1 line-clamp-2 break-words">{address}</p>
+          </div>
+        </div>
+      )}
+
       {/* ETA card */}
       <div className="absolute left-2.5 bottom-2.5 right-2.5 flex items-end justify-between gap-2 pointer-events-none">
         <div className="rounded-xl px-3 py-2 shadow-[0_4px_14px_rgba(0,0,0,0.12)] f-float">
@@ -166,7 +185,7 @@ export default function LiveDeliveryMap({ order, totalMinutes = DEFAULT_MINUTES 
         </div>
         <div className="rounded-full px-2.5 py-1 text-[11px] font-semibold shadow-[0_4px_14px_rgba(0,0,0,0.12)] f-float flex items-center gap-1.5 max-w-[55%]">
           {!delivered && <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] ld-live flex-shrink-0" />}
-          <span className="truncate">{STAGE_TEXT[stage]}</span>
+          <span className="truncate">{stageText}</span>
         </div>
       </div>
     </div>
