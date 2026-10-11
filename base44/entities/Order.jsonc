@@ -1,37 +1,58 @@
 {
   "name": "Order",
-  "type": "object",
   "properties": {
-    "restaurant_id": {
-      "type": "string",
-      "description": "Reference to the restaurant"
+    "accepted_at": {
+      "description": "Timestamp when rider accepted the delivery",
+      "format": "date-time",
+      "type": "string"
     },
-    "restaurant_name": {
-      "type": "string",
-      "description": "Restaurant name for display"
+    "amount_paid": {
+      "description": "Amount paid by customer",
+      "type": "number"
+    },
+    "batch_order_id": {
+      "description": "Batch ID linking multiple orders from same customer",
+      "type": "string"
     },
     "customer_email": {
-      "type": "string",
-      "description": "Customer email"
+      "description": "Customer email",
+      "type": "string"
     },
     "customer_name": {
-      "type": "string",
-      "description": "Customer name"
+      "description": "Customer name",
+      "type": "string"
     },
     "customer_phone": {
-      "type": "string",
-      "description": "Customer phone"
+      "description": "Customer phone",
+      "type": "string"
     },
     "delivery_address": {
-      "type": "string",
-      "description": "Delivery address"
+      "description": "Delivery address",
+      "type": "string"
+    },
+    "delivery_fee": {
+      "description": "Delivery fee",
+      "type": "number"
+    },
+    "delivery_status": {
+      "default": "unassigned",
+      "description": "Delivery tracking status",
+      "enum": [
+        "unassigned",
+        "assigned",
+        "picked_up",
+        "on_the_way",
+        "delivered"
+      ],
+      "type": "string"
     },
     "items": {
-      "type": "array",
       "description": "Ordered items",
       "items": {
-        "type": "object",
         "properties": {
+          "image_url": {
+            "type": "string"
+          },
           "item_id": {
             "type": "string"
           },
@@ -43,31 +64,76 @@
           },
           "quantity": {
             "type": "number"
-          },
-          "image_url": {
-            "type": "string"
           }
-        }
-      }
+        },
+        "type": "object"
+      },
+      "type": "array"
     },
-    "subtotal": {
-      "type": "number",
-      "description": "Subtotal before fees"
+    "notes": {
+      "description": "Special instructions",
+      "type": "string"
     },
-    "delivery_fee": {
-      "type": "number",
-      "description": "Delivery fee"
+    "payment_method": {
+      "description": "Payment method",
+      "enum": [
+        "card",
+        "transfer",
+        "ussd",
+        "cash"
+      ],
+      "type": "string"
+    },
+    "payment_reference": {
+      "description": "Payment reference",
+      "type": "string"
+    },
+    "payment_status": {
+      "default": "pending",
+      "enum": [
+        "pending",
+        "initiated",
+        "paid",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "promo_code": {
+      "description": "Applied promo code string",
+      "type": "string"
+    },
+    "promo_code_id": {
+      "description": "ID of the applied promo code",
+      "type": "string"
+    },
+    "restaurant_accepted_at": {
+      "description": "When the restaurant accepted the order (starts the live delivery timer)",
+      "format": "date-time",
+      "type": "string"
+    },
+    "restaurant_id": {
+      "description": "Reference to the restaurant",
+      "type": "string"
+    },
+    "restaurant_name": {
+      "description": "Restaurant name for display",
+      "type": "string"
+    },
+    "rider_id": {
+      "description": "Assigned rider ID",
+      "type": "string"
+    },
+    "rider_name": {
+      "description": "Rider name for display",
+      "type": "string"
     },
     "service_fee": {
-      "type": "number",
-      "description": "Value-added service fee"
-    },
-    "total": {
-      "type": "number",
-      "description": "Total amount"
+      "description": "Value-added service fee",
+      "type": "number"
     },
     "status": {
-      "type": "string",
+      "default": "pending",
+      "description": "Order status",
       "enum": [
         "pending",
         "accepted",
@@ -75,81 +141,19 @@
         "delivered",
         "cancelled"
       ],
-      "default": "pending",
-      "description": "Order status"
+      "type": "string"
     },
-    "rider_id": {
-      "type": "string",
-      "description": "Assigned rider ID"
+    "subtotal": {
+      "description": "Subtotal before fees",
+      "type": "number"
     },
-    "rider_name": {
-      "type": "string",
-      "description": "Rider name for display"
-    },
-    "delivery_status": {
-      "type": "string",
-      "enum": [
-        "unassigned",
-        "assigned",
-        "picked_up",
-        "on_the_way",
-        "delivered"
-      ],
-      "default": "unassigned",
-      "description": "Delivery tracking status"
-    },
-    "accepted_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when rider accepted the delivery"
-    },
-    "payment_method": {
-      "type": "string",
-      "enum": [
-        "card",
-        "transfer",
-        "ussd",
-        "cash"
-      ],
-      "description": "Payment method"
-    },
-    "payment_status": {
-      "type": "string",
-      "enum": [
-        "pending",
-        "initiated",
-        "paid",
-        "failed"
-      ],
-      "default": "pending"
-    },
-    "payment_reference": {
-      "type": "string",
-      "description": "Payment reference"
-    },
-    "amount_paid": {
-      "type": "number",
-      "description": "Amount paid by customer"
-    },
-    "promo_code": {
-      "type": "string",
-      "description": "Applied promo code string"
-    },
-    "promo_code_id": {
-      "type": "string",
-      "description": "ID of the applied promo code"
-    },
-    "notes": {
-      "type": "string",
-      "description": "Special instructions"
-    },
-    "batch_order_id": {
-      "type": "string",
-      "description": "Batch ID linking multiple orders from same customer"
+    "total": {
+      "description": "Total amount",
+      "type": "number"
     },
     "total_restaurants_in_batch": {
-      "type": "number",
-      "description": "Total restaurants in this batch order"
+      "description": "Total restaurants in this batch order",
+      "type": "number"
     }
   },
   "required": [
@@ -157,5 +161,6 @@
     "customer_email",
     "items",
     "total"
-  ]
+  ],
+  "type": "object"
 }
