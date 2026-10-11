@@ -71,7 +71,10 @@ export default function DashboardOrders() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status, customerEmail }) => {
-      await base44.entities.Order.update(id, { status });
+      // Accepting starts the customer's live delivery timer
+      await base44.entities.Order.update(id, status === 'accepted'
+        ? { status, restaurant_accepted_at: new Date().toISOString() }
+        : { status });
 
       // In-app notification for the customer (accepted / declined)
       await notifyOrderUpdated(id);
