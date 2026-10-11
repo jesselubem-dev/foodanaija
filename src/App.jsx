@@ -6,7 +6,6 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import UpdatePrompt from '@/components/UpdatePrompt'
-import FoodaSplash from '@/components/FoodaSplash'
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -146,14 +145,6 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
-  // Rider intro once per app open
-  const [showSplash, setShowSplash] = useState(() => {
-    try { return !sessionStorage.getItem('fooda_splash'); } catch { return true; }
-  });
-  const finishSplash = () => {
-    try { sessionStorage.setItem('fooda_splash', '1'); } catch { /* storage unavailable */ }
-    setShowSplash(false);
-  };
 
   // Keep the phone's status-bar colour in step with the app's light/dark theme
   useEffect(() => {
@@ -177,7 +168,6 @@ function App() {
         <SonnerToaster position="top-center" richColors closeButton />
         {/* Solid strip behind the phone's clock and battery so content never scrolls under them */}
         <div className="status-shield" aria-hidden="true" />
-        {showSplash && <FoodaSplash onDone={finishSplash} />}
         <UpdatePrompt />
         <VisualEditAgent />
       </QueryClientProvider>
