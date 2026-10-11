@@ -163,6 +163,8 @@ function App() {
         </Router>
         <Toaster />
         <SonnerToaster position="top-center" richColors closeButton />
+        {/* Solid strip behind the phone's clock and battery so content never scrolls under them */}
+        <div className="status-shield" aria-hidden="true" />
         {showSplash && <FoodaSplash onDone={finishSplash} />}
         <UpdatePrompt />
         <VisualEditAgent />
