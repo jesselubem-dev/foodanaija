@@ -34,10 +34,10 @@ const STAGE_RANGE = {
 
 const STAGE_TEXT = {
   unassigned: 'Restaurant is preparing your food',
-  assigned: 'Rider is on the way to pick up your food',
+  assigned: 'Rider heading to restaurant',
   picked_up: 'Rider has your food',
   on_the_way: 'Your food is on the way',
-  delivered: 'Delivered — enjoy your meal!',
+  delivered: Enjoy your meal!,
 };
 
 /**
