@@ -1,104 +1,117 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, MessageCircle, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Send, MessageCircle, ChevronLeft, Sparkles, CheckCheck, Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { lastReplyTimes, isUnreadForAdmin } from '@/lib/chatUnread';
+
+const timeOf = (d) => new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+const initial = (name) => (name || '?').trim().charAt(0).toUpperCase();
 
 export default function AdminLiveChat() {
   const [user, setUser] = useState(null);
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [message, setMessage] = useState('');
+  const [search, setSearch] = useState('');
   const messagesEndRef = useRef(null);
+  const markingRef = useRef(new Set());
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const checkAuth = async () => {
-    try {
-      const userData = await base44.auth.me();
-      if (userData.role !== 'admin') {
-        window.location.href = createPageUrl('CustomerHome');
-        return;
+    (async () => {
+      try {
+        const userData = await base44.auth.me();
+        if (userData.role !== 'admin' && userData._app_role !== 'admin') {
+          window.location.href = createPageUrl('CustomerHome');
+          return;
+        }
+        setUser(userData);
+      } catch (e) {
+        base44.auth.redirectToLogin(window.location.href);
       }
-      setUser(userData);
-    } catch (e) {
-      base44.auth.redirectToLogin(window.location.href);
-    }
-  };
+    })();
+  }, []);
 
   const { data: allMessages = [] } = useQuery({
     queryKey: ['all-chat-messages'],
     queryFn: () => base44.entities.ChatMessage.list('-created_date'),
     enabled: !!user,
-    refetchInterval: 2000,
+    refetchInterval: 3000,
   });
 
-  // Group messages by chat_id
-  const chatSessions = allMessages.reduce((acc, msg) => {
-    if (!acc[msg.chat_id]) {
-      acc[msg.chat_id] = {
-        chat_id: msg.chat_id,
-        customer_email: msg.customer_email,
-        customer_name: msg.customer_name,
-        messages: [],
-        last_message: msg,
-        unread_count: 0,
-      };
-    }
-    acc[msg.chat_id].messages.push(msg);
-    if (msg.sender_type === 'customer' && !msg.is_read) {
-      acc[msg.chat_id].unread_count++;
-    }
-    if (new Date(msg.created_date) > new Date(acc[msg.chat_id].last_message.created_date)) {
-      acc[msg.chat_id].last_message = msg;
-    }
-    return acc;
-  }, {});
-
-  const sortedChats = Object.values(chatSessions).sort(
-    (a, b) => new Date(b.last_message.created_date) - new Date(a.last_message.created_date)
-  );
+  // Group messages into conversations
+  const lastReply = lastReplyTimes(allMessages);
+  const sessions = {};
+  for (const msg of allMessages) {
+    const s = sessions[msg.chat_id] ||= {
+      chat_id: msg.chat_id,
+      customer_email: msg.customer_email,
+      customer_name: msg.customer_name,
+      last_message: msg,
+      unread_count: 0,
+    };
+    if (isUnreadForAdmin(msg, lastReply)) s.unread_count++;
+    if (new Date(msg.created_date) > new Date(s.last_message.created_date)) s.last_message = msg;
+    if (!s.customer_name && msg.customer_name) s.customer_name = msg.customer_name;
+  }
+  const sortedChats = Object.values(sessions)
+    .sort((a, b) => new Date(b.last_message.created_date) - new Date(a.last_message.created_date))
+    .filter(c => !search.trim() || `${c.customer_name} ${c.customer_email}`.toLowerCase().includes(search.toLowerCase()));
+  const totalUnreadChats = Object.values(sessions).filter(c => c.unread_count > 0).length;
+  const selectedChat = selectedId ? sessions[selectedId] : null;
 
   const { data: currentMessages = [] } = useQuery({
-    queryKey: ['chat-messages', selectedChat?.chat_id],
-    queryFn: () => base44.entities.ChatMessage.filter(
-      { chat_id: selectedChat.chat_id },
-      'created_date'
-    ),
-    enabled: !!selectedChat,
+    queryKey: ['chat-messages', selectedId],
+    queryFn: () => base44.entities.ChatMessage.filter({ chat_id: selectedId }, 'created_date'),
+    enabled: !!selectedId,
     refetchInterval: 2000,
   });
 
+  // Mark the given customer messages as read, then refresh the badges.
+  const markRead = async (msgs) => {
+    const todo = msgs.filter(m => m.sender_type === 'customer' && !m.is_read && !markingRef.current.has(m.id));
+    if (todo.length === 0) return;
+    todo.forEach(m => markingRef.current.add(m.id));
+    // Clear the badge straight away, before the server round-trip finishes
+    const ids = new Set(todo.map(m => m.id));
+    queryClient.setQueryData(['all-chat-messages'], (old) =>
+      Array.isArray(old) ? old.map(m => (ids.has(m.id) ? { ...m, is_read: true } : m)) : old
+    );
+    try {
+      await Promise.all(todo.map(m => base44.entities.ChatMessage.update(m.id, { is_read: true })));
+    } catch (e) {
+      todo.forEach(m => markingRef.current.delete(m.id));
+    }
+    queryClient.invalidateQueries({ queryKey: ['all-chat-messages'] });
+  };
+
+  // Opening a chat (and any new message arriving while it's open) marks it read
   useEffect(() => {
-    scrollToBottom();
-  }, [currentMessages]);
+    if (selectedId && currentMessages.length) markRead(currentMessages);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, currentMessages]);
+
+  const markAllRead = async () => {
+    await markRead(allMessages);
+    toast.success('All chats marked as read');
+  };
 
   const sendMessageMutation = useMutation({
     mutationFn: (data) => base44.entities.ChatMessage.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chat-messages', selectedChat?.chat_id] });
+      queryClient.invalidateQueries({ queryKey: ['chat-messages', selectedId] });
       queryClient.invalidateQueries({ queryKey: ['all-chat-messages'] });
       setMessage('');
-      scrollToBottom();
     },
+    onError: () => toast.error('Message failed to send'),
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!message.trim() || !selectedChat) return;
-
+    markRead(currentMessages);
     sendMessageMutation.mutate({
       chat_id: selectedChat.chat_id,
       customer_email: selectedChat.customer_email,
@@ -107,177 +120,183 @@ export default function AdminLiveChat() {
       sender_name: 'Fooda',
       message: message.trim(),
       human_takeover: true,
+      is_read: true,
     });
   };
 
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-fooda-gold border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 pt-[var(--sat)] z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('SuperAdminDashboard')}>
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-6 h-6 text-orange-600" />
-              <h1 className="text-xl font-bold">Live Chat Support</h1>
+    <div className="chat-screen flex bg-white">
+      {/* Conversation list */}
+      <aside className={`${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-[340px] flex-col border-r border-gray-100 bg-white`}>
+        <div className="px-4 pt-5 pb-3 border-b border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Live Chat</h1>
+              <p className="text-[13px] text-gray-500">
+                {totalUnreadChats > 0 ? `${totalUnreadChats} waiting for a reply` : 'All caught up'}
+              </p>
             </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex h-[calc(100vh-73px)]">
-        {/* Chat List Sidebar */}
-        <div className="w-80 bg-white border-r overflow-y-auto">
-          <div className="p-4 border-b">
-            <h2 className="font-bold text-gray-900">Active Chats</h2>
-            <p className="text-sm text-gray-500">{sortedChats.length} conversations</p>
-          </div>
-          <div className="divide-y">
-            {sortedChats.length === 0 ? (
-              <div className="p-8 text-center">
-                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">No active chats</p>
-              </div>
-            ) : (
-              sortedChats.map((chat) => (
-                <button
-                  key={chat.chat_id}
-                  onClick={() => setSelectedChat(chat)}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                    selectedChat?.chat_id === chat.chat_id ? 'bg-orange-50 border-l-4 border-orange-500' : ''
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="font-semibold text-gray-900">{chat.customer_name}</p>
-                    {chat.unread_count > 0 && (
-                      <Badge className="bg-orange-500 text-white">{chat.unread_count}</Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-500 truncate">{chat.last_message.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(chat.last_message.created_date).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </button>
-              ))
+            {totalUnreadChats > 0 && (
+              <button
+                type="button"
+                onClick={markAllRead}
+                className="h-8 px-3 rounded-lg text-[12px] font-semibold f-btn-outline flex items-center gap-1.5 press"
+              >
+                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+              </button>
             )}
           </div>
+          <div className="relative mt-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search customers"
+              className="chat-input w-full h-10 pl-9 pr-3 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-fooda-gold"
+            />
+          </div>
         </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 flex flex-col">
-          {selectedChat ? (
-            <>
-              {/* Chat Header */}
-              <div className="bg-white border-b p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                    <User className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{selectedChat.customer_name}</p>
-                    <p className="text-sm text-gray-500">{selectedChat.customer_email}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-                <div className="space-y-4">
-                  {currentMessages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className={`flex gap-2 max-w-[70%] ${msg.sender_type === 'admin' ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          msg.sender_type === 'admin' 
-                            ? 'bg-blue-100' 
-                            : msg.sender_type === 'ai'
-                            ? 'bg-purple-100'
-                            : 'bg-orange-100'
-                        }`}>
-                          <User className={`w-4 h-4 ${
-                            msg.sender_type === 'admin' 
-                              ? 'text-blue-600' 
-                              : msg.sender_type === 'ai'
-                              ? 'text-purple-600'
-                              : 'text-orange-600'
-                          }`} />
-                        </div>
-                        <div>
-                          {(msg.sender_type !== 'customer') && (
-                            <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
-                              {msg.sender_type === 'ai' ? 'Fooda AI' : 'Fooda'}
-                            </p>
-                          )}
-                          <div className={`rounded-2xl px-4 py-2 ${
-                            msg.sender_type === 'admin'
-                              ? 'bg-blue-500 text-white'
-                              : msg.sender_type === 'ai'
-                              ? 'bg-purple-50 border border-purple-200 text-gray-900'
-                              : 'bg-white border border-gray-200 text-gray-900'
-                          }`}>
-                            <p className="text-sm">{msg.message}</p>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-1 px-2">
-                            {new Date(msg.created_date).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              </div>
-
-              {/* Message Input */}
-              <div className="bg-white border-t p-4">
-                <form onSubmit={handleSubmit} className="flex gap-2">
-                  <Input
-                    placeholder="Type your message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="flex-1"
-                    disabled={sendMessageMutation.isPending}
-                  />
-                  <Button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700"
-                    disabled={!message.trim() || sendMessageMutation.isPending}
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </form>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50">
-              <div className="text-center">
-                <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Select a chat to start messaging</p>
-              </div>
+        <div className="flex-1 overflow-y-auto">
+          {sortedChats.length === 0 ? (
+            <div className="p-10 text-center">
+              <MessageCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No conversations</p>
             </div>
+          ) : (
+            sortedChats.map((chat) => {
+              const active = selectedId === chat.chat_id;
+              const unread = chat.unread_count > 0;
+              return (
+                <button
+                  key={chat.chat_id}
+                  type="button"
+                  onClick={() => setSelectedId(chat.chat_id)}
+                  className={`relative w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${active ? 'f-tint-gold' : 'hover:bg-gray-50'}`}
+                >
+                  {active && <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-fooda-gold" />}
+                  <div className="w-10 h-10 rounded-full bg-fooda-green text-white flex items-center justify-center text-[14px] font-semibold flex-shrink-0">
+                    {initial(chat.customer_name || chat.customer_email)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`text-[14px] truncate text-gray-900 ${unread ? 'font-bold' : 'font-medium'}`}>
+                        {chat.customer_name || chat.customer_email}
+                      </p>
+                      <span className={`text-[11px] flex-shrink-0 ${unread ? 'f-text-amber font-semibold' : 'text-gray-400'}`}>
+                        {timeOf(chat.last_message.created_date)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className={`text-[13px] truncate ${unread ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                        {chat.last_message.sender_type !== 'customer' && <span className="text-gray-400">You: </span>}
+                        {chat.last_message.message}
+                      </p>
+                      {unread && (
+                        <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-fooda-red text-white text-[11px] font-semibold flex items-center justify-center flex-shrink-0">
+                          {chat.unread_count}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
-      </div>
+      </aside>
+
+      {/* Conversation */}
+      <section className={`${selectedChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-w-0`}>
+        {selectedChat ? (
+          <>
+            <div className="h-16 px-3 md:px-5 flex items-center gap-3 border-b border-gray-100 bg-white">
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                className="md:hidden w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center"
+                aria-label="Back to chats"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-900" />
+              </button>
+              <div className="w-10 h-10 rounded-full bg-fooda-green text-white flex items-center justify-center text-[14px] font-semibold">
+                {initial(selectedChat.customer_name || selectedChat.customer_email)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[15px] font-semibold text-gray-900 truncate">{selectedChat.customer_name || 'Customer'}</p>
+                <p className="text-[12px] text-gray-500 truncate">{selectedChat.customer_email}</p>
+              </div>
+            </div>
+
+            <div className="chat-thread flex-1 overflow-y-auto px-3 md:px-6 py-5">
+              <div className="max-w-3xl mx-auto space-y-3">
+                {currentMessages.map((msg) => {
+                  const mine = msg.sender_type === 'admin';
+                  const ai = msg.sender_type === 'ai';
+                  return (
+                    <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] md:max-w-[70%] flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
+                        {ai && (
+                          <span className="chat-meta flex items-center gap-1 text-[11px] font-semibold mb-1 px-1">
+                            <Sparkles className="w-3 h-3" /> Fooda AI
+                          </span>
+                        )}
+                        <div className={`px-4 py-2.5 text-[14px] leading-relaxed whitespace-pre-wrap break-words ${
+                          mine ? 'chat-bubble-admin rounded-2xl rounded-br-md'
+                            : ai ? 'chat-bubble-ai rounded-2xl rounded-bl-md'
+                            : 'chat-bubble-customer rounded-2xl rounded-bl-md'
+                        }`}>
+                          {msg.message}
+                        </div>
+                        <span className="chat-meta text-[11px] mt-1 px-1">{timeOf(msg.created_date)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="border-t border-gray-100 bg-white p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+              <div className="max-w-3xl mx-auto flex items-center gap-2">
+                <input
+                  placeholder="Type a reply…"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  disabled={sendMessageMutation.isPending}
+                  className="chat-input flex-1 h-11 px-4 rounded-xl border border-gray-200 text-[14px] outline-none focus:border-fooda-gold"
+                />
+                <button
+                  type="submit"
+                  disabled={!message.trim() || sendMessageMutation.isPending}
+                  className="w-11 h-11 rounded-xl f-btn-gold flex items-center justify-center press disabled:opacity-50"
+                  aria-label="Send"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <div className="chat-thread flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full f-tint-gold flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="w-7 h-7 f-text-gold" />
+              </div>
+              <p className="text-[15px] font-semibold text-gray-900">Pick a conversation</p>
+              <p className="text-[13px] text-gray-500 mt-1">Choose a customer on the left to reply.</p>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
