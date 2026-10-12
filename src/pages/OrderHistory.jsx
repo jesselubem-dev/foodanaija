@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Check, Bike, ReceiptText, MapPin, ChevronDown } from 'lucide-react';
+import { Check, Bike, ReceiptText, MapPin, ChevronDown, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
 import CancelOrderModal from '../components/customer/CancelOrderModal';
@@ -355,6 +355,13 @@ function OrderHistoryContent() {
                         <p className="text-[16px] font-bold text-gray-900">₦{Number(order.total || 0).toLocaleString()}</p>
                       </div>
                       <div className="flex gap-2">
+                        <a
+                          href="tel:+2347078700001"
+                          className="h-9 px-3.5 rounded-lg text-[12px] font-semibold border flex items-center gap-1.5 press f-btn-outline"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          Call to track
+                        </a>
                         {d.key === 'pending' && (
                           <button
                             onClick={() => setCancelOrderId(order.id)}
