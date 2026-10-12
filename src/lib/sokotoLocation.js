@@ -5,24 +5,25 @@ export const SERVICE_CITY = 'Sokoto';
 export const SERVICE_CENTER = { lat: 13.0622, lng: 5.2339 };
 export const SERVICE_RADIUS_KM = 40; // covers Sokoto metropolis, Wamakko, Kware and Dange-Shuni edges
 
-import { SOKOTO_CITY_AREAS, NEARBY_TOWNS } from './sokotoAreas';
+import { POPULAR_PLACES, SOKOTO_NORTH_AREAS, SOKOTO_SOUTH_AREAS } from './sokotoAreas';
 
 const toArea = (group) => ([name, lat, lng]) => ({ name, lat, lng, group });
-export const CITY_AREAS = SOKOTO_CITY_AREAS.map(toArea('city')).sort((x, y) => x.name.localeCompare(y.name));
-export const TOWN_AREAS = NEARBY_TOWNS.map(toArea('town'))
-  .filter(a => distanceKm(a, SERVICE_CENTER) <= SERVICE_RADIUS_KM);
-export const ALL_AREAS = [...CITY_AREAS, ...TOWN_AREAS];
+const byName = (x, y) => x.name.localeCompare(y.name);
+export const POPULAR_AREAS = POPULAR_PLACES.map(toArea('popular'));
+export const NORTH_AREAS = SOKOTO_NORTH_AREAS.map(toArea('north')).sort(byName);
+export const SOUTH_AREAS = SOKOTO_SOUTH_AREAS.map(toArea('south')).sort(byName);
+export const ALL_AREAS = [...POPULAR_AREAS, ...NORTH_AREAS, ...SOUTH_AREAS];
 
-/** Closest mapped area to a GPS point (city areas win when within ~2.5 km). */
+/** Closest mapped area to a GPS point (only suggested if within ~3 km). */
 export function nearestArea(coords) {
   if (!coords) return null;
   let best = null;
   for (const a of ALL_AREAS) {
     if (a.lat == null) continue;
-    const d = distanceKm(coords, a) - (a.group === 'city' ? 1.5 : 0);
+    const d = distanceKm(coords, a);
     if (!best || d < best.d) best = { area: a, d };
   }
-  return best?.area || null;
+  return best && best.d <= 3 ? best.area : null;
 }
 
 const KEY = 'fooda_location';
