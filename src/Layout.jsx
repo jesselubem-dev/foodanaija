@@ -11,9 +11,13 @@ import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '@/components/ui/motion';
 import NoInternet from './components/NoInternet';
 import InAppNotifier from './components/customer/InAppNotifier';
+import LocationGate from './components/fooda/LocationGate';
 
 // Customer-facing pages that show the in-app notification banner.
 const CUSTOMER_BANNER_PAGES = ['CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'CustomerSettings', 'LiveChat', 'Chefs', 'ChefDetail', 'CustomerSupport', 'DeleteAccount'];
+
+// Customer pages that require being in Sokoto
+const LOCATION_GATED_PAGES = [...CUSTOMER_BANNER_PAGES, 'Notifications', 'Profile'];
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -49,7 +53,11 @@ export default function Layout({ children, currentPageName }) {
         {user && CUSTOMER_BANNER_PAGES.includes(currentPageName) && <InAppNotifier user={user} />}
         <AnimatePresence mode="wait">
           <PageTransition k={location.pathname}>
-            {children}
+            {LOCATION_GATED_PAGES.includes(currentPageName) ? (
+              <LocationGate bypass={user?.role === 'admin'} waiting={user === null}>
+                {children}
+              </LocationGate>
+            ) : children}
           </PageTransition>
         </AnimatePresence>
       </div>
@@ -230,7 +238,11 @@ export default function Layout({ children, currentPageName }) {
       <main className="lg:ml-64 min-h-screen pt-[calc(4rem+var(--sat))] lg:pt-0">
         <AnimatePresence mode="wait">
           <PageTransition k={location.pathname}>
-            {children}
+            {LOCATION_GATED_PAGES.includes(currentPageName) ? (
+              <LocationGate bypass={user?.role === 'admin'} waiting={user === null}>
+                {children}
+              </LocationGate>
+            ) : children}
           </PageTransition>
         </AnimatePresence>
       </main>

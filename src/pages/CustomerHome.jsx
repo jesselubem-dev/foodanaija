@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LocationChip } from '@/components/fooda/LocationGate';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
@@ -179,6 +180,7 @@ function CustomerHomeContent() {
           <div className="max-w-2xl mx-auto">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="min-w-0">
+                <div className="mb-2"><LocationChip /></div>
                 <p className="text-[13px] font-medium text-fooda-red leading-tight">
                   {greeting}{firstName ? `, ${firstName}` : ''}
                 </p>

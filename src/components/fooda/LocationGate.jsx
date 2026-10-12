@@ -27,7 +27,7 @@ export function useSavedLocation() {
  * Wraps customer screens. Only people whose phone is in Sokoto get through.
  * `bypass` lets admins in from anywhere (for testing and support).
  */
-export default function LocationGate({ children, bypass = false }) {
+export default function LocationGate({ children, bypass = false, waiting = false }) {
   const saved = useSavedLocation();
   const [step, setStep] = useState('intro'); // intro | checking | outside | denied | unavailable | area
   const [coords, setCoords] = useState(null);
@@ -53,6 +53,13 @@ export default function LocationGate({ children, bypass = false }) {
   }, [bypass]);
 
   if (bypass || saved) return children;
+  if (waiting) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+      </div>
+    );
+  }
 
   const detect = async () => {
     setStep('checking');

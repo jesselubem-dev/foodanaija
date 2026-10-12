@@ -458,3 +458,9 @@ button:focus-visible {
   pointer-events: none;
 }
 .dark .status-shield { background-color: hsl(20 8% 7%); }
+
+/* Location gate ripple */
+@keyframes lg-ripple { 0% { transform: scale(0.4); opacity: 0.7; } 100% { transform: scale(2.2); opacity: 0; } }
+.lg-ripple { animation: lg-ripple 2.2s ease-out infinite; }
+.lg-ripple-2 { animation-delay: 1.1s; }
+@media (prefers-reduced-motion: reduce) { .lg-ripple { animation: none; opacity: 0; } }
