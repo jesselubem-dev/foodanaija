@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../../utils';
+import { countUnreadChats } from '@/lib/chatUnread';
 import {
   LayoutDashboard, BarChart3, ShoppingBag, XCircle, CupSoda, Store, Bike,
   AlertTriangle, ChefHat, Users, Headset, MessageCircle, LifeBuoy, Tag,
@@ -64,14 +65,14 @@ function useBadgeCounts(enabled) {
   const { data: restaurants = [] } = useQuery({ queryKey: ['all-restaurants'], queryFn: () => base44.entities.Restaurant.list(), ...opts });
   const { data: orders = [] } = useQuery({ queryKey: ['all-orders'], queryFn: () => base44.entities.Order.list(), ...opts });
   const { data: drinkOrders = [] } = useQuery({ queryKey: ['all-drink-orders'], queryFn: () => base44.entities.DrinkOrder.list(), ...opts });
-  const { data: chats = [] } = useQuery({ queryKey: ['all-chat-messages'], queryFn: () => base44.entities.ChatMessage.list(), ...opts });
+  const { data: chats = [] } = useQuery({ queryKey: ['all-chat-messages'], queryFn: () => base44.entities.ChatMessage.list('-created_date'), ...opts });
 
   return {
     pendingRestaurants: restaurants.filter(r => !r.is_approved).length,
     pendingOrders: orders.filter(o => o.status === 'pending').length,
     unrefunded: orders.filter(o => o.status === 'cancelled' && !o.refunded).length,
     pendingDrinks: drinkOrders.filter(o => o.status === 'pending').length,
-    unreadChats: new Set(chats.filter(m => m.sender_type === 'customer' && !m.is_read).map(m => m.chat_id)).size,
+    unreadChats: countUnreadChats(chats),
   };
 }
 
