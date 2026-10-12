@@ -2,12 +2,14 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { base44 } from '@/api/base44Client';
-import { pagesConfig } from '@/pages.config';
+// Page names only (from the file names) — importing pages.config would pull every screen into the start-up bundle
+const PAGE_NAMES = Object.keys(import.meta.glob('/src/pages/*.jsx')).map(f => f.split('/').pop().replace(/\.jsx$/, ''));
+const Pages = Object.fromEntries(PAGE_NAMES.map(n => [n, true]));
+const mainPage = 'CustomerHome';
 
 export default function NavigationTracker() {
     const location = useLocation();
     const { isAuthenticated } = useAuth();
-    const { Pages, mainPage } = pagesConfig;
     const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 
     // Post navigation changes to parent window
