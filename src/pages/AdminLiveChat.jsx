@@ -120,7 +120,6 @@ export default function AdminLiveChat() {
       sender_name: 'Fooda',
       message: message.trim(),
       human_takeover: true,
-      is_read: true,
     });
   };
 
