@@ -30,7 +30,7 @@ export function usePlatformSettings() {
       const far = Number(settings.far_zone_delivery_fee);
       return Number.isFinite(far) && far > 0 ? far : DEFAULTS.far_zone_delivery_fee;
     }
-    return Number(settings.delivery_fee) || DEFAULTS.delivery_fee;
+    return settings.delivery_fee;
   };
 
   const getVASForSubtotal = (subtotal) => {
