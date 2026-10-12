@@ -55,7 +55,7 @@ export default function SuperAdminCancelledOrders() {
       );
       return { previous };
     },
-    onSuccess: () => toast.success('Order marked as refunded'),
+    onSuccess: () => toast.success('Marked as refunded — now listed in Refunded Orders'),
     onError: (err, _id, ctx) => {
       if (ctx?.previous) queryClient.setQueryData(['all-orders'], ctx.previous);
       toast.error(`Couldn't mark as refunded: ${err?.message || 'please try again'}`);
@@ -104,6 +104,12 @@ export default function SuperAdminCancelledOrders() {
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Cancelled Orders Management</h1>
           <p className="text-gray-500 mt-1">Track and manage refunds for cancelled orders</p>
+          <Link
+            to={createPageUrl('SuperAdminRefundedOrders')}
+            className="inline-flex items-center gap-1.5 mt-3 text-[13px] font-semibold f-text-amber hover:underline"
+          >
+            <CheckCircle className="w-4 h-4" /> View all refunded orders →
+          </Link>
         </div>
 
         {/* Stats */}
