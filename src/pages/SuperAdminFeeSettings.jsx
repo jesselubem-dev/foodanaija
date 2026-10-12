@@ -50,8 +50,9 @@ export default function SuperAdminFeeSettings() {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      // Only send the fee fields (not id / created_date etc.), as numbers
       const numericData = Object.fromEntries(
-        Object.entries(data).map(([k, v]) => [k, Number(v)])
+        Object.keys(DEFAULTS).map(k => [k, Number(data[k] ?? DEFAULTS[k])])
       );
       if (settingsList.length > 0) {
         return base44.entities.PlatformSettings.update(settingsList[0].id, numericData);
