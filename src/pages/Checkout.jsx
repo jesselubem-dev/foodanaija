@@ -477,7 +477,7 @@ export default function Checkout() {
   return (
     <ErrorBoundary>
     <div className="min-h-screen bg-white pb-32">
-      <PageHeader title="Checkout" backTo="Cart" />
+      <PageHeader title="Checkout" backTo="CustomerHome" />
 
       <form id="checkout-form" onSubmit={handleSubmit} className="max-w-lg mx-auto px-4">
         <h2 className="text-[15px] font-semibold text-gray-900 text-center mt-2 mb-4">Delivery details</h2>
