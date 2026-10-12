@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 const DEFAULTS = {
   delivery_fee: 800,
+  far_zone_delivery_fee: 1500,
   vas_tier_1_fee: 300,
   vas_tier_2_min: 5000,
   vas_tier_2_fee: 700,
@@ -133,6 +134,17 @@ export default function SuperAdminFeeSettings() {
               />
               <p className="text-xs text-gray-400">Charged once per restaurant in a customer's order</p>
             </div>
+            <div className="space-y-2 mt-6 pt-6 border-t border-gray-100">
+              <label className="text-sm font-medium text-gray-700">Airport &amp; UDUS Main Campus delivery fee (₦)</label>
+              <Input
+                type="number"
+                min="0"
+                value={form.far_zone_delivery_fee}
+                onChange={e => handleChange('far_zone_delivery_fee', e.target.value)}
+                className="max-w-xs"
+              />
+              <p className="text-xs text-gray-400">Used instead of the normal fee when the customer's delivery area is Sadiq Abubakar III Airport or UDUS Main Campus (per restaurant)</p>
+            </div>
           </CardContent>
         </Card>
 
@@ -250,6 +262,10 @@ export default function SuperAdminFeeSettings() {
               <div className="flex justify-between py-1 border-b border-gray-100">
                 <span className="text-gray-600">Delivery fee per restaurant</span>
                 <span className="font-bold">₦{Number(form.delivery_fee).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-100">
+                <span className="text-gray-600">Delivery to Airport / UDUS Main Campus</span>
+                <span className="font-bold">₦{Number(form.far_zone_delivery_fee).toLocaleString()}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-gray-100">
                 <span className="text-gray-600">Service fee (under ₦{Number(form.vas_tier_2_min).toLocaleString()})</span>
