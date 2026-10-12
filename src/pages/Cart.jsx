@@ -11,11 +11,13 @@ import { PageHeader } from '../components/fooda/ui';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { syncAbandonedCart } from '@/lib/trackAbandonedCart';
+import { useSavedLocation } from '../components/fooda/LocationGate';
 
 function CartContent() {
   const [cart, setCart] = useState([]);
   const [isLoadingCart, setIsLoadingCart] = useState(true);
-  const { settings, calculateTotalVAS } = usePlatformSettings();
+  const { calculateTotalVAS, getDeliveryFee } = usePlatformSettings();
+  const savedLocation = useSavedLocation();
 
   useEffect(() => {
     try {
@@ -79,7 +81,7 @@ function CartContent() {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const restaurantCount = restaurantIds.length;
   // Same fee rules as Checkout: one delivery fee per restaurant + tiered service fee per restaurant.
-  const delivery = restaurantCount * settings.delivery_fee;
+  const delivery = restaurantCount * getDeliveryFee(savedLocation?.area);
   const serviceFee = cart.length > 0 ? calculateTotalVAS(cart) : 0;
   const total = subtotal + delivery + serviceFee;
 
