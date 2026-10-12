@@ -42,14 +42,25 @@ export default function SuperAdminCancelledOrders() {
   });
 
   const markRefundedMutation = useMutation({
-    mutationFn: (orderId) => base44.entities.Order.update(orderId, { refunded: true }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
-      toast.success('Order marked as refunded');
+    mutationFn: (orderId) => base44.entities.Order.update(orderId, {
+      refunded: true,
+      refunded_at: new Date().toISOString(),
+      refunded_by: user?.email,
+    }),
+    onMutate: async (orderId) => {
+      await queryClient.cancelQueries({ queryKey: ['all-orders'] });
+      const previous = queryClient.getQueryData(['all-orders']);
+      queryClient.setQueryData(['all-orders'], (old) =>
+        Array.isArray(old) ? old.map(o => (o.id === orderId ? { ...o, refunded: true } : o)) : old
+      );
+      return { previous };
     },
-    onError: () => {
-      toast.error('Failed to update refund status');
-    }
+    onSuccess: () => toast.success('Order marked as refunded'),
+    onError: (err, _id, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['all-orders'], ctx.previous);
+      toast.error(`Couldn't mark as refunded: ${err?.message || 'please try again'}`);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['all-orders'] }),
   });
 
   const cancelledOrders = orders.filter(o => o.status === 'cancelled');
@@ -197,6 +208,11 @@ export default function SuperAdminCancelledOrders() {
                             <Badge className={order.refunded ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
                               {order.refunded ? 'Refunded' : 'Not Refunded'}
                             </Badge>
+                            {order.refunded && order.refunded_at && (
+                              <span className="text-xs text-gray-500">
+                                {new Date(order.refunded_at).toLocaleDateString()}{order.refunded_by ? ` · ${order.refunded_by}` : ''}
+                              </span>
+                            )}
                           </div>
                           <p className="text-sm text-gray-600">
                             Customer: {order.customer_name} ({order.customer_email})
@@ -218,8 +234,8 @@ export default function SuperAdminCancelledOrders() {
                       {!order.refunded && (
                         <Button
                           onClick={() => markRefundedMutation.mutate(order.id)}
-                          disabled={markRefundedMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700"
+                          disabled={markRefundedMutation.isPending && markRefundedMutation.variables === order.id}
+                          className="bg-green-600 hover:bg-green-700 text-white"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
                           Mark Refunded
