@@ -101,12 +101,25 @@ export default function SuperAdminDashboard() {
   }).sort((a, b) => b.earnings - a.earnings);
 
   const markRefundedMutation = useMutation({
-    mutationFn: (orderId) => base44.entities.Order.update(orderId, { refunded: true }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
-      toast.success('Order marked as refunded');
+    mutationFn: (orderId) => base44.entities.Order.update(orderId, {
+      refunded: true,
+      refunded_at: new Date().toISOString(),
+      refunded_by: user?.email,
+    }),
+    onMutate: async (orderId) => {
+      await queryClient.cancelQueries({ queryKey: ['all-orders'] });
+      const previous = queryClient.getQueryData(['all-orders']);
+      queryClient.setQueryData(['all-orders'], (old) =>
+        Array.isArray(old) ? old.map(o => (o.id === orderId ? { ...o, refunded: true } : o)) : old
+      );
+      return { previous };
     },
-    onError: () => toast.error('Failed to update refund status'),
+    onSuccess: () => toast.success('Order marked as refunded'),
+    onError: (err, _id, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['all-orders'], ctx.previous);
+      toast.error(`Couldn't mark as refunded: ${err?.message || 'please try again'}`);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['all-orders'] }),
   });
 
   if (!user) {
@@ -307,7 +320,7 @@ export default function SuperAdminDashboard() {
                   <button
                     type="button"
                     onClick={() => markRefundedMutation.mutate(order.id)}
-                    disabled={markRefundedMutation.isPending}
+                    disabled={markRefundedMutation.isPending && markRefundedMutation.variables === order.id}
                     className="h-9 px-4 rounded-xl text-[13px] font-semibold f-btn-gold press disabled:opacity-60"
                   >
                     Mark refunded
