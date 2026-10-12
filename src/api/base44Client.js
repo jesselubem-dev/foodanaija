@@ -57,3 +57,27 @@ base44.auth.loginWithProvider = (provider = 'google', fromUrl = '/CustomerHome')
   const timer = setInterval(() => { if (popup.closed) { clearInterval(timer); window.removeEventListener('message', onMessage); } }, 500);
   window.addEventListener('message', onMessage);
 };
+
+// ---- Speed: share one "who am I" request across the whole app -------------
+// Many screens call base44.auth.me() on open. Reuse the answer for a minute
+// instead of asking the server again and again.
+const ME_TTL = 60 * 1000;
+let meCache = null; // { at, promise }
+const rawMe = base44.auth.me.bind(base44.auth);
+const clearMe = () => { meCache = null; };
+base44.auth.me = () => {
+  if (meCache && Date.now() - meCache.at < ME_TTL) return meCache.promise;
+  const promise = rawMe().catch((err) => { clearMe(); throw err; });
+  meCache = { at: Date.now(), promise };
+  return promise;
+};
+const rawUpdateMe = base44.auth.updateMe.bind(base44.auth);
+base44.auth.updateMe = async (data) => {
+  const res = await rawUpdateMe(data);
+  clearMe();
+  return res;
+};
+for (const name of ['loginViaEmailPassword', 'logout', 'setToken']) {
+  const fn = base44.auth[name]?.bind(base44.auth);
+  if (fn) base44.auth[name] = (...args) => { clearMe(); return fn(...args); };
+}
