@@ -464,3 +464,8 @@ button:focus-visible {
 .lg-ripple { animation: lg-ripple 2.2s ease-out infinite; }
 .lg-ripple-2 { animation-delay: 1.1s; }
 @media (prefers-reduced-motion: reduce) { .lg-ripple { animation: none; opacity: 0; } }
+
+/* Login hero road */
+@keyframes lg-road { to { stroke-dashoffset: -36; } }
+.lg-road { animation: lg-road 1s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .lg-road { animation: none; } }

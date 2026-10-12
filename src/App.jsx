@@ -15,6 +15,7 @@ import Layout from './Layout';
 
 import CustomerHome from './pages/CustomerHome';
 import Onboarding from './pages/Onboarding';
+import Login from './pages/Login';
 import Home from './pages/Home';
 import RestaurantDetail from './pages/RestaurantDetail';
 import Cart from './pages/Cart';
@@ -84,6 +85,7 @@ const AuthenticatedApp = () => {
     } else if (authError.type === 'auth_required') {
       return (
         <Routes>
+          <Route path="/Login" element={<Login />} />
           <Route path="*" element={<LayoutWrapper currentPageName="CustomerHome"><CustomerHome /></LayoutWrapper>} />
         </Routes>
       );
@@ -93,6 +95,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/CustomerHome" replace />} />
+      <Route path="/Login" element={<Login />} />
       <Route path="/CustomerHome" element={<LayoutWrapper currentPageName="CustomerHome"><CustomerHome /></LayoutWrapper>} />
       <Route path="/Onboarding" element={<LayoutWrapper currentPageName="Onboarding"><Onboarding /></LayoutWrapper>} />
       <Route path="/Home" element={<LayoutWrapper currentPageName="Home"><Home /></LayoutWrapper>} />

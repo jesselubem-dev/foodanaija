@@ -274,7 +274,8 @@ function RiderScene() {
         <circle cx="0" cy="0" r="4.5" fill="#fff" />
       </g>
       {/* rider rides back and forth along the road */}
-      <g className="lg-rider">
+      <g>
+        <animateMotion dur="6s" repeatCount="indefinite" path="M-10 92 Q 90 62 170 80 T 350 70" keyPoints="0;0.82;0.82" keyTimes="0;0.85;1" calcMode="linear" />
         <g className="fs-bob">
           <ellipse cx="0" cy="22" rx="14" ry="3" fill="#000" fillOpacity="0.12" />
           <g transform="translate(-24 -22) scale(0.95)">
@@ -297,9 +298,8 @@ function Tabs({ mode, onChange }) {
   return (
     <div className="relative grid grid-cols-2 p-1 rounded-xl bg-gray-100">
       <motion.span
-        layout
-        className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[10px] bg-white shadow-sm"
-        animate={{ left: mode === 'login' ? 4 : 'calc(50%)' }}
+        className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-[10px] bg-white shadow-sm"
+        animate={{ x: mode === 'login' ? '0%' : '100%' }}
         transition={{ type: 'spring', stiffness: 400, damping: 34 }}
       />
       {[['login', 'Log in'], ['signup', 'Sign up']].map(([m, label]) => (
