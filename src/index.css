@@ -552,5 +552,24 @@ html:not(.dark) .fooda-admin input.h-9, html:not(.dark) .fooda-admin textarea { 
 /* Tables */
 .fooda-admin thead th { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #6B7280; }
 
+/* Admin live chat — explicit colours for both themes so text is always readable */
+.chat-screen { height: calc(100vh - 3.5rem - var(--sat)); }
+@supports (height: 100dvh) { .chat-screen { height: calc(100dvh - 3.5rem - var(--sat)); } }
+@media (min-width: 1024px) { .chat-screen { height: 100vh; } }
+.chat-thread { background-color: #F7F7F5; }
+.chat-meta { color: #9CA3AF; }
+.chat-bubble-admin    { background-color: #F5B700; color: #111111; }
+.chat-bubble-customer { background-color: #ffffff; color: #111111; border: 1px solid #E5E7EB; }
+.chat-bubble-ai       { background-color: #ECFDF3; color: #0B4D33; border: 1px solid #BBF7D0; }
+.chat-input { background-color: #ffffff; color: #111111; }
+.chat-input::placeholder { color: #9CA3AF; }
+.dark .chat-thread { background-color: hsl(20 8% 7%); }
+.dark .chat-meta { color: hsl(20 6% 55%); }
+.dark .chat-bubble-admin    { background-color: #F5B700; color: #111111; }
+.dark .chat-bubble-customer { background-color: hsl(20 8% 16%); color: hsl(40 6% 96%); border-color: hsl(20 8% 22%); }
+.dark .chat-bubble-ai       { background-color: hsl(150 35% 14%); color: hsl(145 50% 85%); border-color: hsl(150 30% 24%); }
+.dark .chat-input { background-color: hsl(20 8% 10%); color: hsl(40 6% 96%); border-color: hsl(20 8% 22%); }
+.dark .chat-input::placeholder { color: hsl(20 6% 50%); }
+
 /* Login screen: gold status-bar strip to match the header */
 .gold-top .status-shield, .gold-top.dark .status-shield { background: #F5B700; }
