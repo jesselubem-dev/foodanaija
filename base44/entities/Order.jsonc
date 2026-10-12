@@ -106,6 +106,20 @@
       "description": "ID of the applied promo code",
       "type": "string"
     },
+    "refunded": {
+      "default": false,
+      "description": "Whether a cancelled order has been refunded to the customer",
+      "type": "boolean"
+    },
+    "refunded_at": {
+      "description": "When the order was marked as refunded",
+      "format": "date-time",
+      "type": "string"
+    },
+    "refunded_by": {
+      "description": "Email of the admin who marked the refund",
+      "type": "string"
+    },
     "restaurant_accepted_at": {
       "description": "When the restaurant accepted the order (starts the live delivery timer)",
       "format": "date-time",
