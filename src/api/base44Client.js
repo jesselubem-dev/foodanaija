@@ -81,3 +81,9 @@ for (const name of ['loginViaEmailPassword', 'logout', 'setToken']) {
   const fn = base44.auth[name]?.bind(base44.auth);
   if (fn) base44.auth[name] = (...args) => { clearMe(); return fn(...args); };
 }
+
+// Warm-up: if the user is already signed in, start fetching their profile right away,
+// in parallel with the app's start-up checks (the result is shared via the cache above).
+if (typeof window !== 'undefined' && token && window.location.pathname !== '/Login') {
+  base44.auth.me().catch(() => {});
+}
