@@ -7,7 +7,6 @@ import {
   BarChart3, Settings, Menu, X, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '@/components/ui/motion';
 import NoInternet from './components/NoInternet';
 import InAppNotifier from './components/customer/InAppNotifier';
@@ -51,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen bg-white dark:bg-background">
         {user && CUSTOMER_BANNER_PAGES.includes(currentPageName) && <InAppNotifier user={user} />}
-        <AnimatePresence mode="wait">
+        <>
           <PageTransition k={location.pathname}>
             {LOCATION_GATED_PAGES.includes(currentPageName) ? (
               <LocationGate bypass={user?.role === 'admin'} waiting={user === null}>
@@ -59,7 +58,7 @@ export default function Layout({ children, currentPageName }) {
               </LocationGate>
             ) : children}
           </PageTransition>
-        </AnimatePresence>
+        </>
       </div>
     );
   }
@@ -236,7 +235,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       <main className="lg:ml-64 min-h-screen pt-[calc(4rem+var(--sat))] lg:pt-0">
-        <AnimatePresence mode="wait">
+        <>
           <PageTransition k={location.pathname}>
             {LOCATION_GATED_PAGES.includes(currentPageName) ? (
               <LocationGate bypass={user?.role === 'admin'} waiting={user === null}>
@@ -244,7 +243,7 @@ export default function Layout({ children, currentPageName }) {
               </LocationGate>
             ) : children}
           </PageTransition>
-        </AnimatePresence>
+        </>
       </main>
     </div>
   );

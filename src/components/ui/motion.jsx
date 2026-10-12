@@ -17,10 +17,10 @@ export function PageTransition({ children, k, className = '' }) {
     <motion.div
       key={k}
       className={className}
-      initial={{ opacity: 0, y: 8, scale: 0.996 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.998 }}
-      transition={{ duration: 0.24, ease: EASE_NATIVE }}
+      // New screen appears immediately with a quick fade — no waiting for the old one to leave
+      initial={{ opacity: 0.4, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.14, ease: EASE_NATIVE }}
     >
       {children}
     </motion.div>

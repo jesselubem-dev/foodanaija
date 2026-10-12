@@ -117,7 +117,7 @@ export default function Login() {
         <div className="max-w-sm mx-auto">
           <AnimatePresence mode="wait">
             {(mode === 'login' || mode === 'signup') && (
-              <motion.div key="auth" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }}>
+              <motion.div key="auth" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.12 }}>
                 <Tabs mode={mode} onChange={go} />
 
                 <h1 className="text-[24px] font-semibold text-gray-900 mt-6 leading-tight">
@@ -181,7 +181,7 @@ export default function Login() {
             )}
 
             {mode === 'verify' && (
-              <motion.div key="verify" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }}>
+              <motion.div key="verify" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.12 }}>
                 <BackLink onClick={() => go('signup')} />
                 <h1 className="text-[24px] font-semibold text-gray-900 mt-4 leading-tight">Check your email</h1>
                 <p className="text-[14px] text-gray-500 mt-1">
@@ -199,7 +199,7 @@ export default function Login() {
             )}
 
             {mode === 'forgot' && (
-              <motion.div key="forgot" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }}>
+              <motion.div key="forgot" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.12 }}>
                 <BackLink onClick={() => go('login')} />
                 <h1 className="text-[24px] font-semibold text-gray-900 mt-4 leading-tight">Reset your password</h1>
                 <p className="text-[14px] text-gray-500 mt-1">Enter your email and we'll send you a link to set a new password.</p>
@@ -212,7 +212,7 @@ export default function Login() {
             )}
 
             {mode === 'sent' && (
-              <motion.div key="sent" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }} className="text-center pt-4">
+              <motion.div key="sent" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }} className="text-center pt-4">
                 <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}>
                   <CheckCircle2 className="w-14 h-14 mx-auto text-[#0B4D33] dark:text-[#4ADE80]" />
                 </motion.div>
