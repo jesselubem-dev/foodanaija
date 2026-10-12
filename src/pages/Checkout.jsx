@@ -15,6 +15,8 @@ import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../hooks/usePlatformSettings';
 import { PageHeader } from '../components/fooda/ui';
 import { markCartCompleted } from '@/lib/trackAbandonedCart';
+import { useSavedLocation } from '../components/fooda/LocationGate';
+import { isFarDeliveryArea } from '@/lib/sokotoAreas';
 
 // Dynamically loads the Flutterwave Inline checkout SDK (v3.js) once.
 function loadFlutterwaveSDK() {
@@ -37,7 +39,12 @@ function loadFlutterwaveSDK() {
 }
 
 export default function Checkout() {
-  const { settings, getVASForSubtotal, calculateTotalVAS } = usePlatformSettings();
+  const { settings, getVASForSubtotal, calculateTotalVAS, getDeliveryFee } = usePlatformSettings();
+  // Delivery fee depends on the area the customer picked (Airport / UDUS Main Campus cost more)
+  const savedLocation = useSavedLocation();
+  const deliveryArea = savedLocation?.area || '';
+  const isFarArea = isFarDeliveryArea(deliveryArea);
+  const deliveryFeePerRestaurant = getDeliveryFee(deliveryArea);
   // Read the cart straight away so checkout opens with the items, not an empty screen
   const [cart, setCart] = useState(() => {
     try {
@@ -253,7 +260,7 @@ export default function Checkout() {
     // Prepare order data (without drinks)
      const ordersData = restaurants.map(restaurant => {
        const restaurantFoodTotal = restaurant.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-       const deliveryFee = settings.delivery_fee;
+       const deliveryFee = deliveryFeePerRestaurant;
        const restaurantVAS = getVASForSubtotal(restaurantFoodTotal);
        const orderTotal = restaurantFoodTotal + deliveryFee + restaurantVAS;
 
@@ -307,7 +314,7 @@ export default function Checkout() {
     // Apply promo discount to payment amount
     if (appliedPromo) {
       const totalFoodSubtotal = foodTotal + drinksTotal;
-      const totalDeliveryFee = restaurants.length * settings.delivery_fee;
+      const totalDeliveryFee = restaurants.length * deliveryFeePerRestaurant;
       const totalVAS = calculateTotalVAS(cart);
       if (appliedPromo.discount_type === 'percentage') {
         const discountAmount = Math.floor(totalFoodSubtotal * (appliedPromo.discount_value / 100));
@@ -423,7 +430,7 @@ export default function Checkout() {
   const foodSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const drinksSubtotal = selectedDrinks.reduce((sum, drink) => sum + (drink.price * drink.quantity), 0);
   const subtotal = foodSubtotal + drinksSubtotal;
-  const deliveryFee = restaurantCount * settings.delivery_fee;
+  const deliveryFee = restaurantCount * deliveryFeePerRestaurant;
   const valueAddedService = calculateTotalVAS(cart);
   
   // Calculate promo discount
@@ -634,6 +641,12 @@ export default function Checkout() {
               <span className="text-gray-700">Delivery{restaurantCount > 1 ? ` (${restaurantCount} restaurants)` : ''}</span>
               <span className="text-gray-900">₦{deliveryFee.toLocaleString()}</span>
             </div>
+            {deliveryArea && (
+              <p className={`text-[12px] -mt-1 ${isFarArea ? 'f-text-amber' : 'text-gray-500'}`}>
+                Delivering to {deliveryArea}
+                {isFarArea && ` · ₦${deliveryFeePerRestaurant.toLocaleString()} delivery for this location`}
+              </p>
+            )}
             {promoDiscount > 0 && (
               <div className="flex justify-between">
                 <span className="font-medium f-text-green">Promo discount</span>
