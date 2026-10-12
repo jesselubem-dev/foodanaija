@@ -10,13 +10,13 @@ import { countUnreadChats } from '@/lib/chatUnread';
 import {
   LayoutDashboard, BarChart3, ShoppingBag, XCircle, CupSoda, Store, Bike,
   AlertTriangle, ChefHat, Users, Headset, MessageCircle, LifeBuoy, Tag,
-  UtensilsCrossed, Sparkles, Ticket, Share2, Megaphone, Settings, Menu, X, LogOut,
+  UtensilsCrossed, Sparkles, Ticket, Share2, Megaphone, Settings, Menu, X, LogOut, RotateCcw,
 } from 'lucide-react';
 
 const LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69368f4e914ed234d96b991a/d631c2743_db683a19d_1765440879235-removebg-preview.png';
 
 export const ADMIN_PAGES = [
-  'SuperAdminDashboard', 'SuperAdminReports', 'SuperAdminOrders', 'SuperAdminCancelledOrders',
+  'SuperAdminDashboard', 'SuperAdminReports', 'SuperAdminOrders', 'SuperAdminCancelledOrders', 'SuperAdminRefundedOrders',
   'SuperAdminDrinkOrders', 'SuperAdminRestaurants', 'SuperAdminRiders', 'SuperAdminRiderComplaints',
   'SuperAdminChefs', 'SuperAdminUsers', 'AdminLiveChat', 'SuperAdminMessages', 'SuperAdminSupport',
   'SuperAdminAllMenus', 'SuperAdminDrinks', 'SuperAdminPromoBanners', 'SuperAdminPromoCode',
@@ -31,6 +31,7 @@ const NAV = [
   { group: 'Operations', items: [
     { to: 'SuperAdminOrders', icon: ShoppingBag, label: 'Orders', badge: 'pendingOrders' },
     { to: 'SuperAdminCancelledOrders', icon: XCircle, label: 'Cancelled Orders', badge: 'unrefunded' },
+    { to: 'SuperAdminRefundedOrders', icon: RotateCcw, label: 'Refunded Orders' },
     { to: 'SuperAdminDrinkOrders', icon: CupSoda, label: 'Drink Orders', badge: 'pendingDrinks' },
     { to: 'SuperAdminRestaurants', icon: Store, label: 'Restaurants', badge: 'pendingRestaurants' },
     { to: 'SuperAdminRiders', icon: Bike, label: 'Riders' },
