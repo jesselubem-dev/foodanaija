@@ -249,6 +249,9 @@ export default function SuperAdminOrders() {
                         {order.payment_status === 'initiated' && (
                           <Badge className="bg-red-100 text-red-700">⚠️ Abandoned Checkout</Badge>
                         )}
+                        {order.refunded && (
+                          <Badge className="bg-green-100 text-green-700">Refunded</Badge>
+                        )}
                       </div>
                       <p className="text-sm text-gray-500">
                         Order #{order.id.slice(0, 8)}
