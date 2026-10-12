@@ -6,7 +6,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import UpdatePrompt from '@/components/UpdatePrompt'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -16,53 +16,72 @@ import Layout from './Layout';
 import CustomerHome from './pages/CustomerHome';
 import Onboarding from './pages/Onboarding';
 import Login from './pages/Login';
-import Home from './pages/Home';
-import RestaurantDetail from './pages/RestaurantDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
-import OrderHistory from './pages/OrderHistory';
-import Notifications from './pages/Notifications';
-import CustomerSettings from './pages/CustomerSettings';
-import DeleteAccount from './pages/DeleteAccount';
-import LiveChat from './pages/LiveChat';
-import Profile from './pages/Profile';
-import CustomerSupport from './pages/CustomerSupport';
+const Home = lazy(() => import('./pages/Home'));
+const RestaurantDetail = lazy(() => import('./pages/RestaurantDetail'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
+const OrderHistory = lazy(() => import('./pages/OrderHistory'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const CustomerSettings = lazy(() => import('./pages/CustomerSettings'));
+const DeleteAccount = lazy(() => import('./pages/DeleteAccount'));
+const LiveChat = lazy(() => import('./pages/LiveChat'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CustomerSupport = lazy(() => import('./pages/CustomerSupport'));
 
-import RestaurantSetup from './pages/RestaurantSetup';
-import DashboardHome from './pages/DashboardHome';
-import DashboardMenu from './pages/DashboardMenu';
-import DashboardOrders from './pages/DashboardOrders';
-import DashboardAnalytics from './pages/DashboardAnalytics';
-import DashboardSettings from './pages/DashboardSettings';
+const RestaurantSetup = lazy(() => import('./pages/RestaurantSetup'));
+const DashboardHome = lazy(() => import('./pages/DashboardHome'));
+const DashboardMenu = lazy(() => import('./pages/DashboardMenu'));
+const DashboardOrders = lazy(() => import('./pages/DashboardOrders'));
+const DashboardAnalytics = lazy(() => import('./pages/DashboardAnalytics'));
+const DashboardSettings = lazy(() => import('./pages/DashboardSettings'));
 
-import RiderHome from './pages/RiderHome';
-import RiderDashboard from './pages/RiderDashboard';
-import RiderDelivery from './pages/RiderDelivery';
+const RiderHome = lazy(() => import('./pages/RiderHome'));
+const RiderDashboard = lazy(() => import('./pages/RiderDashboard'));
+const RiderDelivery = lazy(() => import('./pages/RiderDelivery'));
 
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import SuperAdminRestaurants from './pages/SuperAdminRestaurants';
-import SuperAdminOrders from './pages/SuperAdminOrders';
-import SuperAdminUsers from './pages/SuperAdminUsers';
-import SuperAdminMessages from './pages/SuperAdminMessages';
-import SuperAdminRiders from './pages/SuperAdminRiders';
-import SuperAdminDrinks from './pages/SuperAdminDrinks';
-import SuperAdminDrinkOrders from './pages/SuperAdminDrinkOrders';
-import SuperAdminCancelledOrders from './pages/SuperAdminCancelledOrders';
-import SuperAdminReports from './pages/SuperAdminReports';
-import SuperAdminRiderComplaints from './pages/SuperAdminRiderComplaints';
-import SuperAdminSupport from './pages/SuperAdminSupport';
-import AdminLiveChat from './pages/AdminLiveChat';
-import SuperAdminMenuMarketing from './pages/SuperAdminMenuMarketing';
-import Chefs from './pages/Chefs';
-import SuperAdminChefs from './pages/SuperAdminChefs';
-import SuperAdminPromoBanners from './pages/SuperAdminPromoBanners';
-import SuperAdminAllMenus from './pages/SuperAdminAllMenus';
-import SuperAdminPromoCode from './pages/SuperAdminPromoCode';
-import SuperAdminFeeSettings from './pages/SuperAdminFeeSettings';
-import SuperAdminBroadcast from './pages/SuperAdminBroadcast';
-import ChefDetail from './pages/ChefDetail';
-import ChefSetup from './pages/ChefSetup';
+const SuperAdminDashboard = lazy(() => import('./pages/SuperAdminDashboard'));
+const SuperAdminRestaurants = lazy(() => import('./pages/SuperAdminRestaurants'));
+const SuperAdminOrders = lazy(() => import('./pages/SuperAdminOrders'));
+const SuperAdminUsers = lazy(() => import('./pages/SuperAdminUsers'));
+const SuperAdminMessages = lazy(() => import('./pages/SuperAdminMessages'));
+const SuperAdminRiders = lazy(() => import('./pages/SuperAdminRiders'));
+const SuperAdminDrinks = lazy(() => import('./pages/SuperAdminDrinks'));
+const SuperAdminDrinkOrders = lazy(() => import('./pages/SuperAdminDrinkOrders'));
+const SuperAdminCancelledOrders = lazy(() => import('./pages/SuperAdminCancelledOrders'));
+const SuperAdminReports = lazy(() => import('./pages/SuperAdminReports'));
+const SuperAdminRiderComplaints = lazy(() => import('./pages/SuperAdminRiderComplaints'));
+const SuperAdminSupport = lazy(() => import('./pages/SuperAdminSupport'));
+const AdminLiveChat = lazy(() => import('./pages/AdminLiveChat'));
+const SuperAdminMenuMarketing = lazy(() => import('./pages/SuperAdminMenuMarketing'));
+const Chefs = lazy(() => import('./pages/Chefs'));
+const SuperAdminChefs = lazy(() => import('./pages/SuperAdminChefs'));
+const SuperAdminPromoBanners = lazy(() => import('./pages/SuperAdminPromoBanners'));
+const SuperAdminAllMenus = lazy(() => import('./pages/SuperAdminAllMenus'));
+const SuperAdminPromoCode = lazy(() => import('./pages/SuperAdminPromoCode'));
+const SuperAdminFeeSettings = lazy(() => import('./pages/SuperAdminFeeSettings'));
+const SuperAdminBroadcast = lazy(() => import('./pages/SuperAdminBroadcast'));
+const ChefDetail = lazy(() => import('./pages/ChefDetail'));
+const ChefSetup = lazy(() => import('./pages/ChefSetup'));
+
+// Shown for a split second while a screen's code downloads the first time
+const RouteFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-white">
+    <div className="w-7 h-7 border-[3px] border-gray-200 border-t-[#F5B700] rounded-full animate-spin" />
+  </div>
+);
+
+// Download the screens customers open most, in the background, right after start-up,
+// so tapping into them is instant.
+const prefetchCustomerScreens = () => {
+  const run = () => [
+    () => import('./pages/RestaurantDetail'), () => import('./pages/Cart'), () => import('./pages/Checkout'),
+    () => import('./pages/OrderHistory'), () => import('./pages/CustomerSettings'), () => import('./pages/Notifications'),
+    () => import('./pages/OrderConfirmation'), () => import('./pages/Profile'), () => import('./pages/Chefs'),
+  ].forEach((load, i) => setTimeout(() => load().catch(() => {}), i * 150));
+  if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 3000 });
+  else setTimeout(run, 1500);
+};
 
 const LayoutWrapper = ({ children, currentPageName }) => (
   <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -70,6 +89,11 @@ const LayoutWrapper = ({ children, currentPageName }) => (
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
+
+  // The login screen never needs to wait for the "who is logged in" check
+  if (typeof window !== 'undefined' && window.location.pathname === '/Login') {
+    return <Login />;
+  }
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -84,15 +108,18 @@ const AuthenticatedApp = () => {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
       return (
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/Login" element={<Login />} />
           <Route path="*" element={<LayoutWrapper currentPageName="CustomerHome"><CustomerHome /></LayoutWrapper>} />
         </Routes>
+        </Suspense>
       );
     }
   }
 
   return (
+    <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<Navigate to="/CustomerHome" replace />} />
       <Route path="/Login" element={<Login />} />
@@ -144,10 +171,13 @@ const AuthenticatedApp = () => {
       <Route path="/SuperAdminBroadcast" element={<LayoutWrapper currentPageName="SuperAdminBroadcast"><SuperAdminBroadcast /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 
 function App() {
+
+  useEffect(() => { prefetchCustomerScreens(); }, []);
 
   // Keep the phone's status-bar colour in step with the app's light/dark theme
   useEffect(() => {
