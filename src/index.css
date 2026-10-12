@@ -539,7 +539,7 @@ button:focus-visible {
 
 /* Form controls: taller, rounder, white */
 .fooda-admin input.h-9, .fooda-admin button[role="combobox"] { height: 40px; border-radius: 10px; }
-.fooda-admin input.h-9:not(.dark *), .fooda-admin textarea:not(.dark *) { background-color: #ffffff; }
+html:not(.dark) .fooda-admin input.h-9, html:not(.dark) .fooda-admin textarea { background-color: #ffffff; }
 .fooda-admin textarea { border-radius: 10px; }
 .fooda-admin button.rounded-md, .fooda-admin a.rounded-md { border-radius: 10px; }
 .fooda-admin [role="tablist"] { border-radius: 12px; padding: 4px; height: auto; }
