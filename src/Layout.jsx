@@ -11,6 +11,7 @@ import { PageTransition } from '@/components/ui/motion';
 import NoInternet from './components/NoInternet';
 import InAppNotifier from './components/customer/InAppNotifier';
 import LocationGate from './components/fooda/LocationGate';
+import AdminShell, { ADMIN_PAGES } from './components/admin/AdminShell';
 
 // Customer-facing pages that show the in-app notification banner.
 const CUSTOMER_BANNER_PAGES = ['CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'CustomerSettings', 'LiveChat', 'Chefs', 'ChefDetail', 'CustomerSupport', 'DeleteAccount'];
@@ -43,6 +44,15 @@ export default function Layout({ children, currentPageName }) {
       setUser(false);
     }
   };
+
+  // Super Admin pages share one admin frame (sidebar + mobile drawer)
+  if (ADMIN_PAGES.includes(currentPageName)) {
+    return (
+      <AdminShell currentPageName={currentPageName} user={user || null}>
+        <PageTransition k={location.pathname}>{children}</PageTransition>
+      </AdminShell>
+    );
+  }
 
   // Pages that don't need layout
   const noLayoutPages = ['Chefs', 'ChefDetail', 'ChefSetup', 'SuperAdminChefs', 'SuperAdminDashboard', 'SuperAdminRestaurants', 'SuperAdminUsers', 'SuperAdminOrders', 'SuperAdminMessages', 'SuperAdminRiders', 'SuperAdminDrinks', 'SuperAdminDrinkOrders', 'SuperAdminCancelledOrders', 'SuperAdminReports', 'SuperAdminRiderComplaints', 'AdminLiveChat', 'SuperAdminMenuMarketing', 'SuperAdminSupport', 'LiveChat', 'Home', 'Onboarding', 'CustomerHome', 'RestaurantDetail', 'Cart', 'Checkout', 'OrderConfirmation', 'OrderHistory', 'Notifications', 'CustomerSupport', 'Profile', 'DeleteAccount', 'RiderHome', 'RiderDashboard', 'RiderDelivery', 'PaymentVerification', 'CustomerSettings'];
