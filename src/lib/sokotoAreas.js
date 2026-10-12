@@ -12,6 +12,15 @@ export const POPULAR_PLACES = [
   ["UDUTH (Teaching Hospital)", 13.0392, 5.2231],
 ];
 
+// Far delivery zones: orders to these areas use the "Airport & UDUS Main Campus"
+// delivery fee from Fee Settings (default ₦1,500) instead of the normal fee.
+export function isFarDeliveryArea(areaName) {
+  const n = (areaName || '').toLowerCase();
+  if (n.includes('airport') && !n.includes('old airport')) return true;
+  if (n.includes('udus') && (n.includes('main') || n.includes('permanent'))) return true;
+  return false;
+}
+
 export const SOKOTO_NORTH_AREAS = [
   ["Magajin Gari A", 13.0724, 5.2406],
   ["Magajin Gari B", 13.0705, 5.2294],
