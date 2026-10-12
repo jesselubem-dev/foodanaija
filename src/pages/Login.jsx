@@ -229,8 +229,8 @@ export default function Login() {
 function Hero({ compact }) {
   return (
     <motion.div
-      className="relative overflow-hidden pt-[calc(1.25rem+var(--sat))] px-6"
-      animate={{ height: compact ? 170 : 262 }}
+      layout
+      className={`relative overflow-hidden flex-shrink-0 pt-[calc(1.25rem+var(--sat))] px-6 ${compact ? 'pb-12' : 'pb-10'}`}
       transition={{ type: 'spring', stiffness: 220, damping: 30 }}
     >
       {/* soft rings */}
@@ -245,7 +245,7 @@ function Hero({ compact }) {
 
       <AnimatePresence>
         {!compact && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative">
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="relative">
             <p className="text-center text-[#111] text-[15px] font-semibold mt-4">Sokoto's favourite meals, delivered hot.</p>
             <RiderScene />
           </motion.div>
@@ -257,7 +257,7 @@ function Hero({ compact }) {
 
 function RiderScene() {
   return (
-    <svg viewBox="0 0 340 110" className="w-full max-w-sm mx-auto block mt-1" aria-hidden="true">
+    <svg viewBox="0 0 340 110" className="w-full max-w-[340px] mx-auto block mt-2 overflow-visible" aria-hidden="true">
       {/* road */}
       <path d="M-10 92 Q 90 62 170 80 T 350 70" fill="none" stroke="#111" strokeOpacity="0.12" strokeWidth="16" strokeLinecap="round" />
       <path d="M-10 92 Q 90 62 170 80 T 350 70" fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="2" strokeDasharray="8 10" className="lg-road" />
