@@ -7,15 +7,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { EASE_NATIVE } from '@/components/ui/motion';
 import { usePlatformSettings } from '../../hooks/usePlatformSettings';
 import { EmptyState } from '../fooda/ui';
+import { useSavedLocation } from '../fooda/LocationGate';
 
 // Slide-in order summary used on the restaurant page ("View order").
 export default function FloatingCart({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem }) {
-  const { settings, calculateTotalVAS } = usePlatformSettings();
+  const { calculateTotalVAS, getDeliveryFee } = usePlatformSettings();
+  const savedLocation = useSavedLocation();
 
   // Same fee rules as the Cart and Checkout pages.
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const restaurantCount = new Set(cart.map(i => i.restaurant_id)).size;
-  const deliveryFee = restaurantCount * settings.delivery_fee;
+  const deliveryFee = restaurantCount * getDeliveryFee(savedLocation?.area);
   const serviceFee = cart.length ? calculateTotalVAS(cart) : 0;
   const total = subtotal + deliveryFee + serviceFee;
   const itemCount = cart.reduce((s, i) => s + i.quantity, 0);
