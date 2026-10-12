@@ -60,6 +60,7 @@ const SuperAdminPromoBanners = lazy(() => import('./pages/SuperAdminPromoBanners
 const SuperAdminAllMenus = lazy(() => import('./pages/SuperAdminAllMenus'));
 const SuperAdminPromoCode = lazy(() => import('./pages/SuperAdminPromoCode'));
 const SuperAdminFeeSettings = lazy(() => import('./pages/SuperAdminFeeSettings'));
+const SuperAdminRefundedOrders = lazy(() => import('./pages/SuperAdminRefundedOrders'));
 const SuperAdminBroadcast = lazy(() => import('./pages/SuperAdminBroadcast'));
 const ChefDetail = lazy(() => import('./pages/ChefDetail'));
 const ChefSetup = lazy(() => import('./pages/ChefSetup'));
@@ -168,6 +169,7 @@ const AuthenticatedApp = () => {
       <Route path="/SuperAdminAllMenus" element={<LayoutWrapper currentPageName="SuperAdminAllMenus"><SuperAdminAllMenus /></LayoutWrapper>} />
       <Route path="/SuperAdminPromoCode" element={<LayoutWrapper currentPageName="SuperAdminPromoCode"><SuperAdminPromoCode /></LayoutWrapper>} />
       <Route path="/SuperAdminFeeSettings" element={<LayoutWrapper currentPageName="SuperAdminFeeSettings"><SuperAdminFeeSettings /></LayoutWrapper>} />
+      <Route path="/SuperAdminRefundedOrders" element={<LayoutWrapper currentPageName="SuperAdminRefundedOrders"><SuperAdminRefundedOrders /></LayoutWrapper>} />
       <Route path="/SuperAdminBroadcast" element={<LayoutWrapper currentPageName="SuperAdminBroadcast"><SuperAdminBroadcast /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
