@@ -33,9 +33,11 @@ base44.auth.loginWithProvider = (provider = 'google', fromUrl = '/CustomerHome')
   const path = provider === 'google' ? '/api/apps/auth/login' : `/api/apps/auth/${provider}/login`;
   const url = `${server}${path}?app_id=${appId}&from_url=${encodeURIComponent(redirectUrl)}`;
 
-  // Always open Google login in a centered popup so the app itself never
-  // navigates away to an external URL. Falls back to a new tab if the
-  // popup is blocked.
+  let inFrame = false;
+  try { inFrame = window.self !== window.top; } catch { inFrame = true; }
+  if (!inFrame) { window.location.href = url; return; }
+
+  // Inside the Base44 editor preview Google can't load in a frame, so use a popup
   const w = 500, h = 620;
   const popup = window.open(
     `${url}&popup_origin=${encodeURIComponent(window.location.origin)}`,
