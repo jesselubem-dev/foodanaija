@@ -469,3 +469,6 @@ button:focus-visible {
 @keyframes lg-road { to { stroke-dashoffset: -36; } }
 .lg-road { animation: lg-road 1s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .lg-road { animation: none; } }
+
+/* Login screen: gold status-bar strip to match the header */
+.gold-top .status-shield, .gold-top.dark .status-shield { background: #F5B700; }

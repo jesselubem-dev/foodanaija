@@ -26,6 +26,12 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // Gold strip behind the phone's clock while on this screen
+  useEffect(() => {
+    document.documentElement.classList.add('gold-top');
+    return () => document.documentElement.classList.remove('gold-top');
+  }, []);
+
   // Already signed in? Go straight in.
   useEffect(() => {
     if (base44.auth.hasToken?.()) {

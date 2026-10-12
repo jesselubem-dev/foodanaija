@@ -152,8 +152,9 @@ function App() {
   // Keep the phone's status-bar colour in step with the app's light/dark theme
   useEffect(() => {
     const sync = () => {
-      const dark = document.documentElement.classList.contains('dark');
-      document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', dark ? '#131211' : '#ffffff'));
+      const cls = document.documentElement.classList;
+      const color = cls.contains('gold-top') ? '#F5B700' : cls.contains('dark') ? '#131211' : '#ffffff';
+      document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', color));
     };
     sync();
     const obs = new MutationObserver(sync);
