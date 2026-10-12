@@ -8,7 +8,7 @@
 export const POPULAR_PLACES = [
   ["Sadiq Abubakar III International Airport", 13.0069, 5.2072],
   ["UDUS Main Campus (Permanent Site)", 13.1293, 5.2051],
-  ["UDUS City Campus", 13.0420, 5.2290],
+  ["UDUS City Campus", null, null],
   ["UDUTH (Teaching Hospital)", 13.0392, 5.2231],
 ];
 
