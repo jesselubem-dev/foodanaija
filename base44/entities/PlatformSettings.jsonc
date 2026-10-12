@@ -1,47 +1,52 @@
 {
   "name": "PlatformSettings",
-  "type": "object",
   "properties": {
     "delivery_fee": {
-      "type": "number",
       "default": 800,
-      "description": "Flat delivery fee per restaurant in Naira"
+      "description": "Flat delivery fee per restaurant in Naira",
+      "type": "number"
+    },
+    "far_zone_delivery_fee": {
+      "default": 1500,
+      "description": "Delivery fee per restaurant for the Airport and UDUS Main Campus",
+      "type": "number"
     },
     "vas_tier_1_fee": {
-      "type": "number",
       "default": 300,
-      "description": "Service fee for orders below vas_tier_2_min"
-    },
-    "vas_tier_2_min": {
-      "type": "number",
-      "default": 5000,
-      "description": "Minimum order amount for tier 2 service fee"
+      "description": "Service fee for orders below vas_tier_2_min",
+      "type": "number"
     },
     "vas_tier_2_fee": {
-      "type": "number",
       "default": 700,
-      "description": "Service fee for orders >= vas_tier_2_min"
+      "description": "Service fee for orders >= vas_tier_2_min",
+      "type": "number"
     },
-    "vas_tier_3_min": {
-      "type": "number",
-      "default": 10000,
-      "description": "Minimum order amount for tier 3 service fee"
+    "vas_tier_2_min": {
+      "default": 5000,
+      "description": "Minimum order amount for tier 2 service fee",
+      "type": "number"
     },
     "vas_tier_3_fee": {
-      "type": "number",
       "default": 1500,
-      "description": "Service fee for orders >= vas_tier_3_min"
+      "description": "Service fee for orders >= vas_tier_3_min",
+      "type": "number"
     },
-    "vas_tier_4_min": {
-      "type": "number",
-      "default": 25000,
-      "description": "Minimum order amount for tier 4 service fee"
+    "vas_tier_3_min": {
+      "default": 10000,
+      "description": "Minimum order amount for tier 3 service fee",
+      "type": "number"
     },
     "vas_tier_4_fee": {
-      "type": "number",
       "default": 3000,
-      "description": "Service fee for orders >= vas_tier_4_min"
+      "description": "Service fee for orders >= vas_tier_4_min",
+      "type": "number"
+    },
+    "vas_tier_4_min": {
+      "default": 25000,
+      "description": "Minimum order amount for tier 4 service fee",
+      "type": "number"
     }
   },
-  "required": []
+  "required": [],
+  "type": "object"
 }
