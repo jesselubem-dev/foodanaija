@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation, Search, Check, ChevronDown, X, Loader2 } from 'lucide-react';
+import { MapPin, Navigation, Search, Check, ChevronDown, X, Loader2, Plane, GraduationCap, Hospital } from 'lucide-react';
 import {
-  SERVICE_CITY, SERVICE_CENTER, CITY_AREAS, TOWN_AREAS, nearestArea, distanceKm, isInServiceArea,
+  SERVICE_CITY, SERVICE_CENTER, POPULAR_AREAS, NORTH_AREAS, SOUTH_AREAS, nearestArea, distanceKm, isInServiceArea,
   getSavedLocation, saveLocation, clearLocation, getDevicePosition,
 } from '@/lib/sokotoLocation';
 
@@ -202,7 +202,16 @@ function PinIllustration({ state }) {
   );
 }
 
+const placeIcon = (name) => {
+  const n = name.toLowerCase();
+  if (n.includes('airport')) return Plane;
+  if (n.includes('udus') || n.includes('university') || n.includes('college') || n.includes('polytechnic')) return GraduationCap;
+  if (n.includes('hospital') || n.includes('uduth')) return Hospital;
+  return MapPin;
+};
+
 function AreaRow({ area, onPick, current, note }) {
+  const Icon = placeIcon(area.name);
   return (
     <button
       type="button"
@@ -210,7 +219,7 @@ function AreaRow({ area, onPick, current, note }) {
       className="w-full flex items-center gap-3 py-3 border-b border-gray-100 text-left press"
     >
       <span className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
-        <MapPin className="w-4 h-4 text-fooda-red" />
+        <Icon className="w-4 h-4 text-fooda-red" />
       </span>
       <span className="flex-1 min-w-0">
         <span className="block text-[15px] font-medium text-gray-900 truncate">{area.name}</span>
@@ -221,17 +230,16 @@ function AreaRow({ area, onPick, current, note }) {
   );
 }
 
-const townNote = (a) => `${Math.round(distanceKm(a, SERVICE_CENTER))} km from Sokoto city`;
+const TOTAL_AREAS = POPULAR_AREAS.length + NORTH_AREAS.length + SOUTH_AREAS.length;
 
 function AreaList({ onPick, current, suggested }) {
   const [q, setQ] = useState('');
   const term = q.trim().toLowerCase();
-  const city = useMemo(() => CITY_AREAS.filter(a => a.name.toLowerCase().includes(term)), [term]);
-  const towns = useMemo(
-    () => TOWN_AREAS.filter(a => a.name.toLowerCase().includes(term))
-      .sort((x, y) => distanceKm(x, SERVICE_CENTER) - distanceKm(y, SERVICE_CENTER)),
-    [term]
-  );
+  const match = (list) => list.filter(a => a.name.toLowerCase().includes(term));
+  const popular = useMemo(() => match(POPULAR_AREAS), [term]);
+  const north = useMemo(() => match(NORTH_AREAS), [term]);
+  const south = useMemo(() => match(SOUTH_AREAS), [term]);
+  const none = popular.length === 0 && north.length === 0 && south.length === 0;
   const SectionTitle = ({ children }) => (
     <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 pt-5 pb-1">{children}</p>
   );
@@ -243,7 +251,7 @@ function AreaList({ onPick, current, suggested }) {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={`Search ${CITY_AREAS.length + TOWN_AREAS.length} areas in ${SERVICE_CITY}`}
+            placeholder={`Search ${TOTAL_AREAS} areas in ${SERVICE_CITY}`}
             className="w-full pl-10 pr-3 h-12 rounded-[14px] border border-gray-200 bg-white text-[14px] text-gray-900 outline-none focus:ring-1 focus:ring-fooda-gold"
           />
         </div>
@@ -267,11 +275,13 @@ function AreaList({ onPick, current, suggested }) {
             </button>
           </>
         )}
-        {city.length > 0 && <SectionTitle>Sokoto city</SectionTitle>}
-        {city.map(a => <AreaRow key={`c-${a.name}`} area={a} onPick={onPick} current={current} note={SERVICE_CITY} />)}
-        {towns.length > 0 && <SectionTitle>Towns &amp; villages nearby</SectionTitle>}
-        {towns.map(a => <AreaRow key={`t-${a.name}`} area={a} onPick={onPick} current={current} note={townNote(a)} />)}
-        {city.length === 0 && towns.length === 0 && (
+        {popular.length > 0 && <SectionTitle>Popular places</SectionTitle>}
+        {popular.map(a => <AreaRow key={`p-${a.name}`} area={a} onPick={onPick} current={current} note={SERVICE_CITY} />)}
+        {north.length > 0 && <SectionTitle>Sokoto North</SectionTitle>}
+        {north.map(a => <AreaRow key={`n-${a.name}`} area={a} onPick={onPick} current={current} note="Sokoto North" />)}
+        {south.length > 0 && <SectionTitle>Sokoto South</SectionTitle>}
+        {south.map(a => <AreaRow key={`s-${a.name}`} area={a} onPick={onPick} current={current} note="Sokoto South" />)}
+        {none && (
           <div className="py-10 text-center">
             <p className="text-[14px] text-gray-500">No area matches "{q}".</p>
             <button type="button" onClick={() => onPick(q.trim())} className="mt-3 text-[14px] font-semibold text-fooda-red">
