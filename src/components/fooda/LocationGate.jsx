@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Navigation, Search, Check, ChevronDown, X, Loader2 } from 'lucide-react';
 import {
-  SERVICE_CITY, SERVICE_CENTER, SOKOTO_AREAS, distanceKm, isInServiceArea,
+  SERVICE_CITY, SERVICE_CENTER, CITY_AREAS, TOWN_AREAS, nearestArea, distanceKm, isInServiceArea,
   getSavedLocation, saveLocation, clearLocation, getDevicePosition,
 } from '@/lib/sokotoLocation';
 
@@ -92,7 +92,7 @@ export default function LocationGate({ children, bypass = false, waiting = false
               <h1 className="text-[22px] font-semibold text-gray-900 mt-3 leading-snug">Which area should we deliver to?</h1>
               <p className="text-[14px] text-gray-500 mt-1">You can change this any time from the home screen.</p>
             </div>
-            <AreaList onPick={chooseArea} />
+            <AreaList onPick={chooseArea} suggested={nearestArea(coords)} />
           </motion.div>
         ) : (
           <motion.div key="main" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col items-center justify-center px-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] text-center max-w-sm mx-auto w-full">
@@ -202,44 +202,76 @@ function PinIllustration({ state }) {
   );
 }
 
-function AreaList({ onPick, current }) {
+function AreaRow({ area, onPick, current, note }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(area.name)}
+      className="w-full flex items-center gap-3 py-3 border-b border-gray-100 text-left press"
+    >
+      <span className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
+        <MapPin className="w-4 h-4 text-fooda-red" />
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[15px] font-medium text-gray-900 truncate">{area.name}</span>
+        <span className="block text-[12px] text-gray-500">{note}</span>
+      </span>
+      {current === area.name && <Check className="w-4 h-4 text-[#0B4D33] dark:text-[#4ADE80]" strokeWidth={3} />}
+    </button>
+  );
+}
+
+const townNote = (a) => `${Math.round(distanceKm(a, SERVICE_CENTER))} km from Sokoto city`;
+
+function AreaList({ onPick, current, suggested }) {
   const [q, setQ] = useState('');
-  const areas = useMemo(
-    () => SOKOTO_AREAS.filter(a => a.toLowerCase().includes(q.trim().toLowerCase())).sort(),
-    [q]
+  const term = q.trim().toLowerCase();
+  const city = useMemo(() => CITY_AREAS.filter(a => a.name.toLowerCase().includes(term)), [term]);
+  const towns = useMemo(
+    () => TOWN_AREAS.filter(a => a.name.toLowerCase().includes(term))
+      .sort((x, y) => distanceKm(x, SERVICE_CENTER) - distanceKm(y, SERVICE_CENTER)),
+    [term]
+  );
+  const SectionTitle = ({ children }) => (
+    <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 pt-5 pb-1">{children}</p>
   );
   return (
     <div className="flex-1 flex flex-col max-w-lg mx-auto w-full min-h-0">
-      <div className="px-5 pt-4 pb-2">
+      <div className="px-5 pt-4 pb-1">
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-500 pointer-events-none" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search your area"
+            placeholder={`Search ${CITY_AREAS.length + TOWN_AREAS.length} areas in ${SERVICE_CITY}`}
             className="w-full pl-10 pr-3 h-12 rounded-[14px] border border-gray-200 bg-white text-[14px] text-gray-900 outline-none focus:ring-1 focus:ring-fooda-gold"
           />
         </div>
       </div>
       <div className="flex-1 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
-        {areas.map(area => (
-          <button
-            key={area}
-            type="button"
-            onClick={() => onPick(area)}
-            className="w-full flex items-center gap-3 py-3.5 border-b border-gray-100 text-left press"
-          >
-            <span className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-4 h-4 text-fooda-red" />
-            </span>
-            <span className="flex-1 min-w-0">
-              <span className="block text-[15px] font-medium text-gray-900 truncate">{area}</span>
-              <span className="block text-[12px] text-gray-500">{SERVICE_CITY}</span>
-            </span>
-            {current === area && <Check className="w-4 h-4 text-[#0B4D33] dark:text-[#4ADE80]" strokeWidth={3} />}
-          </button>
-        ))}
-        {areas.length === 0 && (
+        {suggested && !term && (
+          <>
+            <SectionTitle>Near you</SectionTitle>
+            <button
+              type="button"
+              onClick={() => onPick(suggested.name)}
+              className="w-full flex items-center gap-3 p-3 mt-1 rounded-2xl border border-fooda-gold bg-[#F5B700]/10 text-left press"
+            >
+              <span className="w-9 h-9 rounded-full bg-fooda-gold flex items-center justify-center flex-shrink-0">
+                <Navigation className="w-4 h-4 text-[#111]" />
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-[15px] font-semibold text-gray-900 truncate">{suggested.name}</span>
+                <span className="block text-[12px] text-gray-500">Based on your location · tap to confirm</span>
+              </span>
+            </button>
+          </>
+        )}
+        {city.length > 0 && <SectionTitle>Sokoto city</SectionTitle>}
+        {city.map(a => <AreaRow key={`c-${a.name}`} area={a} onPick={onPick} current={current} note={SERVICE_CITY} />)}
+        {towns.length > 0 && <SectionTitle>Towns &amp; villages nearby</SectionTitle>}
+        {towns.map(a => <AreaRow key={`t-${a.name}`} area={a} onPick={onPick} current={current} note={townNote(a)} />)}
+        {city.length === 0 && towns.length === 0 && (
           <div className="py-10 text-center">
             <p className="text-[14px] text-gray-500">No area matches "{q}".</p>
             <button type="button" onClick={() => onPick(q.trim())} className="mt-3 text-[14px] font-semibold text-fooda-red">
@@ -247,6 +279,7 @@ function AreaList({ onPick, current }) {
             </button>
           </div>
         )}
+        <p className="text-[11px] text-gray-400 text-center pt-6">Area map data © OpenStreetMap contributors</p>
       </div>
     </div>
   );
