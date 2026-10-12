@@ -131,7 +131,7 @@ export default function Login() {
                     type={showPw ? 'text' : 'password'}
                     value={password}
                     onChange={setPassword}
-                    placeholder={mode === 'signup' ? 'Create a password (8+ characters)' : 'Password'}
+                    placeholder={mode === 'signup' ? 'Password (8+ characters)' : 'Password'}
                     autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                     required
                     right={
@@ -230,7 +230,7 @@ function Hero({ compact }) {
   return (
     <motion.div
       className="relative overflow-hidden pt-[calc(1.25rem+var(--sat))] px-6"
-      animate={{ height: compact ? 170 : 290 }}
+      animate={{ height: compact ? 170 : 262 }}
       transition={{ type: 'spring', stiffness: 220, damping: 30 }}
     >
       {/* soft rings */}
