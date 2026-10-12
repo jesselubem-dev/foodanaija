@@ -469,5 +469,88 @@ button:focus-visible {
 .lg-road { animation: lg-road 1s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .lg-road { animation: none; } }
 
+/* ------------------------------------------------------------------
+   Super Admin — same look as the customer app.
+   Everything is scoped to .fooda-admin (the admin content area) so the
+   customer, rider and restaurant screens are untouched. Unlayered so it
+   outranks the older orange/gradient utility classes on admin pages.
+   ------------------------------------------------------------------ */
+@keyframes admin-drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
+.fooda-admin-bg { background-color: #F7F7F5; }
+.dark .fooda-admin-bg { background-color: hsl(20 8% 7%); }
+
+/* Flat page background instead of the old gradients */
+.fooda-admin .bg-gradient-to-br[class*="from-gray-50"],
+.fooda-admin .bg-gradient-to-br[class*="from-slate-50"],
+.fooda-admin .bg-gradient-to-br[class*="from-orange-50"],
+.fooda-admin .bg-gradient-to-br[class*="from-emerald-50"] { background-image: none; background-color: transparent; }
+.fooda-admin .min-h-screen.bg-gray-50 { background-color: transparent !important; }
+.fooda-admin .min-h-screen { min-height: calc(100vh - 3.5rem - var(--sat)); }
+@media (min-width: 1024px) { .fooda-admin .min-h-screen { min-height: 100vh; } }
+
+/* Consistent page padding */
+.fooda-admin .min-h-screen.p-6 { padding: 1rem; }
+@media (min-width: 768px) { .fooda-admin .min-h-screen.p-6 { padding: 1.5rem 2rem 2.5rem; } }
+
+/* Navigation lives in the sidebar now, so hide per-page "back to dashboard" arrows */
+.fooda-admin a[href$="/SuperAdminDashboard"] { display: none !important; }
+
+/* Sticky page bars sit under the mobile top bar */
+.fooda-admin .sticky.top-0 { top: calc(3.5rem + var(--sat)); }
+@media (min-width: 1024px) { .fooda-admin .sticky.top-0 { top: 0; } }
+
+/* Page titles */
+.fooda-admin h1.text-3xl, .fooda-admin h1.text-2xl, .fooda-admin h1.text-xl {
+  font-size: 20px; line-height: 28px; font-weight: 700; letter-spacing: -0.02em; color: #111111;
+}
+@media (min-width: 768px) {
+  .fooda-admin h1.text-3xl, .fooda-admin h1.text-2xl { font-size: 24px; line-height: 32px; }
+}
+.fooda-admin h1 + p { font-size: 14px; color: #6B7280; }
+.dark .fooda-admin h1 { color: hsl(40 6% 96%); }
+
+/* Cards: white, hairline border, soft shadow, 16px corners */
+.fooda-admin .bg-card.rounded-xl { border-radius: 16px; border-color: #ECECEA; box-shadow: 0 1px 2px rgba(17, 17, 17, 0.04); }
+.fooda-admin .hover\:shadow-lg:hover, .fooda-admin .hover\:shadow-md:hover { box-shadow: 0 6px 20px -6px rgba(17, 17, 17, 0.12); }
+.fooda-admin .shadow-lg, .fooda-admin .shadow-xl { box-shadow: 0 6px 20px -6px rgba(17, 17, 17, 0.10); }
+.fooda-admin .border-orange-50, .fooda-admin .border-orange-100, .fooda-admin .border-orange-200,
+.fooda-admin .border-green-100, .fooda-admin .border-blue-100, .fooda-admin .border-amber-100 { border-color: #ECECEA; }
+.dark .fooda-admin .bg-card.rounded-xl,
+.dark .fooda-admin .border-orange-50, .dark .fooda-admin .border-orange-100, .dark .fooda-admin .border-orange-200,
+.dark .fooda-admin .border-green-100, .dark .fooda-admin .border-blue-100, .dark .fooda-admin .border-amber-100 { border-color: hsl(20 8% 18%); }
+.fooda-admin .rounded-2xl.bg-white, .fooda-admin .rounded-xl.bg-white { border-color: #ECECEA; }
+
+/* Old orange brand -> Foodanaija gold */
+.fooda-admin .bg-orange-500, .fooda-admin .bg-orange-600,
+.fooda-admin .bg-gradient-to-r.from-orange-500, .fooda-admin .bg-gradient-to-br.from-orange-500,
+.fooda-admin .bg-gradient-to-r.from-orange-400, .fooda-admin .bg-gradient-to-br.from-orange-400 {
+  background-image: none; background-color: #F5B700; color: #111111;
+}
+.fooda-admin .hover\:bg-orange-600:hover, .fooda-admin .hover\:bg-orange-700:hover,
+.fooda-admin .bg-gradient-to-r.from-orange-500:hover { background-color: #E0A800; }
+.fooda-admin .bg-orange-50 { background-color: #FFFBEB; }
+.fooda-admin .bg-orange-100 { background-color: #FEF3C7; }
+.fooda-admin .hover\:bg-orange-50:hover { background-color: #FFFBEB; }
+.fooda-admin .text-orange-500, .fooda-admin .text-orange-600, .fooda-admin .text-orange-700 { color: #B07F00; }
+.dark .fooda-admin .text-orange-500, .dark .fooda-admin .text-orange-600, .dark .fooda-admin .text-orange-700 { color: #F5C518; }
+.fooda-admin .border-orange-500 { border-color: #F5B700; }
+.fooda-admin .border-orange-500.border-t-transparent { border-top-color: transparent; }
+.fooda-admin .shadow-orange-500\/20, .fooda-admin .shadow-orange-500\/30 { box-shadow: 0 6px 16px -6px rgba(245, 183, 0, 0.45); }
+
+/* Form controls: taller, rounder, white */
+.fooda-admin input.h-9, .fooda-admin button[role="combobox"] { height: 40px; border-radius: 10px; }
+.fooda-admin input.h-9:not(.dark *), .fooda-admin textarea:not(.dark *) { background-color: #ffffff; }
+.fooda-admin textarea { border-radius: 10px; }
+.fooda-admin button.rounded-md, .fooda-admin a.rounded-md { border-radius: 10px; }
+.fooda-admin [role="tablist"] { border-radius: 12px; padding: 4px; height: auto; }
+.fooda-admin [role="tab"] { border-radius: 8px; padding: 6px 12px; }
+.fooda-admin [role="tab"][data-state="active"] { color: #111111; box-shadow: 0 1px 2px rgba(17, 17, 17, 0.08); }
+
+/* Status pills */
+.fooda-admin .inline-flex.rounded-md.border.text-xs { border-radius: 999px; font-weight: 600; text-transform: capitalize; padding: 2px 10px; }
+
+/* Tables */
+.fooda-admin thead th { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #6B7280; }
+
 /* Login screen: gold status-bar strip to match the header */
 .gold-top .status-shield, .gold-top.dark .status-shield { background: #F5B700; }
