@@ -54,7 +54,17 @@ export default async function(req) {
           reconciledCount += updated.length;
           details.push({ reference, status: 'paid', orders: updated.length });
         } else {
-          details.push({ reference, status: 'not_confirmed' });
+          // Capture the real Flutterwave response so we can diagnose auth errors, missing txrefs, etc.
+          const diag = {
+            reference,
+            status: 'not_confirmed',
+            http_status: verifyResponse.status,
+            flw_status: flwData?.status || null,
+            flw_message: flwData?.message || null,
+            tx_status: flwData?.data?.status || null
+          };
+          details.push(diag);
+          console.log(`[reconcile] ${reference}: HTTP ${verifyResponse.status} | flw_status=${flwData?.status} | msg=${flwData?.message} | tx=${flwData?.data?.status}`);
         }
       } catch (refError) {
         console.error(`Error reconciling ${reference}:`, refError);

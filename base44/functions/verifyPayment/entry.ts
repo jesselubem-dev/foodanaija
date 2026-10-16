@@ -30,6 +30,12 @@ export default async function(req) {
     );
     const flwData = await verifyResponse.json();
 
+    // Distinguish "invalid secret key" (server misconfiguration) from a genuinely unsuccessful payment
+    if (verifyResponse.status === 401 || (flwData.status === 'error' && /secret key/i.test(flwData.message || ''))) {
+      console.error('Flutterwave rejected the secret key:', flwData.message);
+      return Response.json({ success: false, message: 'Payment server misconfiguration — invalid Flutterwave secret key. Please update it in app secrets.' });
+    }
+
     if (!flwData.status || flwData.data?.status !== 'successful') {
       return Response.json({ success: false, message: 'Payment not verified' });
     }
